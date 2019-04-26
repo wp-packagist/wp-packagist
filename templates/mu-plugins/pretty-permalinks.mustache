@@ -1,0 +1,43 @@
+<?php
+/**
+ * Plugin Name: IIS 7+ pretty permalink
+ * Description: Check if IIS 7+ supports pretty permalink
+ * Version:     1.0.0
+ * License:     MIT
+ *
+ * @package wp-cli-application
+ */
+add_action( "wp_loaded", function () {
+
+	//Check Exist Security Code
+	if ( isset( $_GET['wp_cli_iis7_check'] ) and trim( $_GET['wp_cli_iis7_check'] ) == "{{GET_KEY}}" ) {
+
+		# Set Default Header
+		header( 'Content-Type: application/json' );
+
+		# Set Default result
+		$result = array( 'is_iis7' => 'false' );
+
+		//Check exist const
+		if ( isset( $_SERVER['SERVER_SOFTWARE'] ) and isset( $_SERVER['IIS_UrlRewriteModule'] ) and PHP_SAPI ) {
+			$is_apache = ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false );
+			$is_IIS    = ! $is_apache && ( strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) !== false || strpos( $_SERVER['SERVER_SOFTWARE'], 'ExpressionDevServer' ) !== false );
+			$is_iis7   = $is_IIS && intval( substr( $_SERVER['SERVER_SOFTWARE'], strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS/' ) + 14 ) ) >= 7;
+
+			$supports_permalinks = false;
+			if ( $is_iis7 ) {
+				$supports_permalinks = class_exists( 'DOMDocument', false ) && isset( $_SERVER['IIS_UrlRewriteModule'] ) && ( PHP_SAPI == 'cgi-fcgi' );
+			}
+			if ( $supports_permalinks ) {
+				$result['is_iis7'] = 'true';
+			}
+		}
+
+		# Remove This File
+		@unlink( path_join( WPMU_PLUGIN_DIR, "{{file_name}}" ) );
+
+		# Result Json data
+		echo json_encode( $result );
+		exit;
+	}
+} );

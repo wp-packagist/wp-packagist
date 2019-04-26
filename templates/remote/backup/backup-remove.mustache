@@ -1,0 +1,10 @@
+//Get Default Backup Dir
+$backup_dir      = '{{backup_dir}}';
+$backup_dir_path = path_join( ABSPATH, $backup_dir );
+
+//Remove Backup Folder
+wp_cli_remove_folder( $backup_dir_path, true );
+
+//Show Result
+$result['status'] = 1;
+$result['text']   = "Backup files removed.";

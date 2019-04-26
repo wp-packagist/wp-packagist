@@ -1,0 +1,37 @@
+{
+  "name": "wp-packagist/wp-packagist",
+  "description": "WordPress Package Management for WP-CLI",
+  "homepage": "https://github.com/wp-packagist/wp-packagist",
+  "type": "wp-cli-package",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mehrshad Darzi",
+      "email": "info@wp-packagist.com",
+      "homepage": "https://wp-packagist.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "WP_CLI_PACKAGIST\\": "src/"
+    },
+    "files": [
+      "command.php"
+    ]
+  },
+  "require": {
+    "php": "^5.5 || ^7.0",
+    "ext-mbstring": "*",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-dom": "*",
+    "ext-zip": "*",
+    "ext-mysqli": "*"
+  },
+  "require-dev": {
+    "wp-cli/wp-cli": "^2.0"
+  },
+  "support": {
+    "issues": "https://github.com/wp-packagist/wp-packagist/issues"
+  }
+}

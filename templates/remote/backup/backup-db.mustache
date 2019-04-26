@@ -1,0 +1,13 @@
+try {
+	$dump      = new Mysqldump( 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD );
+	$file_name = 'backup_sql_' . date( "Y-m-d_H-i" ) . '.sql.gz';
+	$base      = path_join( ABSPATH, '{{backup_dir}}' );
+	$dump->start( path_join( $base, $file_name ) );
+	sleep( 2 );
+	$result['status'] = 1;
+	$result['link']   = rtrim( home_url() , "/" ) . '/{{backup_dir}}/' . $file_name;
+	$result['size']   = size_format( filesize( path_join( $base, $file_name ) ), 2 );
+} catch ( \Exception $e ) {
+	$result['status'] = 0;
+    $result['error']  = "Backup operation failed. please try again.";
+}

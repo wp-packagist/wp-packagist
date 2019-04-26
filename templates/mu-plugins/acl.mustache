@@ -1,0 +1,64 @@
+<?php
+/**
+ * Plugin Name: WP-Cli ACL
+ * Description: A WordPress Plugin For Access Control List Users Authorization in wp cli application
+ * Version:     1.0.0
+ * License:     MIT
+ *
+ * @package wp-cli-application
+ */
+
+//Global Option
+define( "WP_CLI_ACL", "{{wp_acl}}" );
+
+add_action( 'plugins_loaded', 'wp_cli_application_acl' );
+function wp_cli_application_acl() {
+	if ( isset( $_GET[ WP_CLI_ACL ] ) ) {
+
+		//Check hash content
+		$get = explode( ",", $_GET[ WP_CLI_ACL ] );
+		if ( count( $get ) == 2 ) {
+
+			//validation Command
+			$command = array( "login" );
+			if ( in_array( trim( $get[0] ), $command ) ) {
+
+				//Check option value
+				$wp_cli_acl = get_option( WP_CLI_ACL );
+				if ( isset( $wp_cli_acl ) and is_array( $wp_cli_acl ) and isset( $wp_cli_acl['hash'] ) and trim( $get[1] ) == $wp_cli_acl['hash'] ) {
+					$type = trim( $get[0] );
+
+					//Check expire time for the process
+					$time = time();
+					if ( $time - $wp_cli_acl['time'] < 60 ) {
+
+						//Login Function
+						if ( $type == "login" ) {
+
+							$user_id = $wp_cli_acl['id'];
+							$user    = get_user_by( 'id', $user_id );
+							if ( $user ) {
+								wp_set_current_user( $user_id, $user->user_login );
+								wp_set_auth_cookie( $user_id );
+								do_action( 'wp_login', $user->user_login );
+							}
+
+						}
+
+						//Remove Options
+						update_option( WP_CLI_ACL, array(), "no" );
+
+						//Remove Mu Plugins
+						@unlink( path_join( WPMU_PLUGIN_DIR, "acl.php" ) );
+
+						//Redirect
+						if ( isset( $wp_cli_acl['redirect'] ) and $wp_cli_acl['redirect'] != "" ) {
+							wp_redirect( $wp_cli_acl['redirect'] );
+						}
+						exit;
+					}
+				}
+			}
+		}
+	}
+}

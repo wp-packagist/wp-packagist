@@ -1,0 +1,26 @@
+<?php
+/**
+ * Check site url
+ * Version:     1.0.0
+ * License:     MIT
+ *
+ * @package wp-cli-application
+ * @version 1.0.0
+ */
+# Set Default Header
+header( 'Content-Type: application/json' );
+
+# Set Default result
+$result = array( 'status' => 'error', 'data' => 'You do not have permission' );
+
+//Check Exist Security Code
+if ( isset( $_GET['wp_cli_app_package_check_url'] ) and trim( $_GET['wp_cli_app_package_check_url'] ) == "{{GET_KEY}}" ) {
+	$result = array( 'status' => 200 );
+}
+
+# Remove This File
+@unlink( rtrim( str_ireplace( "\\", "/", getcwd() ), "/" ) . "/{{FILE_NAME}}" );
+
+# Result Json data
+echo json_encode( $result );
+exit;

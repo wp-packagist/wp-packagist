@@ -1,0 +1,13 @@
+<?php
+/**
+ * Plugin Name: Change Themes folder
+ * Description: A WordPress Plugin For Change themes folder
+ * Version:     1.0.0
+ * License:     MIT
+ *
+ * @package wp-cli-application
+ */
+register_theme_directory( {{theme_directory}} );
+register_theme_directory( ABSPATH . 'wp-includes/widgets' ); //@see wp-includes/theme.php:661
+add_filter( 'theme_root', function () { return {{theme_directory_path}};  });
+add_filter( 'theme_root_uri', function () { return {{theme_directory_url}}; }, 10, 1 );
