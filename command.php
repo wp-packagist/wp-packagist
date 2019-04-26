@@ -34,4 +34,4 @@ require_once( WP_CLI_PACKAGIST_PATH . '/src/explorer.php' );
 \WP_CLI::add_command( 'tools', Tools::class );
 
 # Load functions
-require_once WP_CLI_PACKAGIST_PATH . '/template-functions.php';
+require_once WP_CLI_PACKAGIST_PATH . '/functions.php';
