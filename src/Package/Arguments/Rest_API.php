@@ -173,7 +173,7 @@ class Rest_API {
 			}
 
 			//Push new Plugin
-			$mustache = FileSystem::load_mustache();
+			$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 			FileSystem::file_put_content(
 				$plugin,
 				$mustache->render( 'mu-plugins/rest-api', $content )

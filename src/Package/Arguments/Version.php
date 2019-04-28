@@ -67,6 +67,64 @@ class Version {
 	}
 
 	/**
+	 * Check exist Url
+	 *
+	 * -- List Mime Type --
+	 * .zip -> application/zip
+	 *
+	 * @param $url
+	 * @param bool $what
+	 * @param bool $is_zip
+	 * @return array
+	 */
+	public static function exist_url( $url, $what = false, $is_zip = false ) {
+
+		# Check Active curl
+		if ( ! function_exists( 'curl_init' ) ) {
+			return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_enabled' ), 'error_type' => 'base' );
+		}
+
+		# request Start
+		$curl = curl_init( $url );
+		# No Body Get From Request
+		curl_setopt( $curl, CURLOPT_NOBODY, true );
+		# don't verify peer ssl cert
+		curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false );
+		# Set User Agent
+		curl_setopt( $curl, CURLOPT_USERAGENT, Package::get_config( 'curl', 'user_agent' ) );
+		# Get Return if redirect
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		# Follow Location for redirect
+		curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
+		# Request Process
+		$exec = curl_exec( $curl );
+		if ( $exec === false ) {
+			return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_connect', array( "[url]" => preg_replace( "(^https?://)", "", $url ) ) ), 'error_type' => 'base' );
+		}
+		# Get Header info
+		$code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+		# get the content type
+		$file_type = curl_getinfo( $curl, CURLINFO_CONTENT_TYPE );
+		# Check response status
+		if ( $code == 200 ) {
+			$info = curl_getinfo( $curl );
+			if ( $is_zip ) {
+				if ( ! in_array( strtolower( $file_type ), Package::get_config( 'package', 'zip_mime_type' ) ) ) {
+					return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_zip', array( "[what]" => $what ) ) );
+				}
+			}
+			$return = array( 'status' => true, 'data' => filter_var( $info['url'], FILTER_VALIDATE_URL ), 'file_type' => $file_type );
+		} else {
+			$return = array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_url', array( "[what]" => $what ) ) );
+		}
+
+		# Close Request
+		curl_close( $curl );
+		# Return data
+		return $return;
+	}
+
+	/**
 	 * Check Wordpress Download Url in custom versions and locale.
 	 * We use Core_Command/get_download_url method.
 	 *
@@ -113,7 +171,7 @@ class Version {
 		}
 
 		//Check Exist Download Url
-		$exist_url = PHP::exist_url( $url, "core", false );
+		$exist_url = Version::exist_url( $url, "core", false );
 		if ( $exist_url['status'] === false ) {
 			if ( isset( $exist_url['error_type'] ) and $exist_url['error_type'] == "base" ) {
 				$valid->add_error( $exist_url['data'] );

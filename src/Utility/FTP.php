@@ -241,8 +241,8 @@ class FTP {
 		$wp_path = ( empty( $base_path ) === true ? $this->wp_directory : $base_path );
 
 		//Prepare php file
-		$mustache = FileSystem::load_mustache( ".mustache" );
-		$get_key  = strtolower( FileSystem::random_key( 80, false ) );
+		$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
+		$get_key  = strtolower( WP_CLI_Util::random_key( 80, false ) );
 		$data     = array(
 			'GET_KEY'   => $get_key,
 			'file_name' => Package::get_config( 'plugin_file_name' ),
@@ -306,10 +306,10 @@ class FTP {
 	public function prepare_plugin( $template, $remote_path = '/', $args = array() ) {
 
 		//Load Mustache
-		$mustache = FileSystem::load_mustache( ".mustache" );
+		$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 
 		//Create GET Request Key
-		$get_key = strtolower( FileSystem::random_key( 80, false ) );
+		$get_key = strtolower( WP_CLI_Util::random_key( 80, false ) );
 
 		//Get Render Data
 		$data = array(

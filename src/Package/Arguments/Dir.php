@@ -375,7 +375,7 @@ class Dir {
 				}
 
 				//Upload Mu-Plugins
-				$mustache = FileSystem::load_mustache();
+				$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 				FileSystem::file_put_content(
 					$themes_mu_plugins,
 					$mustache->render( 'mu-plugins/theme-dir', array(

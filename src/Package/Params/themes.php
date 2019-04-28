@@ -3,6 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\API\WP_Themes_Api;
+use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Utility\CLI;
 use WP_CLI_PACKAGIST\Utility\PHP;
@@ -157,7 +158,7 @@ class themes {
 
 							//Check Themes Zip file Url
 							if ( defined( 'WP_CLI_PACKAGIST_RUN_EXIST_CUSTOM_URL' ) ) {
-								$exist_url = PHP::exist_url( $array[ $key ], $key . " theme", true );
+								$exist_url = Version::exist_url( $array[ $key ], $key . " theme", true );
 								if ( $exist_url['status'] === false ) {
 									$valid->add_error( $exist_url['data'] );
 									break;

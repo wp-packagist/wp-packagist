@@ -22,6 +22,7 @@ class view extends Package {
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
 			CLI::pl_wait_end();
 		}
+		CLI::br();
 
 		//Show Every item
 		foreach ( $json_package as $name => $value ) {

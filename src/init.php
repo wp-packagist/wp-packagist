@@ -90,19 +90,19 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
 	}
 
 	//Get before Command
-	$before_command = CLI::get_command_log();
+	$before_command = Package::get_command_log();
 
 	// Force Only run With --Prompt
 	if ( ! isset ( $assoc_args['prompt'] ) and count( $assoc_args ) == 0 ) {
 		if ( empty( $before_command ) || ( isset( $before_command['command'] ) and $before_command['command'] != "init" ) ) {
-			CLI::save_last_command( 'init', $args, $assoc_args );
+			Package::save_last_command( 'init', $args, $assoc_args );
 			\WP_CLI::runcommand( "init --prompt" );
 			return;
 		}
 	}
 
 	//remove command log
-	CLI::remove_command_log();
+	Package::remove_command_log();
 
 	//Create new package file
 	$create_pkg = new create();

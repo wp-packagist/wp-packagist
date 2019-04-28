@@ -92,12 +92,16 @@ class name {
 
 					//Sanitize Data
 					$pkg = array_map( function ( $value ) {
+
 						//Trim Word
 						$return = PHP::to_lower_string( $value );
+
 						//Convert _ to -
 						$return = str_ireplace( "_", "-", $return );
+
 						//Preg Data
 						$return = preg_replace( $this->package_config['preg_username'], '', $return );
+
 						return $return;
 					}, $pkg );
 

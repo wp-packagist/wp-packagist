@@ -32,7 +32,7 @@ class Security {
 			}
 
 			//Upload Mu-Plugins
-			$mustache      = FileSystem::load_mustache();
+			$mustache      = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 			$htaccess_code = $mustache->render( 'mu-plugins/access-package' );
 			FileSystem::file_put_content(
 				FileSystem::path_join( $mu_plugins_path, 'wordpress-package.php' ),
@@ -98,9 +98,9 @@ class Security {
 		$iis7_supports_permalinks = false;
 
 		//Upload Plugin file
-		$mustache        = FileSystem::load_mustache();
+		$mustache        = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 		$mu_plugins_path = Dir::eval_get_mu_plugins_path();
-		$get_key         = strtolower( FileSystem::random_key( 80, false ) );
+		$get_key         = strtolower( WP_CLI_Util::random_key( 80, false ) );
 		$data            = array(
 			'GET_KEY'   => $get_key,
 			'file_name' => 'pretty-permalinks.php',

@@ -3,6 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\API\WP_Plugins_Api;
+use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Utility\CLI;
 use WP_CLI_PACKAGIST\Utility\PHP;
@@ -246,7 +247,7 @@ class plugins {
 							//Check Plugins Zip file Url
 							if ( defined( 'WP_CLI_PACKAGIST_RUN_EXIST_CUSTOM_URL' ) ) {
 
-								$exist_url = PHP::exist_url( $plugin['url'], $plugin['slug'] . " plugin", true );
+								$exist_url = Version::exist_url( $plugin['url'], $plugin['slug'] . " plugin", true );
 								if ( $exist_url['status'] === false ) {
 									$valid->add_error( $exist_url['data'] );
 									break;

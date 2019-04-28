@@ -131,4 +131,91 @@ class Package {
 
 		return false;
 	}
+
+	/**
+	 * Get log Text
+	 *
+	 * @param $section
+	 * @param $key
+	 * @param array $replace
+	 * @return string
+	 */
+	public static function _e( $section, $key, $replace = array() ) {
+
+		// Get Config
+		$config = Package::get_config( $section );
+
+		//Check Exist Text Log
+		$log = null;
+		if ( isset( $config['log'][ $key ] ) ) {
+			$log = $config['log'][ $key ];
+		}
+
+		//Check replace
+		if ( ! is_null( $log ) and ! empty( $replace ) ) {
+			$log = str_ireplace( array_keys( $replace ), array_values( $replace ), $log );
+		}
+
+		return $log;
+	}
+
+	/**
+	 * get before command which run in WP-CLI PACKAGIST
+	 *
+	 * @return array
+	 */
+	public static function get_command_log() {
+
+		//Command log file name
+		$file = Package::get_config( 'command_log' );
+		if ( file_exists( $file ) ) {
+
+			//Check time age cache [ 1 minute ]
+			if ( time() - filemtime( $file ) >= 120 ) {
+				self::remove_command_log();
+			} else {
+				//get json parse
+				$json = WP_CLI_FileSystem::read_json_file( $file );
+				if ( $json != false ) {
+					return $json;
+				}
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Save last run command
+	 *
+	 * @param $command
+	 * @param $args
+	 * @param $assoc_args
+	 */
+	public static function save_last_command( $command, $args, $assoc_args ) {
+
+		//Command log file name
+		$file = Package::get_config( 'command_log' );
+
+		//Get now Command
+		$now = array(
+			'command'    => $command,
+			'args'       => $args,
+			'assoc_args' => $assoc_args
+		);
+
+		//Add new Command to Log
+		WP_CLI_FileSystem::create_json_file( $file, $now );
+	}
+
+	/**
+	 * Complete remove command log
+	 */
+	public static function remove_command_log() {
+		//Command log file name
+		$file = Package::get_config( 'command_log' );
+		if ( file_exists( $file ) ) {
+			FileSystem::remove_file( $file );
+		}
+	}
 }

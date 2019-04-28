@@ -1,81 +1,9 @@
 <?php
+namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-namespace WP_CLI_PACKAGIST\Utility;
+use WP_CLI_PACKAGIST\Utility\CLI;
 
-
-use WP_CLI_PACKAGIST\Package\Arguments\Config;
-
-class DB {
-
-	/**
-	 * Check Wordpress Already exist
-	 *
-	 * @version 1.0.0
-	 * @param array $args
-	 */
-	public static function create_wp_db( $args = array() ) {
-
-		/**
-		 * Check connect to MySql
-		 *
-		 */
-		@$conn = mysqli_connect( $args['dbhost'], $args['dbuser'], $args['dbpass'] );
-		if ( ! $conn ) {
-			WP_CLI::error( "Connection failed To " . $args['dbhost'] . " Mysql Server" );
-
-			return;
-		}
-
-		/**
-		 * Rebase MySql Database
-		 *
-		 */
-		$sql = "CREATE DATABASE {$args['dbname']} CHARACTER SET utf8 COLLATE utf8_general_ci;";
-		mysqli_query( $conn, $sql );
-
-
-		/**
-		 * Reset All Table
-		 *
-		 */
-		mysqli_query( $conn, 'SET foreign_key_checks = 0' );
-		mysqli_select_db( $conn, $args['dbname'] );
-		if ( $result = mysqli_query( $conn, 'SHOW TABLES' ) ) {
-			while ( $table = mysqli_fetch_array( $result, MYSQLI_NUM ) ) {
-				mysqli_query( $conn, 'DROP TABLE IF EXISTS ' . $table[0] );
-			}
-		}
-		mysqli_query( $conn, 'SET foreign_key_checks = 1' );
-
-	}
-
-
-	/**
-	 * Remove Wordpress Database
-	 *
-	 * @package wp-cli-application
-	 * @version 1.0.0
-	 * @param array $args
-	 */
-	public static function drop_wp_db( $args = array() ) {
-
-		/**
-		 * Check Connect to MySql
-		 */
-		@$conn = mysqli_connect( $args['dbhost'], $args['dbuser'], $args['dbpass'] );
-		if ( ! $conn ) {
-			WP_CLI::error( "Connection failed To " . $args['dbhost'] . " Mysql Server" );
-
-			return;
-		}
-
-		/**
-		 * Drop MySql Database
-		 */
-		$sql = "DROP DATABASE {$args['dbname']};";
-		mysqli_query( $conn, $sql );
-	}
-
+class MySQL {
 
 	/**
 	 * Change Wordpress database Prefix
@@ -164,5 +92,4 @@ class DB {
 
 		return true;
 	}
-
 }

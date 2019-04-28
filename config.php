@@ -14,11 +14,6 @@ return array(
 	'docs'                       => 'https://wp-packagist.com/docs/',
 
 	/**
-	 * Default Prefix wp-cli Command
-	 */
-	'command_prefix'             => array( 'wp-cli.phar', 'wp', 'wordpress', 'wpcli.phar', 'wp-cli', 'wpcli' ),
-
-	/**
 	 * WordPress API
 	 */
 	'wordpress_api'              => array(
@@ -83,15 +78,6 @@ return array(
 
 		# List of Cli log for WP-CLI-APP Config
 		'log'     => array(
-			'syntax_error'  => 'The config file syntax is wrong.',
-			'er_not_find'   => "The " . CLI::color( "[key]", "Y" ) . " parameter not found.",
-			'add'           => "Saved " . CLI::color( "[key]", "Y" ) . " config.",
-			'remove'        => "Removed " . CLI::color( "[key]", "Y" ) . " config.",
-			'key_valid'     => "Config key is not valid.",
-			'empty_config'  => 'The config list is empty.',
-			'confirm_reset' => "Are you sure you want to reset config ?",
-			'reset_config'  => "Config reset.",
-			'filed_update'  => 'Failed to update the config.yml file.',
 			'process_time'  => CLI::color( "(Process time: [time])", "P" )
 		)
 	),
@@ -123,7 +109,7 @@ return array(
 
 		# Package LocalTemp
 		'localTemp'                => array(
-			'path' => WP_CLI_PACKAGIST_HOME_PATH . '/package-temp',
+			'path' => WP_CLI_PACKAGIST_HOME_PATH . '/tmp',
 			'age'  => 8765, //1 year
 			'type' => '.json'
 		),
@@ -170,13 +156,13 @@ return array(
 		'max_keywords_ch'          => 30,
 
 		# Separator between username and package
-		'separator_name'           => '@',
+		'separator_name'           => '/',
 
 		# Wp-cli default type for commands
 		'wp-cli-command'           => array( 'wp-cli', 'wpcli' ),
 
 		# Params class namespace
-		'params_namespace'         => 'WP_CLI_APP\Package\params\\',
+		'params_namespace'         => 'WP_CLI_PACKAGIST\Package\params\\',
 
 		# Localhost domain
 		'localhost_domain'         => array( 'localhost', '127.0.0.1' ),
@@ -197,9 +183,6 @@ return array(
 
 		# List of commands that forbidden run in WordPress Package commands parameter
 		'forbidden_wp_cli_command' => array( 'admin', 'cli', 'core', 'find', 'help', 'package', 'server', 'shell' ),
-
-		# zip mime type
-		'zip_mime_type'            => array( 'application/zip', 'application/octet-stream', 'application/octet', 'application/x-zip-compressed', 'multipart/x-zip' ),
 
 		# WordPress Table-prefix key in option or meta
 		'tbl_prefix_key'           => '[table-prefix]',

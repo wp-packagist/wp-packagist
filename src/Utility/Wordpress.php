@@ -3,7 +3,6 @@
 namespace WP_CLI_PACKAGIST\Utility;
 
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
-use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Package;
 
 class Wordpress {
@@ -44,7 +43,7 @@ class Wordpress {
 
 		//Create Login Option
 		$hash = wp_generate_password( 30, false );
-		update_option( Package::get_config('acl_opt'), array(
+		update_option( Package::get_config( 'acl_opt' ), array(
 			'hash'     => $hash,
 			'type'     => 'login',
 			'id'       => $user_id,
@@ -56,11 +55,11 @@ class Wordpress {
 		if ( FileSystem::folder_exist( self::mu_plugins_dir() ) == false ) {
 			FileSystem::create_dir( "mu-plugins", Dir::get_content_dir() );
 		}
-		$mustache = FileSystem::load_mustache();
-		FileSystem::file_put_content( FileSystem::path_join( self::mu_plugins_dir(), "acl.php" ), $mustache->render( '/mu-plugins/acl', array( 'wp_acl' => Package::get_config('acl_opt') ) ) );
+		$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
+		FileSystem::file_put_content( FileSystem::path_join( self::mu_plugins_dir(), "acl.php" ), $mustache->render( '/mu-plugins/acl', array( 'wp_acl' => Package::get_config( 'acl_opt' ) ) ) );
 
 		//Create link to Show in browser
-		$link = add_query_arg( Package::get_config('acl_opt'), 'login,' . $hash, $home );
+		$link = add_query_arg( Package::get_config( 'acl_opt' ), 'login,' . $hash, $home );
 		CLI::Browser( $link );
 
 		//Show Success
