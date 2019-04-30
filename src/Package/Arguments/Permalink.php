@@ -285,7 +285,7 @@ EOF;
 		}
 
 		//Run Command
-		CLI::run_command( "tools htaccess{$custom_dir}", array( 'exit_error' => false ) );
+		CLI::run_command( "pack htaccess{$custom_dir}", array( 'exit_error' => false ) );
 	}
 
 }

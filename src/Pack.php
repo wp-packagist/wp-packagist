@@ -311,5 +311,52 @@ class Pack extends \WP_CLI_Command {
 		CLI::lunch_editor( $this->package->package_path, ( isset( $assoc['editor'] ) ? $assoc['editor'] : false ) );
 	}
 
+	/**
+	 * Create Htaccess or Web.config For Pretty Permalink WordPress.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--wp_content=<wp-content>]
+	 * : wp-content dir path.
+	 *
+	 * [--plugins=<plugins>]
+	 * : plugins dir path.
+	 *
+	 * [--uploads=<uploads>]
+	 * : uploads dir path.
+	 *
+	 * [--themes=<themes>]
+	 * : themes dir path.
+	 *
+	 * ## DOCUMENT
+	 *
+	 *      https://realwordpress.github.io/wp-cli-application/
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     $ wp pack htaccess
+	 *
+	 * @alias webconfig
+	 */
+	function htaccess( $_, $assoc ) {
+
+		//Check Network
+		$network = Core::is_multisite();
+
+		//Check Custom directory
+		$dirs = array();
+		foreach ( array( 'wp_content', 'plugins', 'uploads', 'themes' ) as $dir ) {
+			if ( isset( $assoc[ $dir ] ) ) {
+				$dirs[ $dir ] = $assoc[ $dir ];
+			}
+		}
+
+		//Create file
+		Permalink::create_permalink_file( $network['network'], $network['subdomain'], $dirs );
+
+		//Success
+		CLI::success( CLI::_e( 'package', 'created_file', array( "[file]" => $network['mod_rewrite_file'] ) ) );
+	}
+
 
 }

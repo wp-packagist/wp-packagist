@@ -338,16 +338,6 @@ return array(
 		)
 	),
 
-	/* Backup */
-	'backup_dir'                 => '_backup',
-	'backup_sql_file_name'       => 'sql-[datetime]',
-	'backup_full_file_name'      => 'backup-[datetime]',
-	'backup_plugins_file_name'   => 'plugins-[datetime]',
-	'backup_themes_file_name'    => 'themes-[datetime]',
-	'backup_uploads_file_name'   => 'uploads-[datetime]',
-	'backup_content_file_name'   => 'wp_content-[datetime]',
-	'backup_workspace_file_name' => 'workspace-[datetime]',
-
 	/* acl */
 	'acl_opt'                    => 'wp_cli_acl',
 
