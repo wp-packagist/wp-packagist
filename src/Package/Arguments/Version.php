@@ -109,7 +109,7 @@ class Version {
 		if ( $code == 200 ) {
 			$info = curl_getinfo( $curl );
 			if ( $is_zip ) {
-				if ( ! in_array( strtolower( $file_type ), Package::get_config( 'package', 'zip_mime_type' ) ) ) {
+				if ( ! in_array( strtolower( $file_type ), array( 'application/zip', 'application/octet-stream', 'application/octet', 'application/x-zip-compressed', 'multipart/x-zip' ) ) ) {
 					return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_zip', array( "[what]" => $what ) ) );
 				}
 			}
