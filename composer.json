@@ -7,8 +7,7 @@
   "authors": [
     {
       "name": "Mehrshad Darzi",
-      "email": "info@wp-packagist.com",
-      "homepage": "https://wp-packagist.com"
+      "email": "mehrshad198@gmail.com"
     }
   ],
   "autoload": {
@@ -21,6 +20,7 @@
   },
   "require": {
     "php": "^5.5 || ^7.0",
+    "wp-packagist/wp-cli-helper": "dev-master",
     "ext-mbstring": "*",
     "ext-curl": "*",
     "ext-json": "*",

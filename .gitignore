@@ -7,3 +7,4 @@ vendor/
 *.tar.gz
 composer.lock
 *.log
+.idea/
