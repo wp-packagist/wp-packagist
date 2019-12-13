@@ -2,14 +2,10 @@
 
 namespace WP_CLI_PACKAGIST\Package;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-
 /**
  * WordPress Package System.
  *
- * @author  Mehrshad Darzi <info@wp-packagist.com>
+ * @author  Mehrshad Darzi <mehrshad198@gmail.com>
  * @since   1.0.0
  */
 class Package {
@@ -45,7 +41,7 @@ class Package {
 		/**
 		 * Get Full path of Wordpress package File
 		 */
-		$this->package_path = FileSystem::path_join( PHP::getcwd(), $this->package_config['file'] );
+		$this->package_path = \WP_CLI_FileSystem::path_join( \WP_CLI_Util::getcwd(), $this->package_config['file'] );
 	}
 
 	/**
@@ -64,7 +60,7 @@ class Package {
 	 */
 	public function remove_package_file() {
 		if ( file_exists( $this->package_path ) ) {
-			FileSystem::remove_file( $this->package_path );
+			\WP_CLI_FileSystem::remove_file( $this->package_path );
 		}
 	}
 
@@ -75,13 +71,13 @@ class Package {
 
 		//Check Exist Package
 		if ( $this->exist_package_file() === false ) {
-			return array( 'status' => false, 'data' => CLI::_e( 'package', 'not_exist_pkg' ) );
+			return array( 'status' => false, 'data' => Package::_e( 'package', 'not_exist_pkg' ) );
 		}
 
 		//Read Json file
-		$json_data = FileSystem::read_json_file( $this->package_path );
+		$json_data = \WP_CLI_FileSystem::read_json_file( $this->package_path );
 		if ( $json_data === false ) {
-			return array( 'status' => false, 'data' => CLI::_e( 'package', 'er_pkg_syntax' ) );
+			return array( 'status' => false, 'data' => Package::_e( 'package', 'er_pkg_syntax' ) );
 		}
 
 		return array( 'status' => true, 'data' => $json_data );
@@ -119,7 +115,7 @@ class Package {
 				return $list[ func_get_arg( 0 ) ];
 			}
 		} else {
-			$exist_key = PHP::check_exist_key( func_get_args(), $list );
+			$exist_key = \WP_CLI_Util::check_exist_key( func_get_args(), $list );
 			if ( $exist_key != false ) {
 				$exp = $list;
 				foreach ( func_get_args() as $key ) {
@@ -174,8 +170,9 @@ class Package {
 			if ( time() - filemtime( $file ) >= 120 ) {
 				self::remove_command_log();
 			} else {
+
 				//get json parse
-				$json = WP_CLI_FileSystem::read_json_file( $file );
+				$json = \WP_CLI_FileSystem::read_json_file( $file );
 				if ( $json != false ) {
 					return $json;
 				}
@@ -205,17 +202,18 @@ class Package {
 		);
 
 		//Add new Command to Log
-		WP_CLI_FileSystem::create_json_file( $file, $now );
+		\WP_CLI_FileSystem::create_json_file( $file, $now );
 	}
 
 	/**
 	 * Complete remove command log
 	 */
 	public static function remove_command_log() {
+
 		//Command log file name
 		$file = Package::get_config( 'command_log' );
 		if ( file_exists( $file ) ) {
-			FileSystem::remove_file( $file );
+			\WP_CLI_FileSystem::remove_file( $file );
 		}
 	}
 }

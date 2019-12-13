@@ -2,13 +2,13 @@
 
 namespace WP_CLI_PACKAGIST;
 
+use WP_CLI_PACKAGIST\Package\Arguments\Core;
+use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\help;
 use WP_CLI_PACKAGIST\Package\Utility\update;
 use WP_CLI_PACKAGIST\Package\Utility\validation;
 use WP_CLI_PACKAGIST\Package\Utility\view;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 
 /**
  * Management WordPress Package.
@@ -17,9 +17,6 @@ use WP_CLI_PACKAGIST\Utility\PHP;
  *
  *      # Show Current WordPress Package
  *      $ wp pack show
- *
- *      # Show WordPress Package By Repository name
- *      $ wp pack show wordpress@core
  *
  *      # Update WordPress Package
  *      $ wp pack update
@@ -33,17 +30,9 @@ use WP_CLI_PACKAGIST\Utility\PHP;
  *      $ wp pack remove
  *      Success: Removed WordPress Package.
  *
- *      # Push WordPress Package to Repository
- *      $ wp pack push
- *      Success: Completed Update WordPress Package Repository.
- *
  *      # Export WordPress Package From Current WordPress Site
  *      $ wp pack export
  *      Success: Exported WordPress Package.
- *
- * ## DOCUMENT
- *
- *      https://wp-packagist.com/docs/WordPress-Package/
  *
  * @package wp-cli
  */
@@ -98,19 +87,19 @@ class Pack extends \WP_CLI_Command {
 
 		# Exist wordpress package file
 		if ( $this->package->exist_package_file() === false ) {
-			CLI::error( CLI::_e( 'package', 'no_exist_pkg' ) );
+			\WP_CLI_Helper::error( Package::_e( 'package', 'no_exist_pkg' ) );
 		}
 
 		# Confirm Remove WordPress Package
 		if ( ! isset( $assoc['force'] ) ) {
-			CLI::confirm( CLI::_e( 'package', 'rm_pkg_confirm' ) );
+			\WP_CLI_Helper::confirm( Package::_e( 'package', 'rm_pkg_confirm' ) );
 		}
 
 		# Run Remove Package file
 		$this->package->remove_package_file();
 
 		# Show Success
-		CLI::success( CLI::_e( 'package', 'remove_pkg' ) );
+		\WP_CLI_Helper::success( Package::_e( 'package', 'remove_pkg' ) );
 	}
 
 	/**
@@ -130,58 +119,45 @@ class Pack extends \WP_CLI_Command {
 		$this->package->set_global_package_run_check();
 
 		# Show Please Wait
-		CLI::pl_wait_start( false );
+		\WP_CLI_Helper::pl_wait_start( false );
 
 		# Run Package Validation
 		$validation_pkg = new validation();
 		$get_pkg        = $validation_pkg->validation( $log = true );
 		print_r( $get_pkg['data'] ); //TODO remove this line
 		if ( $get_pkg['status'] === true ) {
-			CLI::success( CLI::_e( 'package', 'pkg_is_valid' ) );
+			\WP_CLI_Helper::success( Package::_e( 'package', 'pkg_is_valid' ) );
 		}
 	}
 
 	/**
 	 * Show WordPress Package file.
 	 *
-	 * ## OPTIONS
-	 *
-	 * [<name>]
-	 * : WordPress Package Repository name.
-	 *
 	 * ## EXAMPLES
 	 *
 	 *      # Show Current WordPress Package
 	 *      $ wp pack show
 	 *
-	 *      # Show WordPress Package By Repository name
-	 *      $ wp pack show wordpress@core
-	 *
 	 * @when before_wp_load
 	 */
 	function show( $_, $assoc ) {
+		
+		# Show Local Package
+		if ( $this->package->exist_package_file() === false ) {
+			\WP_CLI_Helper::error( Package::_e( 'package', 'not_exist_pkg' ) . " " . Package::_e( 'package', 'create_new_pkg' ) );
+		}
 
-		# Show Repository
-		if ( isset( $_[0] ) ) {
-			//TODO Doing after
-		} else {
-			# Show Local Package
-			if ( $this->package->exist_package_file() === false ) {
-				CLI::error( CLI::_e( 'package', 'not_exist_pkg' ) . " " . CLI::_e( 'package', 'create_new_pkg' ) );
-			}
+		# Show Please Wait
+		\WP_CLI_Helper::pl_wait_start( false );
 
-			# Show Please Wait
-			CLI::pl_wait_start( false );
+		# Run Package Validation
+		$validation_pkg = new validation();
+		$get_pkg        = $validation_pkg->validation( $log = true );
+		if ( $get_pkg['status'] === true ) {
 
-			# Run Package Validation
-			$validation_pkg = new validation();
-			$get_pkg        = $validation_pkg->validation( $log = true );
-			if ( $get_pkg['status'] === true ) {
-
-				# View WordPress Package
-				$view_pkg = new view();
-				$view_pkg->view( $get_pkg['data'] );
-			}
+			# View WordPress Package
+			$view_pkg = new view();
+			$view_pkg->view( $get_pkg['data'] );
 		}
 	}
 
@@ -199,14 +175,14 @@ class Pack extends \WP_CLI_Command {
 
 		# Exist wordpress package file
 		if ( $this->package->exist_package_file() === false ) {
-			CLI::error( CLI::_e( 'package', 'no_exist_pkg' ) );
+			\WP_CLI_Helper::error( Package::_e( 'package', 'no_exist_pkg' ) );
 		}
 
 		# Set global run check
 		$this->package->set_global_package_run_check();
 
 		# Show Please Wait
-		CLI::pl_wait_start( false );
+		\WP_CLI_Helper::pl_wait_start( false );
 
 		# Run Package Validation
 		$validation_pkg = new validation();
@@ -245,7 +221,7 @@ class Pack extends \WP_CLI_Command {
 
 		//Check custom page
 		if ( isset( $args[0] ) ) {
-			$url = rtrim( $url, "/" ) . "/" . ltrim( PHP::backslash_to_slash( $_[0] ), "/" );
+			$url = rtrim( $url, "/" ) . "/" . ltrim( \WP_CLI_Util::backslash_to_slash( $_[0] ), "/" );
 		}
 
 		//Check Valid Url
@@ -255,7 +231,7 @@ class Pack extends \WP_CLI_Command {
 		}
 
 		//Show in browser
-		CLI::Browser( $web_url );
+		\WP_CLI_Helper::Browser( $web_url );
 	}
 
 	/**
@@ -304,11 +280,11 @@ class Pack extends \WP_CLI_Command {
 
 		# Exist wordpress package file
 		if ( $this->package->exist_package_file() === false ) {
-			CLI::error( CLI::_e( 'package', 'no_exist_pkg' ) );
+			\WP_CLI_Helper::error( Package::_e( 'package', 'no_exist_pkg' ) );
 		}
 
 		# Lunch Editor
-		CLI::lunch_editor( $this->package->package_path, ( isset( $assoc['editor'] ) ? $assoc['editor'] : false ) );
+		\WP_CLI_Helper::lunch_editor( $this->package->package_path, ( isset( $assoc['editor'] ) ? $assoc['editor'] : false ) );
 	}
 
 	/**
@@ -327,10 +303,6 @@ class Pack extends \WP_CLI_Command {
 	 *
 	 * [--themes=<themes>]
 	 * : themes dir path.
-	 *
-	 * ## DOCUMENT
-	 *
-	 *      https://realwordpress.github.io/wp-cli-application/
 	 *
 	 * ## EXAMPLES
 	 *
@@ -355,8 +327,6 @@ class Pack extends \WP_CLI_Command {
 		Permalink::create_permalink_file( $network['network'], $network['subdomain'], $dirs );
 
 		//Success
-		CLI::success( CLI::_e( 'package', 'created_file', array( "[file]" => $network['mod_rewrite_file'] ) ) );
+		\WP_CLI_Helper::success( Package::_e( 'package', 'created_file', array( "[file]" => $network['mod_rewrite_file'] ) ) );
 	}
-
-
 }

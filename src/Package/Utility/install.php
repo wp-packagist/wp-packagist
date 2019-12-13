@@ -2,8 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Params\mysql;
 
@@ -21,7 +19,7 @@ class install extends Package {
 
 		//Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		//Set Timer for Process
@@ -46,7 +44,7 @@ class install extends Package {
 				$obj = new $class();
 
 				//check validation method exist in class
-				if ( PHP::search_method_from_class( $obj, 'install' ) ) {
+				if ( \WP_CLI_Util::search_method_from_class( $obj, 'install' ) ) {
 
 					//Run install Method
 					$run = $obj->install( $pkg_array, array( 'all_step' => $all_step, 'step' => $step ) );
@@ -60,11 +58,11 @@ class install extends Package {
 		}
 
 		//Add Package LocalTemp
-		temp::save_temp( PHP::getcwd(), $pkg_array );
+		temp::save_temp( \WP_CLI_Util::getcwd(), $pkg_array );
 
 		//Success Process
-		CLI::br();
-		CLI::success( CLI::_e( 'package', 'success_install' ) . ' ' . CLI::_e( 'config', 'process_time', array( "[time]" => CLI::process_time( $start_time ) ) ) );
+		\WP_CLI_Helper::br();
+		\WP_CLI_Helper::success( Package::_e( 'package', 'success_install' ) . ' ' . Package::_e( 'config', 'process_time', array( "[time]" => \WP_CLI_Helper::process_time( $start_time ) ) ) );
 	}
 
 	/**
@@ -75,7 +73,7 @@ class install extends Package {
 	 * @param $text
 	 */
 	public static function install_log( $this_step, $all_step, $text ) {
-		CLI::line( CLI::color( "install {$this_step}/{$all_step}:", "Y" ) . " " . $text );
+		\WP_CLI_Helper::line( \WP_CLI_Helper::color( "install {$this_step}/{$all_step}:", "Y" ) . " " . $text );
 	}
 
 	/**
@@ -86,7 +84,7 @@ class install extends Package {
 	 */
 	public static function add_detail_log( $text, $space = 1 ) {
 		# Show Log
-		CLI::line( str_repeat( " ", $space ) . "- " . $text );
+		\WP_CLI_Helper::line( str_repeat( " ", $space ) . "- " . $text );
 
 		# Used in Update Package
 		if ( ! defined( 'WP_CLI_APP_PACKAGE_UPDATE_LOG' ) ) {

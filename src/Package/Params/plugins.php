@@ -5,9 +5,6 @@ namespace WP_CLI_PACKAGIST\Package\Params;
 use WP_CLI_PACKAGIST\API\WP_Plugins_Api;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 
 class plugins {
 	/**
@@ -36,7 +33,7 @@ class plugins {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get plugins parameter
 		$parameter = $pkg_array['plugins'];
@@ -70,7 +67,7 @@ class plugins {
 	public function sanitize_plugins( $array, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Load Plugins API
 		$plugin_api = new WP_Plugins_Api();
@@ -81,16 +78,16 @@ class plugins {
 		//Check is String
 		if ( is_string( $array ) ) {
 
-			$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "plugins: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "plugins: { .." ) ) );
 		} elseif ( empty( $array ) ) {
 
 			//Check Empty Array
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "plugins: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "plugins: { .." ) ) );
 		} else {
 
 			//Check is Assoc array
-			if ( PHP::is_assoc_array( $array ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "plugins: { .." ) ) );
+			if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "plugins: { .." ) ) );
 			} else {
 
 				//Lower Case
@@ -109,10 +106,10 @@ class plugins {
 					$version = '';
 
 					//Check Preg Plugin slug
-					$slug = PHP::to_lower_string( preg_replace( Package::get_config( 'wordpress_api', 'slug' ), '', $plugin_slug ) );
-					if ( $slug != PHP::to_lower_string( $plugin_slug ) ) {
+					$slug = \WP_CLI_Util::to_lower_string( preg_replace( Package::get_config( 'wordpress_api', 'slug' ), '', $plugin_slug ) );
+					if ( $slug != \WP_CLI_Util::to_lower_string( $plugin_slug ) ) {
 
-						$valid->add_error( CLI::_e( 'wordpress_api', 'er_slug', array( "[name]" => $plugin_slug, "[type]" => "plugin" ) ) );
+						$valid->add_error( Package::_e( 'wordpress_api', 'er_slug', array( "[name]" => $plugin_slug, "[type]" => "plugin" ) ) );
 						break;
 					}
 
@@ -120,9 +117,9 @@ class plugins {
 					if ( is_string( $plugin_v ) ) {
 
 						//Check Empty
-						if ( empty( PHP::to_lower_string( $plugin_v ) ) ) {
+						if ( empty( \WP_CLI_Util::to_lower_string( $plugin_v ) ) ) {
 
-							$valid->add_error( CLI::_e( 'package', 'er_empty_source', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_empty_source', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
 							break;
 						} else {
 
@@ -134,8 +131,8 @@ class plugins {
 								if ( ! in_array( $plugin_v, Package::get_config( 'package', 'latest' ) ) ) {
 
 									//Check is Version number
-									if ( PHP::is_semver_version( $plugin_v ) === false ) {
-										$valid->add_error( CLI::_e( 'package', 'er_wrong_version', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
+									if ( \WP_CLI_Util::is_semver_version( $plugin_v ) === false ) {
+										$valid->add_error( Package::_e( 'package', 'er_wrong_version', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
 										break;
 									} else {
 										$version = $plugin_v;
@@ -157,21 +154,21 @@ class plugins {
 						$accept_key = array( 'version', 'url', 'activate' );
 
 						//Check is assoc array
-						if ( PHP::is_assoc_array( $plugin_v ) === false ) {
-							$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "plugins: { " . $plugin_slug . " { .." ) ) );
+						if ( \WP_CLI_Util::is_assoc_array( $plugin_v ) === false ) {
+							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "plugins: { " . $plugin_slug . " { .." ) ) );
 							break;
 						}
 
 						//check require Key
 						if ( ! array_key_exists( 'url', $plugin_v ) and ! array_key_exists( 'version', $plugin_v ) ) {
-							$valid->add_error( CLI::_e( 'package', 'require_param_plugin', array( "[slug]" => $plugin_slug ) ) );
+							$valid->add_error( Package::_e( 'package', 'require_param_plugin', array( "[slug]" => $plugin_slug ) ) );
 							break;
 						}
 
 						//Check Anonymous Parameter
 						foreach ( $plugin_v as $k => $val ) {
 							if ( ! in_array( strtolower( $k ), $accept_key ) ) {
-								$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => 'plugins: { ' . $plugin_slug . ': { "' . $k . '" ..' ) ) );
+								$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'plugins: { ' . $plugin_slug . ': { "' . $k . '" ..' ) ) );
 								break;
 							}
 						}
@@ -180,7 +177,7 @@ class plugins {
 						if ( array_key_exists( 'url', $plugin_v ) ) {
 							$plugin_url = filter_var( $plugin_v['url'], FILTER_VALIDATE_URL );
 							if ( $plugin_url === false ) {
-								$valid->add_error( CLI::_e( 'package', 'er_wrong_plugin_url', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
+								$valid->add_error( Package::_e( 'package', 'er_wrong_plugin_url', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
 								break;
 							} else {
 								$url = $plugin_v['url'];
@@ -194,8 +191,8 @@ class plugins {
 							if ( ! in_array( $plugin_v['version'], Package::get_config( 'package', 'latest' ) ) ) {
 
 								//Check is Version number
-								if ( PHP::is_semver_version( $plugin_v['version'] ) === false ) {
-									$valid->add_error( CLI::_e( 'package', 'er_wrong_plugin_v', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
+								if ( \WP_CLI_Util::is_semver_version( $plugin_v['version'] ) === false ) {
+									$valid->add_error( Package::_e( 'package', 'er_wrong_plugin_v', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
 									break;
 								} else {
 									$version = $plugin_v;
@@ -207,14 +204,14 @@ class plugins {
 
 						//Check Activate
 						if ( isset( $plugin_v['activate'] ) and ! is_bool( $plugin_v['activate'] ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_plugin_activate', array( "[slug]" => $plugin_slug ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_plugin_activate', array( "[slug]" => $plugin_slug ) ) );
 							break;
 						} else {
 							$activate = $plugin_v['activate'];
 						}
 
 					} else {
-						$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "plugins: { '" . $plugin_slug . "' .." ) ) );
+						$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "plugins: { '" . $plugin_slug . "' .." ) ) );
 						break;
 					}
 
@@ -268,7 +265,7 @@ class plugins {
 								//Check exist Version number
 								if ( isset( $plugin['version'] ) ) {
 									if ( $plugin['version'] != "latest" and ! in_array( $plugin['version'], $get_plugin_data['data'] ) ) {
-										$valid->add_error( CLI::_e( 'wordpress_api', 'not_available_ver', array( "[name]" => $plugin['slug'], "[type]" => "plugin", "[ver]" => $plugin['version'] ) ) );
+										$valid->add_error( Package::_e( 'wordpress_api', 'not_available_ver', array( "[name]" => $plugin['slug'], "[type]" => "plugin", "[ver]" => $plugin['version'] ) ) );
 										break;
 									}
 								}

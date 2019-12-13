@@ -4,7 +4,6 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Utility\CLI;
 
 class Options {
 	/**
@@ -56,9 +55,9 @@ class Options {
 
 		//We don't Use [wp option add] Command Because we want Force Push to database
 		if ( $exist === true ) {
-			CLI::wpdb_query( 'UPDATE `' . $table_prefix . 'options` SET `option_value` = \'' . $option_value . '\',`autoload` = \'' . $autoload . '\' WHERE `option_name` = \'' . $option_name . '\';', array( 'exit_error' => false ) );
+			\WP_CLI_Helper::wpdb_query( 'UPDATE `' . $table_prefix . 'options` SET `option_value` = \'' . $option_value . '\',`autoload` = \'' . $autoload . '\' WHERE `option_name` = \'' . $option_name . '\';', array( 'exit_error' => false ) );
 		} else {
-			CLI::wpdb_query( 'INSERT INTO `' . $table_prefix . 'options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (NULL, \'' . $option_name . '\', \'' . $option_value . '\', \'' . $autoload . '\');', array( 'exit_error' => false ) );
+			\WP_CLI_Helper::wpdb_query( 'INSERT INTO `' . $table_prefix . 'options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (NULL, \'' . $option_name . '\', \'' . $option_value . '\', \'' . $autoload . '\');', array( 'exit_error' => false ) );
 		}
 
 		return $exist;
@@ -92,7 +91,7 @@ class Options {
 	public static function install_options( $table_prefix, $options ) {
 		foreach ( $options as $option ) {
 			$exist = self::update_option( $table_prefix, $option['option_name'], $option['option_value'], $option['autoload'] );
-			install::add_detail_log( CLI::_e( 'package', 'item_log', array( "[what]" => "option", "[key]" => $option['option_name'], "[run]" => ( $exist === true ? "Updated" : "Added" ) ) ) );
+			install::add_detail_log( Package::_e( 'package', 'item_log', array( "[what]" => "option", "[key]" => $option['option_name'], "[run]" => ( $exist === true ? "Updated" : "Added" ) ) ) );
 		}
 	}
 

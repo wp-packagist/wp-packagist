@@ -2,8 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 use WP_CLI_PACKAGIST\Package\Package;
 
 /**
@@ -20,42 +18,42 @@ class view extends Package {
 
 		//Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
-		CLI::br();
+		\WP_CLI_Helper::br();
 
 		//Show Every item
 		foreach ( $json_package as $name => $value ) {
 
 			//Show Title
-			CLI::line( CLI::color( "# " . ucfirst( $name ), "Y" ) );
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# " . ucfirst( $name ), "Y" ) );
 
 			//Show Content
 			switch ( $name ) {
 				case 'name':
 				case 'description':
-					CLI::line( $value );
+					\WP_CLI_Helper::line( $value );
 					break;
 
 				case 'keywords':
 					foreach ( $value as $keyword ) {
-						CLI::line( "-" . $keyword );
+						\WP_CLI_Helper::line( "-" . $keyword );
 					}
 					break;
 
 				case 'core':
 					foreach ( $value as $k => $v ) {
 						if ( $k == "locale" || $k == "version" ) {
-							CLI::line( ucfirst( $k ) . ": " . $v );
+							\WP_CLI_Helper::line( ucfirst( $k ) . ": " . $v );
 						}
 						if ( $k == "network" ) {
 							if ( $v === false ) {
-								CLI::line( ucfirst( $k ) . ": no" );
+								\WP_CLI_Helper::line( ucfirst( $k ) . ": no" );
 							} else {
-								CLI::line( ucfirst( $k ) . ": yes" );
-								CLI::line( "- use subdomain: " . ( $v['subdomain'] === false ? 'no' : 'yes' ) );
+								\WP_CLI_Helper::line( ucfirst( $k ) . ": yes" );
+								\WP_CLI_Helper::line( "- use subdomain: " . ( $v['subdomain'] === false ? 'no' : 'yes' ) );
 								if ( isset( $v['sites'] ) and ! empty( $v['sites'] ) ) {
-									CLI::line( "- sites: " );
+									\WP_CLI_Helper::line( "- sites: " );
 									$site = array();
 									foreach ( $v['sites'] as $s ) {
 										$site[] = array(
@@ -65,7 +63,7 @@ class view extends Package {
 											'title'  => ( isset( $s['title'] ) ? $s['title'] : '-' )
 										);
 									}
-									CLI::create_table( $site );
+									\WP_CLI_Helper::create_table( $site );
 								}
 							}
 						}
@@ -81,34 +79,34 @@ class view extends Package {
 								$v = "[ Your site url ]";
 							}
 
-							CLI::line( ucfirst( $k ) . ": " . $v );
+							\WP_CLI_Helper::line( ucfirst( $k ) . ": " . $v );
 						}
 					}
 
 					# 'rest api'
 					if ( isset( $value['rest-api'] ) and is_bool( $value['rest-api'] ) and $value['rest-api'] === false ) {
-						CLI::line( ucfirst( 'Rest-Api' ) . ": no" );
+						\WP_CLI_Helper::line( ucfirst( 'Rest-Api' ) . ": no" );
 					}
 
 					# 'Cookie'
 					if ( isset( $value['cookie'] ) ) {
-						CLI::line( ucfirst( 'cookie prefix' ) . ": " . $value['cookie'] );
+						\WP_CLI_Helper::line( ucfirst( 'cookie prefix' ) . ": " . $value['cookie'] );
 					}
 
 					# 'TimeZone'
 					if ( isset( $value['timezone'] ) and ! empty( $value['timezone'] ) ) {
-						CLI::line( ucfirst( 'timezone' ) . ": " . $value['timezone'] );
+						\WP_CLI_Helper::line( ucfirst( 'timezone' ) . ": " . $value['timezone'] );
 					}
 
 					# 'theme'
 					if ( isset( $value['theme'] ) and ! empty( $value['theme'] ) ) {
-						CLI::line( ucfirst( 'theme' ) . ": " . $value['theme'] );
+						\WP_CLI_Helper::line( ucfirst( 'theme' ) . ": " . $value['theme'] );
 					}
-					CLI::br();
+					\WP_CLI_Helper::br();
 
 					# 'Admin'
 					if ( isset( $value['admin'] ) ) {
-						CLI::line( CLI::color( "- " . ucfirst( 'admin:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'admin:' ), "C" ) );
 						foreach ( $value['admin'] as $k => $v ) {
 
 							if ( $k != "meta" ) {
@@ -116,29 +114,29 @@ class view extends Package {
 								if ( $private === true ) {
 									$v = "[ " . $k . " config ]";
 								}
-								CLI::line( ucfirst( $k ) . ": " . $v );
+								\WP_CLI_Helper::line( ucfirst( $k ) . ": " . $v );
 							}
 						}
 
 						//Check Meta
 						if ( isset( $value['admin']['meta'] ) ) {
-							CLI::line( ucfirst( "admin meta" ) . ": " );
+							\WP_CLI_Helper::line( ucfirst( "admin meta" ) . ": " );
 							$list = array();
 							foreach ( $value['admin']['meta'] as $meta_name => $meta_value ) {
 								$list[] = array(
 									'name'  => $meta_name,
-									'value' => ( is_array( $meta_value ) ? PHP::json_encode( $meta_value ) : $meta_value )
+									'value' => ( is_array( $meta_value ) ? \WP_CLI_Util::json_encode( $meta_value ) : $meta_value )
 								);
 							}
-							CLI::create_table( $list );
+							\WP_CLI_Helper::create_table( $list );
 						}
 
-						CLI::br();
+						\WP_CLI_Helper::br();
 					}
 
 					# 'users'
 					if ( isset( $value['users'] ) ) {
-						CLI::line( CLI::color( "- " . ucfirst( 'users:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'users:' ), "C" ) );
 						$list = array();
 						foreach ( $value['users'] as $s ) {
 							$list[] = array(
@@ -149,13 +147,13 @@ class view extends Package {
 								'meta'         => ( isset( $s['meta'] ) ? $s['meta'] : '-' ),
 							);
 						}
-						CLI::create_table( $list );
-						CLI::br();
+						\WP_CLI_Helper::create_table( $list );
+						\WP_CLI_Helper::br();
 					}
 
 					# 'constant'
 					if ( isset( $value['constant'] ) ) {
-						CLI::line( CLI::color( "- " . ucfirst( 'constant:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'constant:' ), "C" ) );
 						$list = array();
 						foreach ( $value['constant'] as $k => $v ) {
 							$list[] = array(
@@ -163,35 +161,35 @@ class view extends Package {
 								'value' => $v
 							);
 						}
-						CLI::create_table( $list );
-						CLI::br();
+						\WP_CLI_Helper::create_table( $list );
+						\WP_CLI_Helper::br();
 					}
 
 					# 'Options'
 					if ( isset( $value['options'] ) ) {
-						CLI::line( CLI::color( "- " . ucfirst( 'options:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'options:' ), "C" ) );
 						$list = array();
 						foreach ( $value['options'] as $meta_name ) {
 							$list[] = array(
 								'name'     => $meta_name['option_name'],
-								'value'    => ( is_array( $meta_name['option_value'] ) ? PHP::json_encode( $meta_name['option_value'] ) : $meta_name['option_value'] ),
+								'value'    => ( is_array( $meta_name['option_value'] ) ? \WP_CLI_Util::json_encode( $meta_name['option_value'] ) : $meta_name['option_value'] ),
 								'autoload' => ucfirst( $meta_name['autoload'] )
 							);
 						}
-						CLI::create_table( $list );
-						CLI::br();
+						\WP_CLI_Helper::create_table( $list );
+						\WP_CLI_Helper::br();
 					}
 
 					# 'rest api'
 					if ( isset( $value['rest-api'] ) and is_array( $value['rest-api'] ) ) {
-						CLI::line( CLI::color( "- " . ucfirst( 'Rest-Api:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'Rest-Api:' ), "C" ) );
 
 						//Prefix
-						CLI::line( "- Prefix url: " . $value['rest-api']['prefix'] );
+						\WP_CLI_Helper::line( "- Prefix url: " . $value['rest-api']['prefix'] );
 
 						//List disable Route
 						if ( isset( $value['rest-api']['disable'] ) ) {
-							CLI::line( "- Disable route: " . ( is_string( $value['rest-api']['disable'] ) ? $value['rest-api']['disable'] : '' ) );
+							\WP_CLI_Helper::line( "- Disable route: " . ( is_string( $value['rest-api']['disable'] ) ? $value['rest-api']['disable'] : '' ) );
 							if ( is_array( $value['rest-api']['disable'] ) ) {
 								$list = array();
 								foreach ( $value['rest-api']['disable'] as $k ) {
@@ -199,16 +197,16 @@ class view extends Package {
 										'route' => $k
 									);
 								}
-								CLI::create_table( $list );
+								\WP_CLI_Helper::create_table( $list );
 							}
 
-							CLI::br();
+							\WP_CLI_Helper::br();
 						}
 					}
 
 					# 'permalink'
 					if ( isset( $value['permalink'] ) and is_array( $value['permalink'] ) ) {
-						CLI::line( CLI::color( "- " . ucfirst( 'permalink:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'permalink:' ), "C" ) );
 
 						//List
 						if ( isset( $value['permalink'] ) ) {
@@ -219,14 +217,14 @@ class view extends Package {
 									'structure' => $v
 								);
 							}
-							CLI::create_table( $list );
+							\WP_CLI_Helper::create_table( $list );
 						}
 					}
 					break;
 
 				case 'dir':
 					foreach ( $value as $k => $v ) {
-						CLI::line( $k . ": " . $v );
+						\WP_CLI_Helper::line( $k . ": " . $v );
 					}
 					break;
 
@@ -239,7 +237,7 @@ class view extends Package {
 							$v = '-';
 						}
 
-						CLI::line( $k . ": " . $v );
+						\WP_CLI_Helper::line( $k . ": " . $v );
 					}
 					break;
 
@@ -253,7 +251,7 @@ class view extends Package {
 							'activate' => ( $plugin['activate'] === true ? 'Yes' : 'No' )
 						);
 					}
-					CLI::create_table( $list );
+					\WP_CLI_Helper::create_table( $list );
 					break;
 
 				case 'themes':
@@ -265,7 +263,7 @@ class view extends Package {
 							'source'  => ( filter_var( $v, FILTER_VALIDATE_URL ) === false ? 'WordPress' : $v ),
 						);
 					}
-					CLI::create_table( $list );
+					\WP_CLI_Helper::create_table( $list );
 					break;
 
 				case 'commands':
@@ -277,12 +275,12 @@ class view extends Package {
 							'source'  => ( $k['where'] == "wp-cli" ? "-" : $k['where'] ),
 						);
 					}
-					CLI::create_table( $list );
+					\WP_CLI_Helper::create_table( $list );
 					break;
 			}
 
 			//Add br
-			CLI::br();
+			\WP_CLI_Helper::br();
 		}
 
 	}

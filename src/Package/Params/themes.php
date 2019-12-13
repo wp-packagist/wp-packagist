@@ -5,9 +5,6 @@ namespace WP_CLI_PACKAGIST\Package\Params;
 use WP_CLI_PACKAGIST\API\WP_Themes_Api;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 
 class themes {
 	/**
@@ -36,7 +33,7 @@ class themes {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get themes parameter
 		$parameter = $pkg_array['themes'];
@@ -70,7 +67,7 @@ class themes {
 	public function sanitize_themes( $array, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Load Plugins API
 		$themes_api = new WP_Themes_Api();
@@ -78,16 +75,16 @@ class themes {
 		//Check is String
 		if ( is_string( $array ) ) {
 
-			$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "themes: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "themes: { .." ) ) );
 		} elseif ( empty( $array ) ) {
 
 			//Check Empty Array
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "themes: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "themes: { .." ) ) );
 		} else {
 
 			//Check is Assoc array
-			if ( PHP::is_assoc_array( $array ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "themes: { .." ) ) );
+			if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "themes: { .." ) ) );
 			} else {
 
 				//Check Empty Value in array
@@ -96,25 +93,25 @@ class themes {
 					//Check if array version
 					if ( is_array( $themes_v ) ) {
 
-						$valid->add_error( CLI::_e( 'wordpress_api', 'er_string', array( "[name]" => $themes_n, "[type]" => "theme" ) ) );
+						$valid->add_error( Package::_e( 'wordpress_api', 'er_string', array( "[name]" => $themes_n, "[type]" => "theme" ) ) );
 						break;
-					} elseif ( empty( PHP::to_lower_string( $themes_v ) ) ) {
+					} elseif ( empty( \WP_CLI_Util::to_lower_string( $themes_v ) ) ) {
 
 						//Check is empty version
-						$valid->add_error( CLI::_e( 'package', 'er_empty_source', array( "[key]" => $themes_n, "[type]" => "theme" ) ) );
+						$valid->add_error( Package::_e( 'package', 'er_empty_source', array( "[key]" => $themes_n, "[type]" => "theme" ) ) );
 						break;
 					} else {
 
 						//Check Preg Theme slug
-						$slug = PHP::to_lower_string( preg_replace( Package::get_config( 'wordpress_api', 'slug' ), '', $themes_n ) );
-						if ( $slug != PHP::to_lower_string( $themes_n ) ) {
-							$valid->add_error( CLI::_e( 'wordpress_api', 'er_slug', array( "[name]" => $themes_n, "[type]" => "theme" ) ) );
+						$slug = \WP_CLI_Util::to_lower_string( preg_replace( Package::get_config( 'wordpress_api', 'slug' ), '', $themes_n ) );
+						if ( $slug != \WP_CLI_Util::to_lower_string( $themes_n ) ) {
+							$valid->add_error( Package::_e( 'wordpress_api', 'er_slug', array( "[name]" => $themes_n, "[type]" => "theme" ) ) );
 							break;
 						} else {
 
 							//to lowercase all data
 							unset( $array[ $themes_n ] );
-							$array[ $slug ] = PHP::to_lower_string( $themes_v );
+							$array[ $slug ] = \WP_CLI_Util::to_lower_string( $themes_v );
 						}
 					}
 				}
@@ -134,8 +131,8 @@ class themes {
 							if ( ! in_array( $themes_v, Package::get_config( 'package', 'latest' ) ) ) {
 
 								//Check is Version number
-								if ( PHP::is_semver_version( $themes_v ) === false ) {
-									$valid->add_error( CLI::_e( 'package', 'er_wrong_version', array( "[key]" => $themes_n, "[type]" => "theme" ) ) );
+								if ( \WP_CLI_Util::is_semver_version( $themes_v ) === false ) {
+									$valid->add_error( Package::_e( 'package', 'er_wrong_version', array( "[key]" => $themes_n, "[type]" => "theme" ) ) );
 									break;
 								} else {
 									$source_list[ $themes_n ] = 'version';
@@ -179,7 +176,7 @@ class themes {
 
 								//Check exist Version number
 								if ( $value == "version" and ! in_array( $array[ $key ], $get_plugin_data['data'] ) ) {
-									$valid->add_error( CLI::_e( 'wordpress_api', 'not_available_ver', array( "[name]" => $key, "[type]" => "theme", "[ver]" => $array[ $key ] ) ) );
+									$valid->add_error( Package::_e( 'wordpress_api', 'not_available_ver', array( "[name]" => $key, "[type]" => "theme", "[ver]" => $array[ $key ] ) ) );
 									break;
 								}
 							}

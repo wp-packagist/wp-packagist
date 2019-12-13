@@ -4,10 +4,6 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use Faker\Provider\File;
 use WP_CLI_PACKAGIST\API\WP_Plugins_Api;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\Wordpress;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 class Plugins {
@@ -28,7 +24,7 @@ class Plugins {
 
 		//Check Function Exist
 		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once( Wordpress::get_base_path() . 'wp-admin/includes/plugin.php' );
+			require_once( Core::get_base_path() . 'wp-admin/includes/plugin.php' );
 		}
 
 		//Get List Of Plugin
@@ -45,7 +41,7 @@ class Plugins {
 			$folder = ( stristr( $exp[0], ".php" ) != false ? "" : $exp[0] );
 
 			//Ful path Plugin
-			$path = FileSystem::path_join( Dir::get_plugins_dir(), $plugin_slug );
+			$path = \WP_CLI_FileSystem::path_join( Dir::get_plugins_dir(), $plugin_slug );
 
 			//Added To list
 			$basic_inf = array(
@@ -57,7 +53,7 @@ class Plugins {
 			);
 
 			//Push Plugins key
-			$plugin_list[] = PHP::array_change_key_case_recursive( array_merge( $basic_inf, $plugin_val ) );
+			$plugin_list[] = \WP_CLI_Util::array_change_key_case_recursive( array_merge( $basic_inf, $plugin_val ) );
 		}
 
 		return $plugin_list;
@@ -89,7 +85,7 @@ class Plugins {
 		);
 
 		// Parse incoming $args into an array and merge it with $defaults
-		$args = PHP::parse_args( $args, $defaults );
+		$args = \WP_CLI_Util::parse_args( $args, $defaults );
 
 		//Get List Of Plugins
 		$list = self::get_list_plugins();
@@ -151,7 +147,7 @@ class Plugins {
 		$plugins_api = new WP_Plugins_Api;
 
 		//Get plugins path
-		$plugins_path = FileSystem::normalize_path( self::eval_get_plugins_path() );
+		$plugins_path = \WP_CLI_FileSystem::normalize_path( self::eval_get_plugins_path() );
 
 		//Default Params
 		$defaults = array(
@@ -159,7 +155,7 @@ class Plugins {
 			'log'    => true,
 			'remove' => true
 		);
-		$args     = PHP::parse_args( $options, $defaults );
+		$args     = \WP_CLI_Util::parse_args( $options, $defaults );
 
 		//Check Removed Plugins
 		if ( isset( $args['remove'] ) and ! empty( $current_plugin_list ) ) {
@@ -182,13 +178,13 @@ class Plugins {
 
 					//Run Removed Plugin
 					$cmd = "plugin uninstall {$wp_plugin['folder']} --deactivate";
-					CLI::run_command( $cmd, array( 'exit_error' => false ) );
+					\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 					//Add Log
 					if ( isset( $args['log'] ) and $args['log'] === true ) {
-						CLI::pl_wait_end();
-						install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => "Removed", "[slug]" => $wp_plugin['folder'], "[type]" => "plugin", "[more]" => "" ) ) );
-						CLI::pl_wait_start();
+						\WP_CLI_Helper::pl_wait_end();
+						install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => "Removed", "[slug]" => $wp_plugin['folder'], "[type]" => "plugin", "[more]" => "" ) ) );
+						\WP_CLI_Helper::pl_wait_start();
 					}
 				}
 
@@ -217,13 +213,13 @@ class Plugins {
 
 					//Run Command plugin
 					$cmd = "plugin " . ( $pkg_status === true ? 'activate' : 'deactivate' ) . " {$plugin['slug']}";
-					CLI::run_command( $cmd, array( 'exit_error' => false ) );
+					\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 					//Add Log
 					if ( isset( $args['log'] ) and $args['log'] === true ) {
-						CLI::pl_wait_end();
-						install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => ( $pkg_status === true ? 'Activate' : 'Deactivate' ), "[slug]" => $plugin['slug'], "[type]" => "plugin", "[more]" => "" ) ) );
-						CLI::pl_wait_start();
+						\WP_CLI_Helper::pl_wait_end();
+						install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => ( $pkg_status === true ? 'Activate' : 'Deactivate' ), "[slug]" => $plugin['slug'], "[type]" => "plugin", "[more]" => "" ) ) );
+						\WP_CLI_Helper::pl_wait_start();
 					}
 				}
 
@@ -265,22 +261,22 @@ class Plugins {
 
 				//Run Command
 				$cmd = "plugin install {$prompt} --force";
-				CLI::run_command( $cmd, array( 'exit_error' => false ) );
+				\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 				//Add Log
 				if ( isset( $args['log'] ) and $args['log'] === true ) {
-					CLI::pl_wait_end();
-					install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => "Added", "[slug]" => $plugin['slug'] . ( ( isset( $plugin['version'] ) and PHP::is_semver_version( $plugin['version'] ) === true ) ? ' ' . CLI::color( "v" . $plugin['version'], "P" ) : '' ), "[type]" => "plugin", "[more]" => ( $plugin['activate'] === true ? CLI::color( " [activate]", "B" ) : "" ) ) ) );
-					CLI::pl_wait_start();
+					\WP_CLI_Helper::pl_wait_end();
+					install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => "Added", "[slug]" => $plugin['slug'] . ( ( isset( $plugin['version'] ) and \WP_CLI_Util::is_semver_version( $plugin['version'] ) === true ) ? ' ' . \WP_CLI_Helper::color( "v" . $plugin['version'], "P" ) : '' ), "[type]" => "plugin", "[more]" => ( $plugin['activate'] === true ? \WP_CLI_Helper::color( " [activate]", "B" ) : "" ) ) ) );
+					\WP_CLI_Helper::pl_wait_start();
 				}
 
 				//Sanitize Folder Plugins
 				if ( isset( $plugin['url'] ) and ! empty( $plugins_path ) ) {
 					//Get Last Dir
-					$last_dir = FileSystem::sort_dir_by_date( $plugins_path, "DESC" );
+					$last_dir = \WP_CLI_FileSystem::sort_dir_by_date( $plugins_path, "DESC" );
 
 					//Sanitize
-					PHP::sanitize_github_dir( FileSystem::path_join( $plugins_path, $last_dir[0] ) );
+					\WP_CLI_Util::sanitize_github_dir( \WP_CLI_FileSystem::path_join( $plugins_path, $last_dir[0] ) );
 				}
 
 				# Updated Plugin
@@ -320,13 +316,13 @@ class Plugins {
 
 					//Run Command
 					$cmd = "plugin update {$prompt} --force";
-					CLI::run_command( $cmd, array( 'exit_error' => false ) );
+					\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 					//Add Log
 					if ( isset( $args['log'] ) and $args['log'] === true ) {
-						CLI::pl_wait_end();
-						install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => "Updated", "[slug]" => $plugin['slug'] . ( ( isset( $plugin['version'] ) and PHP::is_semver_version( $plugin['version'] ) === true ) ? ' ' . CLI::color( "v" . $plugin['version'], "P" ) : '' ), "[type]" => "plugin" ) ) );
-						CLI::pl_wait_start();
+						\WP_CLI_Helper::pl_wait_end();
+						install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => "Updated", "[slug]" => $plugin['slug'] . ( ( isset( $plugin['version'] ) and \WP_CLI_Util::is_semver_version( $plugin['version'] ) === true ) ? ' ' . \WP_CLI_Helper::color( "v" . $plugin['version'], "P" ) : '' ), "[type]" => "plugin" ) ) );
+						\WP_CLI_Helper::pl_wait_start();
 					}
 
 				}
@@ -334,7 +330,7 @@ class Plugins {
 		}
 
 		if ( isset( $args['log'] ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 	}
 }

@@ -1,7 +1,6 @@
 <?php
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\Wordpress;
+use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 use WP_CLI_PACKAGIST\Package\Utility\validation;
@@ -17,10 +16,6 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
  * [--force]
  * : remove all MySQL tables before installing if exist
  *
- * ## DOCUMENT
- *
- *      https://wp-packagist.com/docs/install
- *
  * ## EXAMPLES
  *
  *      # install WordPress Package.
@@ -35,14 +30,14 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
 	$pkg = new Package();
 
 	//exist WordPress
-	if ( Wordpress::check_wp_exist() ) {
-		CLI::error( CLI::_e( 'package', 'exist_wp' ) );
+	if ( Core::check_wp_exist() ) {
+		\WP_CLI_Helper::error( Package::_e( 'package', 'exist_wp' ) );
 		return;
 	}
 
 	//exist wordpress package file
 	if ( $pkg->exist_package_file() === false ) {
-		CLI::error( CLI::_e( 'package', 'not_exist_pkg' ) );
+		\WP_CLI_Helper::error( Package::_e( 'package', 'not_exist_pkg' ) );
 		return;
 	}
 
@@ -55,7 +50,7 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
 	}
 
 	//Show Please Wait
-	CLI::pl_wait_start( false );
+	\WP_CLI_Helper::pl_wait_start( false );
 
 	//Run Package Validation
 	$valid_pkg = new validation();

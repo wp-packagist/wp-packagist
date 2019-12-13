@@ -1,9 +1,7 @@
 <?php
 
+use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\Wordpress;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\create;
 
@@ -60,10 +58,6 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
  * [--multisite]
  * : install WordPress Multisite.
  *
- * ## DOCUMENT
- *
- *      https://wp-packagist.com/docs/init
- *
  * ## EXAMPLES
  *
  *      # Create a new WordPress package.
@@ -78,14 +72,14 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
 	$pkg = new Package();
 
 	//exist WordPress
-	if ( Wordpress::check_wp_exist() ) {
-		CLI::error( CLI::_e( 'package', 'exist_wp' ) );
+	if ( Core::check_wp_exist() ) {
+		\WP_CLI_Helper::error( Package::_e( 'package', 'exist_wp' ) );
 		return;
 	}
 
 	//exist wordpress package file
 	if ( $pkg->exist_package_file() ) {
-		CLI::error( CLI::_e( 'package', 'exist_pkg' ) );
+		\WP_CLI_Helper::error( Package::_e( 'package', 'exist_pkg' ) );
 		return;
 	}
 
@@ -116,18 +110,18 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
 
 		//Show Warning
 		if ( count( $warnings ) > 0 ) {
-			CLI::br();
-			CLI::warning();
+			\WP_CLI_Helper::br();
+			\WP_CLI_Helper::warning();
 			foreach ( $warnings as $text_warning ) {
-				CLI::line( "  - " . $text_warning );
+				\WP_CLI_Helper::line( "  - " . $text_warning );
 			}
-			CLI::br();
+			\WP_CLI_Helper::br();
 		}
 
 		//Remove Package LocalTemp
-		temp::remove_temp_file( PHP::getcwd() );
+		temp::remove_temp_file( \WP_CLI_Util::getcwd() );
 
 		//Show Success
-		CLI::success( CLI::_e( 'package', 'created' ) );
+		\WP_CLI_Helper::success( Package::_e( 'package', 'created' ) );
 	}
 } );

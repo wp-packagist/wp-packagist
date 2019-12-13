@@ -1,22 +1,20 @@
 <?php
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-
 return array(
 	/**
 	 * Get path cache folder
 	 */
-	'cache_dir'                  => WP_CLI_PACKAGIST_CACHE_PATH,
+	'cache_dir'     => WP_CLI_PACKAGIST_CACHE_PATH,
 
 	/**
 	 * Online document url
 	 */
-	'docs'                       => 'https://wp-packagist.com/docs/',
+	'docs'          => 'https://github.com/wp-packagist/wp-packagist/wiki/',
 
 	/**
 	 * WordPress API
 	 */
-	'wordpress_api'              => array(
+	'wordpress_api' => array(
 
 		# Wordpress translations List
 		'translations' => "https://api.wordpress.org/translations/core/1.0/",
@@ -46,18 +44,18 @@ return array(
 
 		# List Of cli Log
 		'log'          => array(
-			'connect'           => 'Error connecting to ' . CLI::color( "WordPress.org API", "Y" ) . '. Please check your internet connection and try again.',
-			'not_found'         => "The '" . CLI::color( "[name]", "Y" ) . "' not found in WordPress.org [type] directory.",
-			'not_available_ver' => "The '" . CLI::color( "[name]", "Y" ) . "' [type] is not available in [ver] version. show available versions '" . CLI::color( 'wp pack help', 'Y' ) . "'.",
-			'er_slug'           => "The '" . CLI::color( "[name]", "Y" ) . "' [type] slug is not valid.",
-			'er_string'         => "'" . CLI::color( "[name]", "Y" ) . "' [type] version or source must be an string.",
+			'connect'           => 'Error connecting to ' . \WP_CLI_Helper::color( "WordPress.org API", "Y" ) . '. Please check your internet connection and try again.',
+			'not_found'         => "The '" . \WP_CLI_Helper::color( "[name]", "Y" ) . "' not found in WordPress.org [type] directory.",
+			'not_available_ver' => "The '" . \WP_CLI_Helper::color( "[name]", "Y" ) . "' [type] is not available in [ver] version. show available versions '" . \WP_CLI_Helper::color( 'wp pack help', 'Y' ) . "'.",
+			'er_slug'           => "The '" . \WP_CLI_Helper::color( "[name]", "Y" ) . "' [type] slug is not valid.",
+			'er_string'         => "'" . \WP_CLI_Helper::color( "[name]", "Y" ) . "' [type] version or source must be an string.",
 		)
 	),
 
 	/**
 	 * Global Configuration
 	 */
-	'config'                     => array(
+	'config'        => array(
 
 		# The list of acceptable options for application
 		'options' => array(
@@ -78,19 +76,19 @@ return array(
 
 		# List of Cli log for WP-CLI-APP Config
 		'log'     => array(
-			'process_time'  => CLI::color( "(Process time: [time])", "P" )
+			'process_time' => \WP_CLI_Helper::color( "(Process time: [time])", "P" )
 		)
 	),
 
 	/**
 	 * Commands log
 	 */
-	'command_log'                => WP_CLI_PACKAGIST_CACHE_PATH . '/log.json',
+	'command_log'   => WP_CLI_PACKAGIST_CACHE_PATH . '/log.json',
 
 	/**
 	 * WordPress Package System
 	 */
-	'package'                    => array(
+	'package'       => array(
 
 		# Default Package File name
 		'file'                     => 'wordpress.json',
@@ -217,70 +215,70 @@ return array(
 		# List of log for WordPress Package
 		'log'                      => array(
 			'created'               => 'Created WordPress package file.',
-			'exist_pkg'             => "WordPress package file now exists. please delete it with '" . CLI::color( "wp pack remove", "Y" ) . "' , and try again.",
+			'exist_pkg'             => "WordPress package file now exists. please delete it with '" . \WP_CLI_Helper::color( "wp pack remove", "Y" ) . "' , and try again.",
 			'not_exist_pkg'         => 'WordPress package file is not exists.',
-			'create_new_pkg'        => "Create new with '" . CLI::color( "wp init", "Y" ) . "'.",
+			'create_new_pkg'        => "Create new with '" . \WP_CLI_Helper::color( "wp init", "Y" ) . "'.",
 			'er_pkg_syntax'         => 'The WordPress Package file syntax is wrong.',
 			'exist_wp'              => 'WordPress files seem to already be present here.',
 			'no_exist_pkg'          => 'There is no WordPress Package file.',
-			'version_standard'      => "WordPress version is not standard. show available versions '" . CLI::color( "wp pack help", "Y" ) . "'.",
-			'version_exist'         => "There is no WordPress with this version. show available versions '" . CLI::color( "wp pack help", "Y" ) . "'.",
-			'wrong_locale'          => "WordPress Locale code is wrong. show complete list '" . CLI::color( "wp pack help", "Y" ) . "'.",
-			'wrong_timezone'        => "WordPress Timezone is wrong. show complete list '" . CLI::color( "wp pack help", "Y" ) . "'.",
+			'version_standard'      => "WordPress version is not standard. show available versions '" . \WP_CLI_Helper::color( "wp pack help", "Y" ) . "'.",
+			'version_exist'         => "There is no WordPress with this version. show available versions '" . \WP_CLI_Helper::color( "wp pack help", "Y" ) . "'.",
+			'wrong_locale'          => "WordPress Locale code is wrong. show complete list '" . \WP_CLI_Helper::color( "wp pack help", "Y" ) . "'.",
+			'wrong_timezone'        => "WordPress Timezone is wrong. show complete list '" . \WP_CLI_Helper::color( "wp pack help", "Y" ) . "'.",
 			'remove_pkg'            => 'Removed Wordpress package file.',
 			'rm_pkg_confirm'        => 'Are you sure you want to remove WordPress package file ?',
-			'not_exist_key'         => "'" . CLI::color( "[key]", "Y" ) . "' require " . CLI::color( "[require]", "B" ) . " parameter.",
-			'empty_val'             => "'" . CLI::color( "[key]", "Y" ) . "' key is empty.",
-			'is_string'             => "'" . CLI::color( "[key]", "Y" ) . "' must be an array.",
-			'is_not_string'         => "'" . CLI::color( "[key]", "Y" ) . "' must be an string.",
-			'is_boolean'            => "'" . CLI::color( "[key]", "Y" ) . "' must be an boolean.",
-			'nv_url'                => "url in '" . CLI::color( "[key]", "Y" ) . "' is not valid.",
-			'nv_duplicate'          => "The duplicate '" . CLI::color( "[key]", "Y" ) . "' value is in the " . CLI::color( "[array]", "B" ) . ".",
-			'nv_duplicate_key'      => "The duplicate '" . CLI::color( "[key]", "Y" ) . "' Key is in the " . CLI::color( "[array]", "B" ) . ".",
-			'nv_user_login'         => "The [which] in '" . CLI::color( "[key]", "Y" ) . "' may not be longer than 60 characters.",
-			'nv_user_email'         => "The [which] format in '" . CLI::color( "[key]", "Y" ) . "' is not valid.",
+			'not_exist_key'         => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' require " . \WP_CLI_Helper::color( "[require]", "B" ) . " parameter.",
+			'empty_val'             => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' key is empty.",
+			'is_string'             => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' must be an array.",
+			'is_not_string'         => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' must be an string.",
+			'is_boolean'            => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' must be an boolean.",
+			'nv_url'                => "url in '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' is not valid.",
+			'nv_duplicate'          => "The duplicate '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' value is in the " . \WP_CLI_Helper::color( "[array]", "B" ) . ".",
+			'nv_duplicate_key'      => "The duplicate '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' Key is in the " . \WP_CLI_Helper::color( "[array]", "B" ) . ".",
+			'nv_user_login'         => "The [which] in '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' may not be longer than 60 characters.",
+			'nv_user_email'         => "The [which] format in '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' is not valid.",
 			'er_db_connect'         => "Error connecting to MySQL database, Please check your inputs and the server.",
-			'er_not_exist_db'       => "There is no MySQL database with the name of '" . CLI::color( "[name]", "Y" ) . "' in the database.",
-			'er_exist_db_tbl'       => "There are " . CLI::color( "[table]", "Y" ) . " table[sum] in the " . CLI::color( "[name]", "B" ) . " database. Please remove it before install or use 'wp install --force'.",
+			'er_not_exist_db'       => "There is no MySQL database with the name of '" . \WP_CLI_Helper::color( "[name]", "Y" ) . "' in the database.",
+			'er_exist_db_tbl'       => "There are " . \WP_CLI_Helper::color( "[table]", "Y" ) . " table[sum] in the " . \WP_CLI_Helper::color( "[name]", "B" ) . " database. Please remove it before install or use 'wp install --force'.",
 			'pkg_is_valid'          => "WordPress package is valid.",
-			'er_unknown_param'      => "The '" . CLI::color( "[key]", "Y" ) . "' has an unknown parameter in the WordPress package.",
+			'er_unknown_param'      => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' has an unknown parameter in the WordPress package.",
 			'er_package_name'       => "Your package name is not valid.",
-			'er_contain_html'       => "The '" . CLI::color( "[key]", "Y" ) . "' contains the HTML code.",
-			'er_special_ch'         => "The '" . CLI::color( "[key]", "Y" ) . "' contains the special character.",
-			'er_max_num_ch'         => "The '" . CLI::color( "[key]", "Y" ) . "' should be at most [number] characters.",
-			'er_valid'              => "'" . CLI::color( "[key]", "Y" ) . "' is not valid.",
-			'er_max_item'           => "The '" . CLI::color( "[key]", "Y" ) . "' should be at most [number] items.",
-			'er_contain_space'      => "The '" . CLI::color( "[key]", "Y" ) . "' contains white space. Use the dash instead of white space.",
-			'er_forbidden'          => "The '" . CLI::color( "[key]", "Y" ) . "' is forbidden.",
-			'forbidden_role'        => "You can not change the role of the admin user. please remove '" . CLI::color( "role", "Y" ) . "' key from admin user.",
-			'er_empty_source'       => "The '" . CLI::color( "[key]", "Y" ) . "' [type] version or source is empty.",
-			'er_wrong_version'      => "The '" . CLI::color( "[key]", "Y" ) . "' [type] version or source is wrong.",
-			'er_wrong_plugin_url'   => "The '" . CLI::color( "[key]", "Y" ) . "' [type] source url is wrong.",
-			'er_wrong_plugin_v'     => "The '" . CLI::color( "[key]", "Y" ) . "' [type] version is wrong.",
-			'er_plugin_activate'    => "The '" . CLI::color( "[slug]", "Y" ) . "' plugin activate parameter must be boolean.",
-			'require_param_plugin'  => "The '" . CLI::color( "[slug]", "Y" ) . "' plugin require 'version' or 'url' parameter.",
-			'path_contain_drive'    => "The '" . CLI::color( "[key]", "Y" ) . "' should not contain the drive name.",
-			'er_contain_drive_cmd'  => "The '" . CLI::color( "[key]", "Y" ) . "' command path should not contain the drive name.",
-			'er_string_command'     => "The '" . CLI::color( "[key]", "Y" ) . "' command type or path must be an string.",
-			'er_register_cmd'       => "'" . CLI::color( "[key]", "Y" ) . "' is not recognized as an [where] command.",
-			'er_forbidden_cmd'      => "The 'wp " . CLI::color( "[key]", "Y" ) . "' command is forbidden for running in WordPress Package.",
+			'er_contain_html'       => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' contains the HTML code.",
+			'er_special_ch'         => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' contains the special character.",
+			'er_max_num_ch'         => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' should be at most [number] characters.",
+			'er_valid'              => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' is not valid.",
+			'er_max_item'           => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' should be at most [number] items.",
+			'er_contain_space'      => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' contains white space. Use the dash instead of white space.",
+			'er_forbidden'          => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' is forbidden.",
+			'forbidden_role'        => "You can not change the role of the admin user. please remove '" . \WP_CLI_Helper::color( "role", "Y" ) . "' key from admin user.",
+			'er_empty_source'       => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' [type] version or source is empty.",
+			'er_wrong_version'      => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' [type] version or source is wrong.",
+			'er_wrong_plugin_url'   => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' [type] source url is wrong.",
+			'er_wrong_plugin_v'     => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' [type] version is wrong.",
+			'er_plugin_activate'    => "The '" . \WP_CLI_Helper::color( "[slug]", "Y" ) . "' plugin activate parameter must be boolean.",
+			'require_param_plugin'  => "The '" . \WP_CLI_Helper::color( "[slug]", "Y" ) . "' plugin require 'version' or 'url' parameter.",
+			'path_contain_drive'    => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' should not contain the drive name.",
+			'er_contain_drive_cmd'  => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' command path should not contain the drive name.",
+			'er_string_command'     => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' command type or path must be an string.",
+			'er_register_cmd'       => "'" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' is not recognized as an [where] command.",
+			'er_forbidden_cmd'      => "The 'wp " . \WP_CLI_Helper::color( "[key]", "Y" ) . "' command is forbidden for running in WordPress Package.",
 			'er_nightly_ver'        => "Nightly builds are only available for the en_US locale.",
 			'er_found_release'      => "Release not found for this locale and version.",
-			'er_incorrect_site_url' => "Your site URL is incorrect. Connection to '" . CLI::color( "[url]", "Y" ) . "' domain was not established.",
+			'er_incorrect_site_url' => "Your site URL is incorrect. Connection to '" . \WP_CLI_Helper::color( "[url]", "Y" ) . "' domain was not established.",
 			'success_install'       => 'Completed install WordPress.',
 			'success_update'        => 'Updated WordPress.',
-			'network_domain_local'  => "Multi-site with subdomains cannot be configured when domain is '" . CLI::color( "[url]", "Y" ) . "'.",
-			'get_wp'                => "[run] WordPress Core " . CLI::color( "([version])", "B" ) . ".",
+			'network_domain_local'  => "Multi-site with subdomains cannot be configured when domain is '" . \WP_CLI_Helper::color( "[url]", "Y" ) . "'.",
+			'get_wp'                => "[run] WordPress Core " . \WP_CLI_Helper::color( "([version])", "B" ) . ".",
 			'create_config'         => "Create wp-config.php file.",
 			'salt_generate'         => "Generate WordPress salt keys.",
 			'added_db_const'        => "Added MySQL constants.",
 			'change_cookie_prefix'  => "Change WordPress Cookie prefix.",
 			'wp_sec_file'           => "WordPress security.",
-			'removed_file'          => "Removed " . CLI::color( "[file]", "R" ) . " file.",
-			'created_file'          => "Created " . CLI::color( "[file]", "B" ) . " file.",
-			'sec_mu_plugins'        => "Disable direct access to " . CLI::color( "[file]", "B" ) . " file.",
+			'removed_file'          => "Removed " . \WP_CLI_Helper::color( "[file]", "R" ) . " file.",
+			'created_file'          => "Created " . \WP_CLI_Helper::color( "[file]", "B" ) . " file.",
+			'sec_mu_plugins'        => "Disable direct access to " . \WP_CLI_Helper::color( "[file]", "B" ) . " file.",
 			'change_dir'            => "Change WordPress folders.",
-			'change_custom_folder'  => "Change " . CLI::color( "[folder]", "B" ) . " folder.",
+			'change_custom_folder'  => "Change " . \WP_CLI_Helper::color( "[folder]", "B" ) . " folder.",
 			'create_db'             => "Created '[db_name]' Database.",
 			'install_wp'            => "Install WordPress.",
 			'install_wp_network'    => "Install WordPress Multisite Network.",
@@ -294,25 +292,25 @@ return array(
 			'update_timezone'       => "Updated WordPress Timezone.",
 			'change_timezone'       => "Change WordPress Timezone.",
 			'update_options'        => "Update WordPress Options.",
-			'er_autoload_opt'       => "The autoload value should be yes or no in '" . CLI::color( "[key]", "Y" ) . "'.",
+			'er_autoload_opt'       => "The autoload value should be yes or no in '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "'.",
 			'create_users'          => "Create new WordPress users.",
-			'create_one_user'       => "Created '[user_login]' user. " . CLI::color( "ID: [user_id]", "B" ) . "",
+			'create_one_user'       => "Created '[user_login]' user. " . \WP_CLI_Helper::color( "ID: [user_id]", "B" ) . "",
 			'update_rest_api'       => "Update WordPress REST API.",
-			'manage_item'           => "[work] '" . CLI::color( "[slug]", "Y" ) . "' [type].[more]",
-			'manage_item_blue'      => "[work] " . CLI::color( "[key]", "B" ) . " [type].",
-			'manage_item_red'       => "[work] " . CLI::color( "[key]", "R" ) . " [type].",
-			'manage_item_error'     => CLI::color( "Error:", "R" ) . " [msg] '[key]'.",
+			'manage_item'           => "[work] '" . \WP_CLI_Helper::color( "[slug]", "Y" ) . "' [type].[more]",
+			'manage_item_blue'      => "[work] " . \WP_CLI_Helper::color( "[key]", "B" ) . " [type].",
+			'manage_item_red'       => "[work] " . \WP_CLI_Helper::color( "[key]", "R" ) . " [type].",
+			'manage_item_error'     => \WP_CLI_Helper::color( "Error:", "R" ) . " [msg] '[key]'.",
 			'install_wp_plugins'    => "Install WordPress plugins.",
 			'install_wp_themes'     => "Install WordPress themes.",
-			'er_delete_no_theme'    => "" . CLI::color( "Error", "R" ) . ": Can't delete the currently active theme '[theme]'",
+			'er_delete_no_theme'    => "" . \WP_CLI_Helper::color( "Error", "R" ) . ": Can't delete the currently active theme '[theme]'",
 			'is_now_theme_active'   => "The '[stylesheet]' theme is already active.",
-			'theme_not_found'       => "The '" . CLI::color( "[stylesheet]", "R" ) . "' theme was not found for switching in your WordPress.",
+			'theme_not_found'       => "The '" . \WP_CLI_Helper::color( "[stylesheet]", "R" ) . "' theme was not found for switching in your WordPress.",
 			'switch_to_theme'       => "Switched to '[stylesheet]' theme.",
 			'run_pkg_commands'      => "Run WordPress package commands.",
-			'run_cmd'               => "Run '" . CLI::color( "[cmd]", "B" ) . "' command[more].",
-			'er_find_dir_cmd'       => "The '" . CLI::color( "[dir]", "R" ) . "' path is not found for running '[cmd]'.",
-			'item_log'              => "[run] " . CLI::color( "[key]", "B" ) . " [what].",
-			'rm_item_log'           => "[run] " . CLI::color( "[key]", "R" ) . " [what].",
+			'run_cmd'               => "Run '" . \WP_CLI_Helper::color( "[cmd]", "B" ) . "' command[more].",
+			'er_find_dir_cmd'       => "The '" . \WP_CLI_Helper::color( "[dir]", "R" ) . "' path is not found for running '[cmd]'.",
+			'item_log'              => "[run] " . \WP_CLI_Helper::color( "[key]", "B" ) . " [what].",
+			'rm_item_log'           => "[run] " . \WP_CLI_Helper::color( "[key]", "R" ) . " [what].",
 			'dup_admin_user'        => "The [what] is duplicate between the admin and a user.",
 			'not_change_pkg'        => "No changes found in the WordPress package.",
 			'srdb_uploads'          => "Updated WordPress attachments link in the database.",
@@ -324,7 +322,7 @@ return array(
 	/**
 	 * Curl
 	 */
-	'curl'                       => array(
+	'curl'          => array(
 
 		# Default User Agent for request
 		'user_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
@@ -332,15 +330,10 @@ return array(
 		# List of cli log
 		'log'        => array(
 			'er_enabled' => "Please install/enable the cURL PHP extension.",
-			'er_url'     => "The '" . CLI::color( "[what]", "Y" ) . "' url is wrong. please check url and try again.",
-			'er_zip'     => "The '" . CLI::color( "[what]", "Y" ) . "' url must be a zip file.",
-			'er_connect' => "Failed to connect to " . CLI::color( "[url]", "Y" ) . ". please check url or your internet connection."
+			'er_url'     => "The '" . \WP_CLI_Helper::color( "[what]", "Y" ) . "' url is wrong. please check url and try again.",
+			'er_zip'     => "The '" . \WP_CLI_Helper::color( "[what]", "Y" ) . "' url must be a zip file.",
+			'er_connect' => "Failed to connect to " . \WP_CLI_Helper::color( "[url]", "Y" ) . ". please check url or your internet connection."
 		)
-	),
+	)
 
-	/* acl */
-	'acl_opt'                    => 'wp_cli_acl',
-
-	/* Downloads */
-	'downloads_dir'              => '_downloads'
 );

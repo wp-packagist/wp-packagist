@@ -2,9 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 class Dir {
@@ -21,10 +18,10 @@ class Dir {
 	 */
 	public static function create_require_folder() {
 
-		$wp_content = PHP::getcwd( 'wp-content' );
+		$wp_content = \WP_CLI_Util::getcwd( 'wp-content' );
 		foreach ( self::$dirs as $folder ) {
-			if ( FileSystem::folder_exist( FileSystem::path_join( $wp_content, $folder ) ) === false ) {
-				FileSystem::create_dir( $folder, $wp_content );
+			if ( \WP_CLI_FileSystem::folder_exist( \WP_CLI_FileSystem::path_join( $wp_content, $folder ) ) === false ) {
+				\WP_CLI_FileSystem::create_dir( $folder, $wp_content );
 			}
 		}
 	}
@@ -52,7 +49,7 @@ class Dir {
 		}
 
 		//Get Mu Plugins Path
-		return FileSystem::path_join( PHP::getcwd(), FileSystem::path_join( $wp_content, 'mu-plugins' ) );
+		return \WP_CLI_FileSystem::path_join( \WP_CLI_Util::getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, 'mu-plugins' ) );
 	}
 
 	/**
@@ -118,9 +115,9 @@ class Dir {
 	 */
 	public static function get_content_dir() {
 		if ( ! defined( 'WP_CONTENT_DIR' ) ) {
-			return FileSystem::path_join( PHP::getcwd(), 'wp-content' );
+			return \WP_CLI_FileSystem::path_join( \WP_CLI_Util::getcwd(), 'wp-content' );
 		} else {
-			return FileSystem::normalize_path( WP_CONTENT_DIR );
+			return \WP_CLI_FileSystem::normalize_path( WP_CONTENT_DIR );
 		}
 	}
 
@@ -135,7 +132,7 @@ class Dir {
 	public static function change_wp_content_folder( $dir, $wp_config, $log = false, $step = 'install' ) {
 
 		//Get base wp-content path
-		$base_path = rtrim( FileSystem::path_join( getcwd(), 'wp-content' ), "/" );
+		$base_path = rtrim( \WP_CLI_FileSystem::path_join( getcwd(), 'wp-content' ), "/" );
 
 		//Get current wp-content path
 		$current_path = rtrim( self::get_content_dir(), "/" ) . "/";
@@ -157,17 +154,17 @@ class Dir {
 				}
 
 				//Move Folder
-				FileSystem::move( $current_path, $base_path );
+				\WP_CLI_FileSystem::move( $current_path, $base_path );
 			}
 		} else {
 
 			//New Path
-			$new_path = rtrim( FileSystem::path_join( getcwd(), trim( $dir['wp-content'], "/" ) ), "/" ) . "/";
+			$new_path = rtrim( \WP_CLI_FileSystem::path_join( getcwd(), trim( $dir['wp-content'], "/" ) ), "/" ) . "/";
 			if ( $new_path != $current_path ) {
 				$is_change = true;
 
 				//Move Folder
-				FileSystem::move( $current_path, $new_path );
+				\WP_CLI_FileSystem::move( $current_path, $new_path );
 
 				//Add Constant
 				$wp_config->update( 'constant', 'WP_CONTENT_FOLDER', trim( $dir['wp-content'], "/" ), array( 'raw' => false, 'normalize' => true ) );
@@ -178,7 +175,7 @@ class Dir {
 
 		//Add Log
 		if ( $log and $is_change ) {
-			install::add_detail_log( CLI::_e( 'package', 'change_custom_folder', array( "[folder]" => "wp-content" ) ) );
+			install::add_detail_log( Package::_e( 'package', 'change_custom_folder', array( "[folder]" => "wp-content" ) ) );
 		}
 	}
 
@@ -187,9 +184,9 @@ class Dir {
 	 */
 	public static function get_plugins_dir() {
 		if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
-			return FileSystem::path_join( getcwd(), 'wp-content/plugins' );
+			return \WP_CLI_FileSystem::path_join( getcwd(), 'wp-content/plugins' );
 		} else {
-			return FileSystem::normalize_path( WP_PLUGIN_DIR );
+			return \WP_CLI_FileSystem::normalize_path( WP_PLUGIN_DIR );
 		}
 	}
 
@@ -204,7 +201,7 @@ class Dir {
 	public static function change_plugins_folder( $dir, $wp_config, $log = false, $step = 'install' ) {
 
 		//Get base plugins path
-		$base_path = rtrim( FileSystem::path_join( getcwd(), 'wp-content/plugins' ), "/" );
+		$base_path = rtrim( \WP_CLI_FileSystem::path_join( getcwd(), 'wp-content/plugins' ), "/" );
 
 		//Get current plugins path
 		$current_path = rtrim( self::get_plugins_dir(), "/" ) . "/";
@@ -226,7 +223,7 @@ class Dir {
 				}
 
 				//Move Folder
-				FileSystem::move( $current_path, $base_path );
+				\WP_CLI_FileSystem::move( $current_path, $base_path );
 			}
 		} else {
 
@@ -242,21 +239,21 @@ class Dir {
 			//Old Path
 			$old_path = $current_path;
 			if ( $step == "install" ) {
-				$old_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, 'plugins' ) );
+				$old_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, 'plugins' ) );
 			}
 
 			//New Path
 			if ( $first_character == "/" ) {
-				$new_path = FileSystem::path_join( getcwd(), ltrim( $dir['plugins'], "/" ) );
+				$new_path = \WP_CLI_FileSystem::path_join( getcwd(), ltrim( $dir['plugins'], "/" ) );
 			} else {
-				$new_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, ltrim( $dir['plugins'], "/" ) ) );
+				$new_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, ltrim( $dir['plugins'], "/" ) ) );
 			}
 
 			if ( rtrim( $new_path, "/" ) != rtrim( $current_path, "/" ) ) {
 				$is_change = true;
 
 				//Move Folder
-				FileSystem::move( $old_path, $new_path );
+				\WP_CLI_FileSystem::move( $old_path, $new_path );
 
 				//Get Path and URL for Constant
 				if ( $first_character == "/" ) {
@@ -282,7 +279,7 @@ class Dir {
 
 		//Add Log
 		if ( $log and $is_change ) {
-			install::add_detail_log( CLI::_e( 'package', 'change_custom_folder', array( "[folder]" => "plugins" ) ) );
+			install::add_detail_log( Package::_e( 'package', 'change_custom_folder', array( "[folder]" => "plugins" ) ) );
 		}
 
 	}
@@ -292,9 +289,9 @@ class Dir {
 	 */
 	public static function get_themes_dir() {
 		if ( ! function_exists( 'get_theme_root' ) ) {
-			return FileSystem::path_join( getcwd(), 'wp-content/themes' );
+			return \WP_CLI_FileSystem::path_join( getcwd(), 'wp-content/themes' );
 		} else {
-			return FileSystem::normalize_path( get_theme_root() );
+			return \WP_CLI_FileSystem::normalize_path( get_theme_root() );
 		}
 	}
 
@@ -309,7 +306,7 @@ class Dir {
 	public static function change_themes_folder( $dir, $wp_config, $log = false, $step = 'install' ) {
 
 		//Get base themes path
-		$base_path = rtrim( FileSystem::path_join( getcwd(), 'wp-content/themes' ), "/" );
+		$base_path = rtrim( \WP_CLI_FileSystem::path_join( getcwd(), 'wp-content/themes' ), "/" );
 
 		//Get current themes path
 		$current_path = rtrim( self::get_themes_dir(), "/" ) . "/";
@@ -322,10 +319,10 @@ class Dir {
 		if ( ! is_null( $dir['wp-content'] ) ) {
 			$wp_content = $dir['wp-content'];
 		}
-		$mu_plugins_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, 'mu-plugins' ) );
+		$mu_plugins_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, 'mu-plugins' ) );
 
 		//mu-plugins theme-dir path
-		$themes_mu_plugins = FileSystem::path_join( $mu_plugins_path, 'theme-dir.php' );
+		$themes_mu_plugins = \WP_CLI_FileSystem::path_join( $mu_plugins_path, 'theme-dir.php' );
 
 		//Check if null value (Reset to Default)
 		if ( is_null( $dir['themes'] ) ) {
@@ -334,11 +331,11 @@ class Dir {
 
 				//Remove Mu-plugins
 				if ( file_exists( $themes_mu_plugins ) ) {
-					FileSystem::remove_file( $themes_mu_plugins );
+					\WP_CLI_FileSystem::remove_file( $themes_mu_plugins );
 				}
 
 				//Move Folder
-				FileSystem::move( $current_path, $base_path );
+				\WP_CLI_FileSystem::move( $current_path, $base_path );
 			}
 		} else {
 
@@ -348,21 +345,21 @@ class Dir {
 			//Old Path
 			$old_path = $current_path;
 			if ( $step == "install" ) {
-				$old_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, 'themes' ) );
+				$old_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, 'themes' ) );
 			}
 
 			//New Path
 			if ( $first_character == "/" ) {
-				$new_path = FileSystem::path_join( getcwd(), ltrim( $dir['themes'], "/" ) );
+				$new_path = \WP_CLI_FileSystem::path_join( getcwd(), ltrim( $dir['themes'], "/" ) );
 			} else {
-				$new_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, ltrim( $dir['themes'], "/" ) ) );
+				$new_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, ltrim( $dir['themes'], "/" ) ) );
 			}
 
 			if ( rtrim( $new_path, "/" ) != rtrim( $current_path, "/" ) ) {
 				$is_change = true;
 
 				//Move Folder
-				FileSystem::move( $old_path, $new_path );
+				\WP_CLI_FileSystem::move( $old_path, $new_path );
 
 				//Get Path and URL for Constant
 				if ( $first_character == "/" ) {
@@ -375,8 +372,8 @@ class Dir {
 				}
 
 				//Upload Mu-Plugins
-				$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
-				FileSystem::file_put_content(
+				$mustache = \WP_CLI_FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
+				\WP_CLI_FileSystem::file_put_content(
 					$themes_mu_plugins,
 					$mustache->render( 'mu-plugins/theme-dir', array(
 						'theme_directory'      => $theme_directory,
@@ -390,7 +387,7 @@ class Dir {
 
 		//Add Log
 		if ( $log and $is_change ) {
-			install::add_detail_log( CLI::_e( 'package', 'change_custom_folder', array( "[folder]" => "themes" ) ) );
+			install::add_detail_log( Package::_e( 'package', 'change_custom_folder', array( "[folder]" => "themes" ) ) );
 		}
 	}
 
@@ -399,10 +396,10 @@ class Dir {
 	 */
 	public static function get_uploads_dir() {
 		if ( ! function_exists( 'wp_upload_dir' ) ) {
-			return FileSystem::path_join( PHP::getcwd(), 'wp-content/uploads' );
+			return \WP_CLI_FileSystem::path_join( \WP_CLI_Util::getcwd(), 'wp-content/uploads' );
 		} else {
 			$upload_dir = wp_upload_dir();
-			return FileSystem::normalize_path( $upload_dir['basedir'] );
+			return \WP_CLI_FileSystem::normalize_path( $upload_dir['basedir'] );
 		}
 	}
 
@@ -415,7 +412,7 @@ class Dir {
 	 */
 	public static function get_wp_uploads( $what = 'baseurl' ) {
 		$uploads = \WP_CLI::runcommand( 'eval "echo json_encode( wp_upload_dir() );"', array( 'return' => 'stdout', 'parse' => 'json' ) );
-		return rtrim( PHP::backslash_to_slash( $uploads[ $what ] ), "/" );
+		return rtrim( \WP_CLI_Util::backslash_to_slash( $uploads[ $what ] ), "/" );
 	}
 
 	/**
@@ -429,7 +426,7 @@ class Dir {
 	public static function change_uploads_folder( $dir, $wp_config, $log = false, $step = 'install' ) {
 
 		//Get base uploads path
-		$base_path = rtrim( FileSystem::path_join( getcwd(), 'wp-content/uploads' ), "/" );
+		$base_path = rtrim( \WP_CLI_FileSystem::path_join( getcwd(), 'wp-content/uploads' ), "/" );
 
 		//Get current uploads path
 		$current_path = rtrim( self::get_uploads_dir(), "/" ) . "/";
@@ -456,7 +453,7 @@ class Dir {
 				}
 
 				//Move Folder
-				FileSystem::move( $current_path, $base_path );
+				\WP_CLI_FileSystem::move( $current_path, $base_path );
 			}
 		} else {
 
@@ -472,21 +469,21 @@ class Dir {
 			//Old Path
 			$old_path = $current_path;
 			if ( $step == "install" ) {
-				$old_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, 'uploads' ) );
+				$old_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, 'uploads' ) );
 			}
 
 			//New Path
 			if ( $first_character == "/" ) {
-				$new_path = FileSystem::path_join( getcwd(), ltrim( $dir['uploads'], "/" ) );
+				$new_path = \WP_CLI_FileSystem::path_join( getcwd(), ltrim( $dir['uploads'], "/" ) );
 			} else {
-				$new_path = FileSystem::path_join( getcwd(), FileSystem::path_join( $wp_content, ltrim( $dir['uploads'], "/" ) ) );
+				$new_path = \WP_CLI_FileSystem::path_join( getcwd(), \WP_CLI_FileSystem::path_join( $wp_content, ltrim( $dir['uploads'], "/" ) ) );
 			}
 
 			if ( rtrim( $new_path, "/" ) != rtrim( $current_path, "/" ) ) {
 				$is_change = true;
 
 				//Move Folder
-				FileSystem::move( $old_path, $new_path );
+				\WP_CLI_FileSystem::move( $old_path, $new_path );
 
 				//Get Path and URL for Constant
 				if ( $first_character == "/" ) {
@@ -508,21 +505,21 @@ class Dir {
 		if ( $log and $is_change ) {
 
 			// change folder Log
-			install::add_detail_log( CLI::_e( 'package', 'change_custom_folder', array( "[folder]" => "uploads" ) ) );
+			install::add_detail_log( Package::_e( 'package', 'change_custom_folder', array( "[folder]" => "uploads" ) ) );
 
 			// fix Attachment Link in DB
 			if ( $step == "update" and isset( $before_uploads_url ) ) {
-				CLI::pl_wait_start();
+				\WP_CLI_Helper::pl_wait_start();
 
 				# Get New Uploads dir url
 				$new_uploads_dir = self::get_wp_uploads();
 
 				# Search-replace in DB
-				CLI::search_replace_db( $before_uploads_url, $new_uploads_dir );
+				\WP_CLI_Helper::search_replace_db( $before_uploads_url, $new_uploads_dir );
 
 				# Show Log
-				CLI::pl_wait_end();
-				install::add_detail_log( CLI::_e( 'package', 'srdb_uploads' ) );
+				\WP_CLI_Helper::pl_wait_end();
+				install::add_detail_log( Package::_e( 'package', 'srdb_uploads' ) );
 			}
 		}
 	}

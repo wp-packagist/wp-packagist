@@ -2,9 +2,7 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
+use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 class Commands {
@@ -12,11 +10,12 @@ class Commands {
 	 * Run Commands Parameter in WordPress Package
 	 *
 	 * @param $pkg_commands
+	 * @throws \WP_CLI\ExitException
 	 */
 	public static function run_commands( $pkg_commands ) {
 
 		# Get Base Dir
-		$cwd = PHP::getcwd();
+		$cwd = \WP_CLI_Util::getcwd();
 
 		# Start Loop commands
 		foreach ( $pkg_commands as $command ) {
@@ -24,28 +23,28 @@ class Commands {
 			//Check is WP-CLI or Global Command
 			if ( isset( $command['where'] ) and $command['where'] == "wp-cli" ) {
 				# Show Log
-				install::add_detail_log( CLI::_e( 'package', 'run_cmd', array( "[cmd]" => self::show_command_log( $command['command'] ), "[more]" => "" ) ) );
+				install::add_detail_log( Package::_e( 'package', 'run_cmd', array( "[cmd]" => self::show_command_log( $command['command'] ), "[more]" => "" ) ) );
 
 				# Run WP-CLI
-				CLI::run_command( $command['command'], array( 'exit_error' => false ) );
+				\WP_CLI_Helper::run_command( $command['command'], array( 'exit_error' => false ) );
 			} else {
 				# Run Global
 
 				//Check Exist Dir
-				$sanitize_dir  = PHP::backslash_to_slash( "/" . ltrim( $command['where'], "/" ) );
-				$complete_path = FileSystem::path_join( $cwd, $sanitize_dir );
+				$sanitize_dir  = \WP_CLI_Util::backslash_to_slash( "/" . ltrim( $command['where'], "/" ) );
+				$complete_path = \WP_CLI_FileSystem::path_join( $cwd, $sanitize_dir );
 				if ( is_dir( $complete_path ) and is_dir( $complete_path ) ) {
 					# Show log
-					install::add_detail_log( CLI::_e( 'package', 'run_cmd', array( "[cmd]" => self::show_command_log( $command['command'] ), "[more]" => " in '" . $command['where'] . "' path" ) ) );
+					install::add_detail_log( Package::_e( 'package', 'run_cmd', array( "[cmd]" => self::show_command_log( $command['command'] ), "[more]" => " in '" . $command['where'] . "' path" ) ) );
 
 					# Run global command
 					chdir( $complete_path );
-					CLI::exec( $command['command'] );
+					\WP_CLI_Helper::exec( $command['command'] );
 					chdir( $cwd );
 				} else {
 
 					# Show Log Error directory
-					install::add_detail_log( CLI::_e( 'package', 'er_find_dir_cmd', array( "[dir]" => $command['where'], "[cmd]" => self::show_command_log( $command['command'] ) ) ) );
+					install::add_detail_log( Package::_e( 'package', 'er_find_dir_cmd', array( "[dir]" => $command['where'], "[cmd]" => self::show_command_log( $command['command'] ) ) ) );
 				}
 			}
 		}

@@ -3,8 +3,6 @@
 namespace WP_CLI_PACKAGIST\API;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
 
 class WP_Themes_Api {
 	/**
@@ -33,8 +31,8 @@ class WP_Themes_Api {
 		/*
 		 * Check Cache Dir
 		 */
-		if ( FileSystem::folder_exist( $this->cache_dir ) === false ) {
-			FileSystem::create_dir( $this->config["cache_dir"], WP_CLI_PACKAGIST_CACHE_PATH );
+		if ( \WP_CLI_FileSystem::folder_exist( $this->cache_dir ) === false ) {
+			\WP_CLI_FileSystem::create_dir( $this->config["cache_dir"], WP_CLI_PACKAGIST_CACHE_PATH );
 		}
 	}
 
@@ -48,20 +46,20 @@ class WP_Themes_Api {
 	public function get_theme_data( $slug, $force_update = false ) {
 
 		//Generate File Path
-		$file_path = FileSystem::path_join( $this->cache_dir, str_ireplace( "[slug]", $slug, $this->config['file_name'] ) );
+		$file_path = \WP_CLI_FileSystem::path_join( $this->cache_dir, str_ireplace( "[slug]", $slug, $this->config['file_name'] ) );
 
 		//Check Cache File exist
 		if ( file_exists( $file_path ) ) {
 
 			//if cache file exist we used same file
-			$json_data = FileSystem::read_json_file( $file_path );
+			$json_data = \WP_CLI_FileSystem::read_json_file( $file_path );
 		}
 
 		// if Force Update
 		if ( $force_update === false ) {
 
 			//if require update by calculate cache time
-			if ( isset( $json_data ) and FileSystem::check_file_age( $file_path, $this->config['age'] ) === false ) {
+			if ( isset( $json_data ) and \WP_CLI_FileSystem::check_file_age( $file_path, $this->config['age'] ) === false ) {
 				return array( 'status' => true, 'data' => $json_data );
 			}
 		}
@@ -89,10 +87,10 @@ class WP_Themes_Api {
 	public function fetch_theme_data( $slug ) {
 
 		//Generate File Path
-		$file_path = FileSystem::path_join( $this->cache_dir, str_ireplace( "[slug]", $slug, $this->config['file_name'] ) );
+		$file_path = \WP_CLI_FileSystem::path_join( $this->cache_dir, str_ireplace( "[slug]", $slug, $this->config['file_name'] ) );
 
 		//Connect To Wordpress API
-		$data = CLI::http_request( str_ireplace( "[slug]", $slug, $this->config['themes_data'] ) );
+		$data = \WP_CLI_Helper::http_request( str_ireplace( "[slug]", $slug, $this->config['themes_data'] ) );
 		if ( $data != false ) {
 
 			//convert list to json file
@@ -100,11 +98,11 @@ class WP_Themes_Api {
 
 			//Check found Plugin information
 			if ( array_key_exists( 'themes', $data ) and empty( $data['themes'] ) ) {
-				return array( 'status' => false, 'data' => CLI::_e( 'wordpress_api', 'not_found', array( "[name]" => $slug, "[type]" => "theme" ) ) );
+				return array( 'status' => false, 'data' => Package::_e( 'wordpress_api', 'not_found', array( "[name]" => $slug, "[type]" => "theme" ) ) );
 			} else {
 
 				//Connect To Wordpress SVN To Get Versions
-				$html = CLI::http_request( str_ireplace( "[slug]", $slug, $this->config['themes_version_list'] ), 'GET', 300, array( 'Accept' => 'text/javascript, text/html, application/xml, */*' ) );
+				$html = \WP_CLI_Helper::http_request( str_ireplace( "[slug]", $slug, $this->config['themes_version_list'] ), 'GET', 300, array( 'Accept' => 'text/javascript, text/html, application/xml, */*' ) );
 				if ( $html != false ) {
 
 					//Get List Of Versions
@@ -124,17 +122,17 @@ class WP_Themes_Api {
 					$data['list_versions'] = $versions;
 
 					//Create Cache file
-					FileSystem::create_json_file( $file_path, $data, false );
+					\WP_CLI_FileSystem::create_json_file( $file_path, $data, false );
 				} else {
 
 					//Show Error connect to WP API
-					return array( 'status' => false, 'data' => CLI::_e( 'wordpress_api', 'connect' ) );
+					return array( 'status' => false, 'data' => Package::_e( 'wordpress_api', 'connect' ) );
 				}
 			}
 		} else {
 
 			//Show Error connect to WP API
-			return array( 'status' => false, 'data' => CLI::_e( 'wordpress_api', 'connect' ) );
+			return array( 'status' => false, 'data' => Package::_e( 'wordpress_api', 'connect' ) );
 		}
 
 		return array( 'status' => true, 'data' => $data );
@@ -181,6 +179,4 @@ class WP_Themes_Api {
 			return $data['data']['version'];
 		}
 	}
-
-
 }

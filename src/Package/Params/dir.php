@@ -3,10 +3,6 @@
 namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 class dir {
@@ -43,7 +39,7 @@ class dir {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get Dir parameter
 		$parameter = $pkg_array['dir'];
@@ -80,22 +76,22 @@ class dir {
 		$unique_key = $this->params_keys;
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is Empty
 		if ( empty( $array ) ) {
 
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "dir: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "dir: { .." ) ) );
 		} elseif ( is_string( $array ) ) {
 
 			//Check is String
-			$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "dir: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "dir: { .." ) ) );
 		} else {
 
 			//Check is not assoc array
-			if ( PHP::is_assoc_array( $array ) === false ) {
+			if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
 
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "dir: { .." ) ) );
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "dir: { .." ) ) );
 			} else {
 
 				//Convert to lowercase key
@@ -104,7 +100,7 @@ class dir {
 				//Check Anonymous Parameter
 				foreach ( $array as $k => $val ) {
 					if ( ! in_array( strtolower( $k ), $this->params_keys ) ) {
-						$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => 'dir: { "' . $k . '" ..' ) ) );
+						$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'dir: { "' . $k . '" ..' ) ) );
 						break;
 					}
 				}
@@ -116,23 +112,23 @@ class dir {
 						//Check if array show error
 						if ( is_array( $array[ $k ] ) ) {
 
-							$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "dir: { " . $k . ": .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "dir: { " . $k . ": .." ) ) );
 							break;
 						} else {
 
 							//Check Drive Path in Value
 							if ( ':' === substr( $array[ $k ], 1, 1 ) ) {
 
-								$valid->add_error( CLI::_e( 'package', 'path_contain_drive', array( "[key]" => "dir: { " . $k . ": .." ) ) );
+								$valid->add_error( Package::_e( 'package', 'path_contain_drive', array( "[key]" => "dir: { " . $k . ": .." ) ) );
 								break;
 							} else {
 
 								//Sanitize folder name
-								$folder = PHP::sanitize_file_name( $array[ $k ] );
+								$folder = \WP_CLI_Util::sanitize_file_name( $array[ $k ] );
 
 								//Check is Empty
 								if ( empty( $folder ) ) {
-									$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "dir: { " . $k . ": .." ) ) );
+									$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "dir: { " . $k . ": .." ) ) );
 									break;
 								}
 							}
@@ -155,7 +151,7 @@ class dir {
 
 						//Push To Error if duplicate value
 						if ( $is_duplicate === true ) {
-							$valid->add_error( CLI::_e( 'package', 'nv_duplicate', array( "[key]" => $u_k, "[array]" => "dir: { .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'nv_duplicate', array( "[key]" => $u_k, "[array]" => "dir: { .." ) ) );
 						}
 					}
 				}
@@ -240,7 +236,7 @@ class dir {
 	public static function sanitize_folder_name( $folder ) {
 
 		//Replace All backslash to slash
-		$folder = FileSystem::normalize_path( $folder );
+		$folder = \WP_CLI_FileSystem::normalize_path( $folder );
 
 		//trim Slash right
 		$folder = rtrim( $folder, "/" );
@@ -254,7 +250,7 @@ class dir {
 			if ( $name == "" ) {
 				$folder_name .= '/';
 			} else {
-				$folder_name .= PHP::to_lower_string( PHP::sanitize_file_name( $name ) ) . "/";
+				$folder_name .= \WP_CLI_Util::to_lower_string( \WP_CLI_Util::sanitize_file_name( $name ) ) . "/";
 			}
 		}
 
@@ -279,7 +275,7 @@ class dir {
 
 		//Check exist DIR
 		if ( isset( $pkg_array['dir'] ) and count( $pkg_array['dir'] ) > 0 ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', 'change_dir' ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', 'change_dir' ) );
 			\WP_CLI_PACKAGIST\Package\Arguments\Dir::update_dir( $this->params_keys, $pkg_array['dir'], $pkg_array );
 			$step ++;
 		}

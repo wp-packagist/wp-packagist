@@ -3,8 +3,6 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 
 class Timezone {
 	/**
@@ -53,7 +51,7 @@ class Timezone {
 		}
 
 		// Convert \ to /
-		$timezone = PHP::backslash_to_slash( $timezone );
+		$timezone = \WP_CLI_Util::backslash_to_slash( $timezone );
 
 		// Uppercase First character if Wordpress
 		if ( stristr( $timezone, "/" ) != false ) {
@@ -106,12 +104,12 @@ class Timezone {
 
 			//Reset WordPress Option
 			foreach ( array( 'timezone_string', 'gmt_offset' ) as $opt ) {
-				CLI::run_command( 'option update ' . $opt . ' ""', array( 'exit_error' => false ) );
+				\WP_CLI_Helper::run_command( 'option update ' . $opt . ' ""', array( 'exit_error' => false ) );
 			}
 
 			//Update TimeZone
 			if ( $opt_name == "timezone_string" ) {
-				CLI::run_command( 'option update timezone_string "' . $timezone . '"', array( 'exit_error' => false ) );
+				\WP_CLI_Helper::run_command( 'option update timezone_string "' . $timezone . '"', array( 'exit_error' => false ) );
 
 			} else {
 
@@ -122,7 +120,7 @@ class Timezone {
 					$gmt_offset = str_ireplace( "UTC", "", $timezone );
 				}
 
-				CLI::run_command( 'option update gmt_offset "' . $gmt_offset . '"', array( 'exit_error' => false ) );
+				\WP_CLI_Helper::run_command( 'option update gmt_offset "' . $gmt_offset . '"', array( 'exit_error' => false ) );
 			}
 		}
 	}

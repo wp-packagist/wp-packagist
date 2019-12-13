@@ -2,8 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 use WP_CLI_PACKAGIST\Package\Package;
 
 class update extends Package {
@@ -17,7 +15,7 @@ class update extends Package {
 
 		# Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		# Set Timer for Process
@@ -36,7 +34,7 @@ class update extends Package {
 				$obj = new $class();
 
 				# check validation method exist in class
-				if ( PHP::search_method_from_class( $obj, 'update' ) ) {
+				if ( \WP_CLI_Util::search_method_from_class( $obj, 'update' ) ) {
 
 					# Run install Method
 					$obj->update( $pkg_array );
@@ -45,13 +43,13 @@ class update extends Package {
 		}
 
 		# Save Package LocalTemp
-		temp::save_temp( PHP::getcwd(), $pkg_array );
+		temp::save_temp( \WP_CLI_Util::getcwd(), $pkg_array );
 
 		# Success Process
 		if ( defined( 'WP_CLI_APP_PACKAGE_UPDATE_LOG' ) ) {
-			CLI::success( CLI::_e( 'package', 'success_update' ) . ' ' . CLI::_e( 'config', 'process_time', array( "[time]" => CLI::process_time( $start_time ) ) ) );
+			\WP_CLI_Helper::success( Package::_e( 'package', 'success_update' ) . ' ' . Package::_e( 'config', 'process_time', array( "[time]" => \WP_CLI_Helper::process_time( $start_time ) ) ) );
 		} else {
-			CLI::log( CLI::_e( 'package', 'not_change_pkg' ) );
+			\WP_CLI_Helper::log( Package::_e( 'package', 'not_change_pkg' ) );
 		}
 	}
 

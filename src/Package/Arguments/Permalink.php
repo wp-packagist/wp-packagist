@@ -2,10 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-
 class Permalink {
 	/**
 	 * Force Rewrite Flush
@@ -38,7 +34,7 @@ class Permalink {
 		global $wp_rewrite, $wpdb;
 
 		//Get Home Path
-		$home_path = rtrim( PHP::getcwd(), "/" );
+		$home_path = rtrim( \WP_CLI_Util::getcwd(), "/" );
 
 		//Include WordPress Admin File
 		$admin_file = array( 'admin.php', 'network.php' );
@@ -184,11 +180,11 @@ RewriteRule . index.php [L]
 
 EOF;
 				// Sanitize Path
-				$file_content = str_replace( "//", "/", rtrim( str_replace( PHP::getcwd(), $base, $file_content ), "/" ) );
+				$file_content = str_replace( "//", "/", rtrim( str_replace( \WP_CLI_Util::getcwd(), $base, $file_content ), "/" ) );
 			}
 
 			//Create File
-			FileSystem::file_put_content( $file_path, $file_content );
+			\WP_CLI_FileSystem::file_put_content( $file_path, $file_content );
 		}
 	}
 
@@ -209,10 +205,10 @@ EOF;
 		if ( empty( $dirs ) ) {
 
 			// Get All WordPress default theme
-			$wp_content = str_ireplace( PHP::getcwd() . "/", "", Dir::get_content_dir() );
-			$uploads    = str_ireplace( PHP::getcwd() . "/", "", Dir::get_uploads_dir() );
-			$plugins    = str_ireplace( PHP::getcwd() . "/", "", Dir::get_plugins_dir() );
-			$themes     = str_ireplace( PHP::getcwd() . "/", "", Dir::get_themes_dir() );
+			$wp_content = str_ireplace( \WP_CLI_Util::getcwd() . "/", "", Dir::get_content_dir() );
+			$uploads    = str_ireplace( \WP_CLI_Util::getcwd() . "/", "", Dir::get_uploads_dir() );
+			$plugins    = str_ireplace( \WP_CLI_Util::getcwd() . "/", "", Dir::get_plugins_dir() );
+			$themes     = str_ireplace( \WP_CLI_Util::getcwd() . "/", "", Dir::get_themes_dir() );
 		} else {
 
 			// Get Dir Data From WordPress Package
@@ -263,7 +259,7 @@ EOF;
 		}
 
 		//Run Command
-		CLI::run_command( $cmd, array( 'exit_error' => false ) );
+		\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 	}
 
 	/**
@@ -285,7 +281,7 @@ EOF;
 		}
 
 		//Run Command
-		CLI::run_command( "pack htaccess{$custom_dir}", array( 'exit_error' => false ) );
+		\WP_CLI_Helper::run_command( "pack htaccess{$custom_dir}", array( 'exit_error' => false ) );
 	}
 
 }

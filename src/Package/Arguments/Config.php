@@ -3,9 +3,6 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 /**
@@ -17,7 +14,7 @@ class Config {
 	 * @return mixed
 	 */
 	public static function get_wp_config_path() {
-		return PHP::getcwd( 'wp-config.php' );
+		return \WP_CLI_Util::getcwd( 'wp-config.php' );
 	}
 
 	/**
@@ -55,14 +52,14 @@ class Config {
 		}
 
 		//Run Command
-		CLI::run_command( $cmd );
+		\WP_CLI_Helper::run_command( $cmd );
 	}
 
 	/**
 	 * Add WordPress Package anchor to wp-config.php
 	 */
 	public static function add_wordpress_package_anchor() {
-		FileSystem::search_replace_file(
+		\WP_CLI_FileSystem::search_replace_file(
 			self::get_wp_config_path(),
 			array(
 				"/* That's all",
@@ -117,7 +114,7 @@ class Config {
 	public static function get_tbl_prefix() {
 		$wp_config = self::get_list_config();
 		$variable  = $wp_config['variable'];
-		return isset( $variable['table_prefix']['value'] ) ? PHP::remove_quote( $variable['table_prefix']['value'] ) : Package::get_config( 'package', 'default', 'table_prefix' );
+		return isset( $variable['table_prefix']['value'] ) ? \WP_CLI_Util::remove_quote( $variable['table_prefix']['value'] ) : Package::get_config( 'package', 'default', 'table_prefix' );
 	}
 
 	/**
@@ -168,7 +165,7 @@ class Config {
 			'log'    => true,
 			'remove' => true
 		);
-		$args     = PHP::parse_args( $options, $defaults );
+		$args     = \WP_CLI_Util::parse_args( $options, $defaults );
 
 		//Check Removed Const
 		if ( isset( $args['remove'] ) and ! empty( $current_const_list ) ) {
@@ -190,7 +187,7 @@ class Config {
 
 					//Log
 					if ( isset( $args['log'] ) and $args['log'] === true ) {
-						install::add_detail_log( "Removed " . CLI::color( $key, "R" ) . " Constant." );
+						install::add_detail_log( "Removed " . \WP_CLI_Helper::color( $key, "R" ) . " Constant." );
 					}
 				}
 			}
@@ -209,14 +206,14 @@ class Config {
 			if ( $wp_exist === false ) {
 				$config_transformer->add( 'constant', $pk_key, $pk_value, $constant_arg );
 				if ( isset( $args['log'] ) and $args['log'] === true ) {
-					install::add_detail_log( CLI::_e( 'package', 'item_log', array( "[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Added" ) ) );
+					install::add_detail_log( Package::_e( 'package', 'item_log', array( "[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Added" ) ) );
 				}
 
 				# Updated constant
 			} else {
 				$config_transformer->update( 'constant', $pk_key, $pk_value, $constant_arg );
 				if ( isset( $args['log'] ) and $args['log'] === true ) {
-					install::add_detail_log( CLI::_e( 'package', 'item_log', array( "[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Updated" ) ) );
+					install::add_detail_log( Package::_e( 'package', 'item_log', array( "[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Updated" ) ) );
 				}
 			}
 		}

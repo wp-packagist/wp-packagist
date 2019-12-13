@@ -2,10 +2,9 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
+use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 
 class Core {
 	/**
@@ -42,15 +41,15 @@ class Core {
 
 		// Check Url Path for Network
 		$network_url_path = '';
-		if ( $is_network === true and isset( $pkg_array['config']['site']['url'] ) and PHP::get_path_url( $pkg_array['config']['site']['url'] ) != "/" ) {
-			$network_url_path = ' --base=' . PHP::get_path_url( $pkg_array['config']['site']['url'] );
+		if ( $is_network === true and isset( $pkg_array['config']['site']['url'] ) and \WP_CLI_Util::get_path_url( $pkg_array['config']['site']['url'] ) != "/" ) {
+			$network_url_path = ' --base=' . \WP_CLI_Util::get_path_url( $pkg_array['config']['site']['url'] );
 		}
 
 		// Prepare Command
 		$cmd = "core " . ( $is_network === false ? 'install' : 'multisite-install' ) . " --url=%s --title=%s --admin_user=%s --admin_password=%s --admin_email=%s --skip-email{$is_sub_domains}{$network_url_path}";
 
 		// Run WP-CLI
-		CLI::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $pkg_array['config']['site']['url'], $pkg_array['config']['site']['title'], $pkg_array['config']['admin']['admin_user'], $pkg_array['config']['admin']['admin_pass'], $pkg_array['config']['admin']['admin_email'] ) );
+		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $pkg_array['config']['site']['url'], $pkg_array['config']['site']['title'], $pkg_array['config']['admin']['admin_user'], $pkg_array['config']['admin']['admin_pass'], $pkg_array['config']['admin']['admin_email'] ) );
 	}
 
 	/**
@@ -62,7 +61,7 @@ class Core {
 	public static function install_network_sites( $sites = array(), $when = 'install' ) {
 		foreach ( $sites as $site ) {
 			self::add_new_blog( $sites );
-			install::add_detail_log( CLI::_e( 'package', 'created_site', array( "[slug]" => $site['slug'] ) ), ( $when == "update" ? 5 : 1 ) );
+			install::add_detail_log( Package::_e( 'package', 'created_site', array( "[slug]" => $site['slug'] ) ), ( $when == "update" ? 5 : 1 ) );
 		}
 	}
 
@@ -92,7 +91,7 @@ class Core {
 		}
 
 		//Run
-		CLI::run_command( $cmd );
+		\WP_CLI_Helper::run_command( $cmd );
 	}
 
 	/**
@@ -133,7 +132,7 @@ class Core {
 	 * @run after_wp_load
 	 */
 	public static function get_site_url() {
-		return rtrim( PHP::backslash_to_slash( get_option( 'siteurl' ) ), "/" );
+		return rtrim( \WP_CLI_Util::backslash_to_slash( get_option( 'siteurl' ) ), "/" );
 	}
 
 	/**
@@ -251,11 +250,11 @@ class Core {
 				if ( $before_url != $new_url ) {
 
 					// Search-replace All Table for this domain
-					CLI::search_replace_db( $before_url, $new_url );
+					\WP_CLI_Helper::search_replace_db( $before_url, $new_url );
 
 					// Add log
 					if ( $log ) {
-						install::add_detail_log( "Changed '{$before_log_url}' url to '{$after_log_url}'." . CLI::color( "[blog_id: {$blog_id}]", "B" ) . "", 5 );
+						install::add_detail_log( "Changed '{$before_log_url}' url to '{$after_log_url}'." . \WP_CLI_Helper::color( "[blog_id: {$blog_id}]", "B" ) . "", 5 );
 					}
 				}
 
@@ -348,7 +347,7 @@ class Core {
 	public static function update_network( $pkg ) {
 
 		//Get Local Temp
-		$localTemp = temp::get_temp( PHP::getcwd() );
+		$localTemp = temp::get_temp( \WP_CLI_Util::getcwd() );
 		$tmp       = ( $localTemp === false ? array() : $localTemp );
 
 		// Check site Status in Tmp
@@ -375,8 +374,8 @@ class Core {
 		if ( $before_status_network === false and $now_status_network === true ) {
 
 			//log
-			install::add_detail_log( CLI::_e( 'package', 'convert_single_multi' ) );
-			CLI::pl_wait_start();
+			install::add_detail_log( Package::_e( 'package', 'convert_single_multi' ) );
+			\WP_CLI_Helper::pl_wait_start();
 
 			// Check sub-domain for network
 			$is_sub_domains = '';
@@ -386,19 +385,19 @@ class Core {
 
 			// Check Path for network
 			$network_url_path = '';
-			if ( isset( $pkg['config']['site']['url'] ) and PHP::get_path_url( $pkg['config']['site']['url'] ) != "/" ) {
-				$network_url_path = ' --base=' . PHP::get_path_url( $pkg['config']['site']['url'] );
+			if ( isset( $pkg['config']['site']['url'] ) and \WP_CLI_Util::get_path_url( $pkg['config']['site']['url'] ) != "/" ) {
+				$network_url_path = ' --base=' . \WP_CLI_Util::get_path_url( $pkg['config']['site']['url'] );
 			}
 
 			// Run Multi-site Convert
 			$cmd = "core multisite-convert --title=%s{$is_sub_domains}{$network_url_path}";
-			CLI::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $site_title ) );
-			CLI::pl_wait_start();
+			\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $site_title ) );
+			\WP_CLI_Helper::pl_wait_start();
 
 			// Create Htaccess multi-site
 			$mod_network = Core::is_multisite();
 			Permalink::run_permalink_file();
-			install::add_detail_log( CLI::_e( 'package', 'created_file', array( "[file]" => $mod_network['mod_rewrite_file'] ) ), 5 );
+			install::add_detail_log( Package::_e( 'package', 'created_file', array( "[file]" => $mod_network['mod_rewrite_file'] ) ), 5 );
 
 			// Create Multi-Site blog List
 			if ( isset( $pkg_network ) and isset( $pkg_network['sites'] ) and count( $pkg_network['sites'] ) > 0 ) {
@@ -419,7 +418,7 @@ class Core {
 			if ( $tmp_subdomain != $pkg_subdomain ) {
 
 				// Add log
-				install::add_detail_log( CLI::_e( 'package', 'change_subdomain_type', array( "[work]" => ( $pkg_subdomain === true ? "Enabled" : "Disabled" ) ) ) );
+				install::add_detail_log( Package::_e( 'package', 'change_subdomain_type', array( "[work]" => ( $pkg_subdomain === true ? "Enabled" : "Disabled" ) ) ) );
 
 				// Change SUBDOMAIN_INSTALL constant
 				$wp_config = Config::get_config_transformer();
@@ -447,7 +446,7 @@ class Core {
 
 					// Check Exist Blog in Pkg
 					foreach ( $pkg_blogs as $pkg_blog ) {
-						if ( PHP::to_lower_string( $pkg_blog['slug'] ) == PHP::to_lower_string( $tmp_blog['slug'] ) ) {
+						if ( \WP_CLI_Util::to_lower_string( $pkg_blog['slug'] ) == \WP_CLI_Util::to_lower_string( $tmp_blog['slug'] ) ) {
 							$_exist = true;
 						}
 					}
@@ -459,7 +458,7 @@ class Core {
 						if ( $_exist_DB != false ) {
 
 							wpmu_delete_blog( $_exist_DB['blog_id'], true );
-							install::add_detail_log( CLI::_e( 'package', 'manage_item_red', array( "[work]" => "Removed", "[key]" => $tmp_blog['slug'], "[type]" => "site" ) ) );
+							install::add_detail_log( Package::_e( 'package', 'manage_item_red', array( "[work]" => "Removed", "[key]" => $tmp_blog['slug'], "[type]" => "site" ) ) );
 						}
 					}
 				}
@@ -472,7 +471,7 @@ class Core {
 
 					// Check Exist Blog in Pkg
 					foreach ( $tmp_blogs as $tmp_blog ) {
-						if ( PHP::to_lower_string( $pkg_blog['slug'] ) == PHP::to_lower_string( $tmp_blog['slug'] ) ) {
+						if ( \WP_CLI_Util::to_lower_string( $pkg_blog['slug'] ) == \WP_CLI_Util::to_lower_string( $tmp_blog['slug'] ) ) {
 							$_exist = true;
 						}
 					}
@@ -482,7 +481,7 @@ class Core {
 						$_exist_DB = self::exist_blog( $pkg_blog['slug'] );
 						if ( $_exist_DB === false ) {
 							self::add_new_blog( $pkg_blog );
-							install::add_detail_log( CLI::_e( 'package', 'created_site', array( "[slug]" => $pkg_blog['slug'] ) ) );
+							install::add_detail_log( Package::_e( 'package', 'created_site', array( "[slug]" => $pkg_blog['slug'] ) ) );
 						}
 
 					}
@@ -497,7 +496,7 @@ class Core {
 				// Check Exist Blog in Tmp
 				$x_tmp = 0;
 				foreach ( $tmp_blogs as $tmp_blog ) {
-					if ( PHP::to_lower_string( $pkg_blog['slug'] ) == PHP::to_lower_string( $tmp_blog['slug'] ) ) {
+					if ( \WP_CLI_Util::to_lower_string( $pkg_blog['slug'] ) == \WP_CLI_Util::to_lower_string( $tmp_blog['slug'] ) ) {
 						$_exist  = true;
 						$tmp_key = $x_tmp;
 						$pkg_key = $x_pkg;
@@ -536,5 +535,34 @@ class Core {
 
 	}
 
+	/**
+	 * Check Wordpress Already exist
+	 */
+	public static function check_wp_exist() {
+		if ( file_exists( \WP_CLI_FileSystem::path_join( getcwd(), 'wp-load.php' ) ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get Base Path
+	 */
+	public static function get_base_path() {
+
+		//Get default path
+		$path = '';
+		if ( defined( 'ABSPATH' ) ) {
+			$path = \WP_CLI_FileSystem::normalize_path( ABSPATH );
+		}
+
+		//GetCWD php
+		if ( trim( $path ) == "" || $path == "/" || $path == "\\" ) {
+			$path = \WP_CLI_FileSystem::normalize_path( getcwd() );
+		}
+
+		return $path;
+	}
 
 }

@@ -3,12 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 
 class description {
-
 	/**
 	 * Get Wordpress Package options
 	 *
@@ -35,7 +31,7 @@ class description {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get description parameter
 		$parameter = $pkg_array['description'];
@@ -64,15 +60,15 @@ class description {
 	public function sanitize_description( $var, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is Empty
 		if ( empty( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "description" ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "description" ) ) );
 
 			//Check is array
 		} elseif ( is_array( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "description" ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "description" ) ) );
 
 		} else {
 
@@ -83,17 +79,17 @@ class description {
 			$var = strip_tags( $var );
 
 			//Check Contain Html
-			if ( PHP::to_lower_string( $raw_desc ) != PHP::to_lower_string( $var ) ) {
-				$valid->add_error( CLI::_e( 'package', 'er_contain_html', array( "[key]" => "description" ) ) );
+			if ( \WP_CLI_Util::to_lower_string( $raw_desc ) != \WP_CLI_Util::to_lower_string( $var ) ) {
+				$valid->add_error( Package::_e( 'package', 'er_contain_html', array( "[key]" => "description" ) ) );
 			} else {
 
 				//Check Max character
-				if ( PHP::strlen( $var ) > $this->package_config['max_desc_ch'] ) {
-					$valid->add_error( CLI::_e( 'package', 'er_max_num_ch', array( "[key]" => "description", "[number]" => number_format( $this->package_config['max_desc_ch'] ) ) ) );
+				if ( \WP_CLI_Util::strlen( $var ) > $this->package_config['max_desc_ch'] ) {
+					$valid->add_error( Package::_e( 'package', 'er_max_num_ch', array( "[key]" => "description", "[number]" => number_format( $this->package_config['max_desc_ch'] ) ) ) );
 				} else {
 
 					//Remove White Space in description
-					$var = PHP::remove_whitespace_word( $var );
+					$var = \WP_CLI_Util::remove_whitespace_word( $var );
 					$valid->add_success( $var );
 				}
 

@@ -1,7 +1,6 @@
 <?php
 
 use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Utility\PHP;
 
 /**
  * Delete WordPress Site and Package.
@@ -14,10 +13,6 @@ use WP_CLI_PACKAGIST\Utility\PHP;
  * [--backup]
  * : get Backup before removing WordPress.
  *
- * ## DOCUMENT
- *
- *      https://wp-packagist.com/docs/uninstall
- *
  * ## EXAMPLES
  *
  *      # Delete WordPress Package.
@@ -29,7 +24,5 @@ use WP_CLI_PACKAGIST\Utility\PHP;
 \WP_CLI::add_command( 'uninstall', function ( $args, $assoc_args ) {
 
 	//Remove Package LocalTemp
-	temp::remove_temp_file( PHP::getcwd() );
-
-
+	temp::remove_temp_file( \WP_CLI_Util::getcwd() );
 } );

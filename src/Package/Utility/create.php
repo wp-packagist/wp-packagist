@@ -2,10 +2,7 @@
 
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_CONFIG;
 
 /**
  * Create Wordpress Package
@@ -27,7 +24,7 @@ class create extends Package {
 		$config_list = array( 'db_host', 'db_user', 'db_password', 'db_name' );
 		foreach ( $config_list as $item ) {
 			try {
-				$get = WP_CLI_CONFIG::get( $item );
+				$get = \WP_CLI_CONFIG::get( $item );
 			} catch ( \Exception $e ) {
 				$get = false;
 			}
@@ -37,11 +34,11 @@ class create extends Package {
 		}
 
 		//Check Parameter
-		$args = PHP::parse_args( $arg, $this->package_config['default'] );
+		$args = \WP_CLI_Util::parse_args( $arg, $this->package_config['default'] );
 
 		//Sanitize Double Quote
 		$args = array_map( function ( $value ) {
-			return PHP::remove_quote( trim( $value ) );
+			return \WP_CLI_Util::remove_quote( trim( $value ) );
 		}, $args );
 
 		//Get Params Data From Every Class
@@ -54,7 +51,7 @@ class create extends Package {
 			$obj = new $class();
 
 			//check init method exist in class
-			if ( PHP::search_method_from_class( $obj, 'init' ) ) {
+			if ( \WP_CLI_Util::search_method_from_class( $obj, 'init' ) ) {
 
 				//Get Params
 				$get_obj = $obj->init( $args );
@@ -75,7 +72,7 @@ class create extends Package {
 		}
 
 		//Create Package file
-		if ( FileSystem::create_json_file( $this->package_path, $json, true ) ) {
+		if ( \WP_CLI_FileSystem::create_json_file( $this->package_path, $json, true ) ) {
 			return array( 'status' => true, 'data' => $validate );
 		}
 

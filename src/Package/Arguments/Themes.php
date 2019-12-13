@@ -3,10 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\API\WP_Themes_Api;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\Wordpress;
+use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 class Themes {
@@ -70,7 +67,7 @@ class Themes {
 			}
 
 			//Push
-			$themes_list[] = PHP::array_change_key_case_recursive( $info );
+			$themes_list[] = \WP_CLI_Util::array_change_key_case_recursive( $info );
 		}
 
 		return $themes_list;
@@ -102,7 +99,7 @@ class Themes {
 		);
 
 		// Parse incoming $args into an array and merge it with $defaults
-		$args = PHP::parse_args( $args, $defaults );
+		$args = \WP_CLI_Util::parse_args( $args, $defaults );
 
 		//Get List Of Plugins
 		$list = self::get_list_themes();
@@ -172,7 +169,7 @@ class Themes {
 			'log'    => true,
 			'remove' => true
 		);
-		$args     = PHP::parse_args( $options, $defaults );
+		$args     = \WP_CLI_Util::parse_args( $options, $defaults );
 
 		//Check Removed Theme
 		if ( isset( $args['remove'] ) and ! empty( $current_themes_list ) ) {
@@ -191,9 +188,9 @@ class Themes {
 					if ( self::eval_get_current_theme() == $wp_theme_stylesheet ) {
 
 						if ( isset( $args['log'] ) and $args['log'] === true ) {
-							CLI::pl_wait_end();
-							install::add_detail_log( CLI::_e( 'package', 'er_delete_no_theme', array( "[theme]" => $wp_theme_stylesheet ) ) );
-							CLI::pl_wait_start();
+							\WP_CLI_Helper::pl_wait_end();
+							install::add_detail_log( Package::_e( 'package', 'er_delete_no_theme', array( "[theme]" => $wp_theme_stylesheet ) ) );
+							\WP_CLI_Helper::pl_wait_start();
 						}
 					} else {
 						//Removed From Current theme
@@ -201,13 +198,13 @@ class Themes {
 
 						//Run Removed Theme
 						$cmd = "theme delete {$wp_theme_stylesheet}";
-						CLI::run_command( $cmd, array( 'exit_error' => false ) );
+						\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 						//Add Log
 						if ( isset( $args['log'] ) and $args['log'] === true ) {
-							CLI::pl_wait_end();
-							install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => "Removed", "[slug]" => $wp_theme_stylesheet, "[type]" => "theme", "[more]" => "" ) ) );
-							CLI::pl_wait_start();
+							\WP_CLI_Helper::pl_wait_end();
+							install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => "Removed", "[slug]" => $wp_theme_stylesheet, "[type]" => "theme", "[more]" => "" ) ) );
+							\WP_CLI_Helper::pl_wait_start();
 						}
 					}
 				}
@@ -225,7 +222,7 @@ class Themes {
 			}
 
 			//Check theme from Url or WordPress
-			$from_url = ( PHP::is_url( $version ) === false ? false : true );
+			$from_url = ( \WP_CLI_Util::is_url( $version ) === false ? false : true );
 
 			# install theme
 			if ( $wp_exist === false ) {
@@ -244,22 +241,22 @@ class Themes {
 
 				//Run Command
 				$cmd = "theme install {$prompt} --force";
-				CLI::run_command( $cmd, array( 'exit_error' => false ) );
+				\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 				//Add Log
 				if ( isset( $args['log'] ) and $args['log'] === true ) {
-					CLI::pl_wait_end();
-					install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => "Added", "[slug]" => $stylesheet . ( ( $version != "latest" and PHP::is_semver_version( $version ) === true ) ? ' ' . CLI::color( "v" . $version, "P" ) : '' ), "[type]" => "theme", "[more]" => "" ) ) );
-					CLI::pl_wait_start();
+					\WP_CLI_Helper::pl_wait_end();
+					install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => "Added", "[slug]" => $stylesheet . ( ( $version != "latest" and \WP_CLI_Util::is_semver_version( $version ) === true ) ? ' ' . \WP_CLI_Helper::color( "v" . $version, "P" ) : '' ), "[type]" => "theme", "[more]" => "" ) ) );
+					\WP_CLI_Helper::pl_wait_start();
 				}
 
 				//Sanitize Folder Theme
 				if ( $from_url === true and ! empty( $theme_root ) ) {
 					//Get Last Dir
-					$last_dir = FileSystem::sort_dir_by_date( $theme_root, "DESC" );
+					$last_dir = \WP_CLI_FileSystem::sort_dir_by_date( $theme_root, "DESC" );
 
 					//Sanitize
-					PHP::sanitize_github_dir( FileSystem::path_join( $theme_root, $last_dir[0] ) );
+					\WP_CLI_Util::sanitize_github_dir( \WP_CLI_FileSystem::path_join( $theme_root, $last_dir[0] ) );
 				}
 
 				# Updated Theme
@@ -291,20 +288,20 @@ class Themes {
 
 					//Run Command
 					$cmd = "theme update {$prompt} --force";
-					CLI::run_command( $cmd, array( 'exit_error' => false ) );
+					\WP_CLI_Helper::run_command( $cmd, array( 'exit_error' => false ) );
 
 					//Add Log
 					if ( isset( $args['log'] ) and $args['log'] === true ) {
-						CLI::pl_wait_end();
-						install::add_detail_log( CLI::_e( 'package', 'manage_item', array( "[work]" => "Updated", "[slug]" => $stylesheet . ( ( $version != "latest" and PHP::is_semver_version( $version ) === true ) ? ' ' . CLI::color( "v" . $version, "P" ) : '' ), "[type]" => "theme" ) ) );
-						CLI::pl_wait_start();
+						\WP_CLI_Helper::pl_wait_end();
+						install::add_detail_log( Package::_e( 'package', 'manage_item', array( "[work]" => "Updated", "[slug]" => $stylesheet . ( ( $version != "latest" and \WP_CLI_Util::is_semver_version( $version ) === true ) ? ' ' . \WP_CLI_Helper::color( "v" . $version, "P" ) : '' ), "[type]" => "theme" ) ) );
+						\WP_CLI_Helper::pl_wait_start();
 					}
 				}
 			}
 		}
 
 		if ( isset( $args['log'] ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 	}
 
@@ -324,18 +321,18 @@ class Themes {
 
 		//Check is active theme
 		if ( $stylesheet == $active_theme ) {
-			return array( 'status' => true, 'data' => CLI::_e( 'package', 'is_now_theme_active', array( "[stylesheet]" => $stylesheet ) ) );
+			return array( 'status' => true, 'data' => Package::_e( 'package', 'is_now_theme_active', array( "[stylesheet]" => $stylesheet ) ) );
 		}
 
 		//Check exist theme stylesheet
 		if ( ! in_array( $stylesheet, $exist_list ) ) {
-			return array( 'status' => false, 'data' => CLI::_e( 'package', 'theme_not_found', array( "[stylesheet]" => $stylesheet ) ) );
+			return array( 'status' => false, 'data' => Package::_e( 'package', 'theme_not_found', array( "[stylesheet]" => $stylesheet ) ) );
 		} else {
 			//run switch theme
-			CLI::run_command( "theme activate {$stylesheet}", array( 'exit_error' => false ) );
+			\WP_CLI_Helper::run_command( "theme activate {$stylesheet}", array( 'exit_error' => false ) );
 
 			//log
-			return array( 'status' => true, 'data' => CLI::_e( 'package', 'switch_to_theme', array( "[stylesheet]" => $stylesheet ) ) );
+			return array( 'status' => true, 'data' => Package::_e( 'package', 'switch_to_theme', array( "[stylesheet]" => $stylesheet ) ) );
 		}
 	}
 

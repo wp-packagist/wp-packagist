@@ -2,8 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-
 class Cookie {
 	/**
 	 * Change WordPress Cookie Constant
@@ -75,7 +73,7 @@ class Cookie {
 						break;
 					case "TEST_COOKIE":
 						if ( $hash_test_cookie ) {
-							$test_cookie = "'" . WP_CLI_Util::random_key( 30, false ) . "'";
+							$test_cookie = "'" . \WP_CLI_Util::random_key( 30, false ) . "'";
 						} else {
 							$test_cookie = "'" . $cookie_prefix . "_cookie_test'";
 						}

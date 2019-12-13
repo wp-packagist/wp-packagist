@@ -5,10 +5,6 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 
 class Version {
 	/**
@@ -18,7 +14,7 @@ class Version {
 	 */
 	public static function download_wordpress( $version = 'latest' ) {
 		$cmd = "core download --version=%s --force";
-		CLI::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $version ) );
+		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $version ) );
 	}
 
 	/**
@@ -29,8 +25,8 @@ class Version {
 	 */
 	public static function update_wordpress_cmd( $version = 'latest', $locale = 'en_US' ) {
 		$cmd = "core update --version=%s --locale=%s --force";
-		CLI::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $version, $locale ) );
-		CLI::run_command( "option delete core_updater.lock", array( 'exit_error' => false ) );
+		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $version, $locale ) );
+		\WP_CLI_Helper::run_command( "option delete core_updater.lock", array( 'exit_error' => false ) );
 	}
 
 	/**
@@ -52,7 +48,7 @@ class Version {
 		$exist = false;
 		foreach ( array( 'zip', 'tar.gz' ) as $ext ) {
 			$file = str_replace( "[extension]", $ext, $file_name );
-			if ( CLI::exist_cache_file( "/core/" . $file ) != false ) {
+			if ( \WP_CLI_Helper::exist_cache_file( "/core/" . $file ) != false ) {
 				$exist = true;
 				break;
 			}
@@ -60,9 +56,9 @@ class Version {
 
 		//show log
 		if ( $exist === false ) {
-			return CLI::_e( 'package', 'get_wp', array( '[run]' => "Download", '[version]' => "v" . $version ) );
+			return Package::_e( 'package', 'get_wp', array( '[run]' => "Download", '[version]' => "v" . $version ) );
 		} else {
-			return CLI::_e( 'package', 'get_wp', array( '[run]' => "Copy", '[version]' => "v" . $version ) );
+			return Package::_e( 'package', 'get_wp', array( '[run]' => "Copy", '[version]' => "v" . $version ) );
 		}
 	}
 
@@ -81,7 +77,7 @@ class Version {
 
 		# Check Active curl
 		if ( ! function_exists( 'curl_init' ) ) {
-			return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_enabled' ), 'error_type' => 'base' );
+			return array( 'status' => false, 'data' => Package::_e( 'curl', 'er_enabled' ), 'error_type' => 'base' );
 		}
 
 		# request Start
@@ -99,7 +95,7 @@ class Version {
 		# Request Process
 		$exec = curl_exec( $curl );
 		if ( $exec === false ) {
-			return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_connect', array( "[url]" => preg_replace( "(^https?://)", "", $url ) ) ), 'error_type' => 'base' );
+			return array( 'status' => false, 'data' => Package::_e( 'curl', 'er_connect', array( "[url]" => preg_replace( "(^https?://)", "", $url ) ) ), 'error_type' => 'base' );
 		}
 		# Get Header info
 		$code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
@@ -110,12 +106,12 @@ class Version {
 			$info = curl_getinfo( $curl );
 			if ( $is_zip ) {
 				if ( ! in_array( strtolower( $file_type ), array( 'application/zip', 'application/octet-stream', 'application/octet', 'application/x-zip-compressed', 'multipart/x-zip' ) ) ) {
-					return array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_zip', array( "[what]" => $what ) ) );
+					return array( 'status' => false, 'data' => Package::_e( 'curl', 'er_zip', array( "[what]" => $what ) ) );
 				}
 			}
 			$return = array( 'status' => true, 'data' => filter_var( $info['url'], FILTER_VALIDATE_URL ), 'file_type' => $file_type );
 		} else {
-			$return = array( 'status' => false, 'data' => WP_CLI_UI::_e( 'curl', 'er_url', array( "[what]" => $what ) ) );
+			$return = array( 'status' => false, 'data' => Package::_e( 'curl', 'er_url', array( "[what]" => $what ) ) );
 		}
 
 		# Close Request
@@ -136,11 +132,11 @@ class Version {
 	public static function check_download_url( $version, $locale = 'en_US', $file_type = 'zip' ) {
 
 		//Create Object Validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check nightly Version
 		if ( 'nightly' === $version && 'en_US' !== $locale ) {
-			$valid->add_error( CLI::_e( 'package', 'er_nightly_ver' ) );
+			$valid->add_error( Package::_e( 'package', 'er_nightly_ver' ) );
 		}
 
 		//Prepare Download Link
@@ -162,7 +158,7 @@ class Version {
 		if ( file_exists( $file_path ) ) {
 
 			//Get Json data
-			$json_data = FileSystem::read_json_file( $file_path );
+			$json_data = \WP_CLI_FileSystem::read_json_file( $file_path );
 
 			//Check Url in List
 			if ( in_array( $url, $json_data ) and ! $valid->is_cli_error() ) {
@@ -176,7 +172,7 @@ class Version {
 			if ( isset( $exist_url['error_type'] ) and $exist_url['error_type'] == "base" ) {
 				$valid->add_error( $exist_url['data'] );
 			} else {
-				$valid->add_error( CLI::_e( 'package', 'er_found_release' ) );
+				$valid->add_error( Package::_e( 'package', 'er_found_release' ) );
 			}
 		}
 
@@ -187,7 +183,7 @@ class Version {
 			$json_data[] = $url;
 
 			//Push To file
-			FileSystem::create_json_file( $file_path, $json_data, false );
+			\WP_CLI_FileSystem::create_json_file( $file_path, $json_data, false );
 		}
 
 		return $valid->result();
@@ -209,14 +205,14 @@ class Version {
 		if ( file_exists( $file_path ) ) {
 
 			//if cache file exist we used same file
-			$json_data = FileSystem::read_json_file( $file_path );
+			$json_data = \WP_CLI_FileSystem::read_json_file( $file_path );
 		}
 
 		// if Force Update
 		if ( $force_update === false ) {
 
 			//if require update by calculate cache time
-			if ( isset( $json_data ) and FileSystem::check_file_age( $file_path, Package::get_config( 'package', 'version', 'age' ) ) === false ) {
+			if ( isset( $json_data ) and \WP_CLI_FileSystem::check_file_age( $file_path, Package::get_config( 'package', 'version', 'age' ) ) === false ) {
 				$list = $json_data;
 			}
 		}
@@ -250,7 +246,7 @@ class Version {
 			}
 		}
 
-		return array( 'status' => false, 'data' => CLI::_e( 'package', 'version_exist' ) );
+		return array( 'status' => false, 'data' => Package::_e( 'package', 'version_exist' ) );
 	}
 
 	/**
@@ -262,18 +258,18 @@ class Version {
 		$version_list = Package::get_config( 'package', 'version', 'file' );
 
 		//Connect To Wordpress API
-		$list = CLI::http_request( Package::get_config( 'wordpress_api', 'version' ) );
+		$list = \WP_CLI_Helper::http_request( Package::get_config( 'wordpress_api', 'version' ) );
 		if ( $list != false ) {
 
 			//convert list to json file
 			$list = json_decode( $list, true );
 
 			//Create Cache file for wordpress version list
-			FileSystem::create_json_file( $version_list, $list, false );
+			\WP_CLI_FileSystem::create_json_file( $version_list, $list, false );
 		} else {
 
 			//Show Error connect to WP API
-			return array( 'status' => false, 'data' => CLI::_e( 'wordpress_api', 'connect' ) );
+			return array( 'status' => false, 'data' => Package::_e( 'wordpress_api', 'connect' ) );
 		}
 
 		return array( 'status' => true, 'data' => $list );
@@ -304,7 +300,7 @@ class Version {
 	public static function update_version( $pkg ) {
 
 		//Get Local Temp
-		$localTemp = temp::get_temp( PHP::getcwd() );
+		$localTemp = temp::get_temp( \WP_CLI_Util::getcwd() );
 		$tmp       = ( $localTemp === false ? array() : $localTemp );
 
 		// Get Latest Version of WordPress
@@ -322,7 +318,7 @@ class Version {
 		if ( $tmp_version != $pkg_version ) {
 
 			//Show Please wait
-			CLI::pl_wait_start();
+			\WP_CLI_Helper::pl_wait_start();
 
 			// Update WordPress core
 			self::update_wordpress_cmd( $pkg_version );
@@ -331,10 +327,10 @@ class Version {
 			Security::remove_security_file();
 
 			// Remove Pls wait
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 
 			// Add log
-			install::add_detail_log( rtrim( CLI::_e( 'package', 'manage_item_blue', array( "[work]" => "Changed", "[key]" => "WordPress Version", "[type]" => "to " . $pkg_version . "" ) ), "." ) );
+			install::add_detail_log( rtrim( Package::_e( 'package', 'manage_item_blue', array( "[work]" => "Changed", "[key]" => "WordPress Version", "[type]" => "to " . $pkg_version . "" ) ), "." ) );
 		}
 	}
 

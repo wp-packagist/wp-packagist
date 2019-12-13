@@ -10,8 +10,8 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 # Define Basic WP-CLI PACKAGIST Constant
 define( "WP_CLI_PACKAGIST_PATH", dirname( __FILE__ ) );
 define( "WP_CLI_PACKAGIST_TEMPLATE_PATH", WP_CLI_PACKAGIST_PATH . '/templates/' );
-define( "WP_CLI_PACKAGIST_HOME_PATH", Utility\CLI::get_home_path( 'packagist' ) );
-define( "WP_CLI_PACKAGIST_CACHE_PATH", Utility\CLI::get_cache_dir( 'pack' ) );
+define( "WP_CLI_PACKAGIST_HOME_PATH", \WP_CLI_Helper::get_home_path( 'packagist' ) );
+define( "WP_CLI_PACKAGIST_CACHE_PATH", \WP_CLI_Helper::get_cache_dir( 'pack' ) );
 
 # Register 'init' Command
 require_once( WP_CLI_PACKAGIST_PATH . '/src/init.php' );

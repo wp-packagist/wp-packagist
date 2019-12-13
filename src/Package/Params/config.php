@@ -6,11 +6,6 @@ use WP_CLI_PACKAGIST\Package\Arguments\Admin;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Users;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_CONFIG;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 use WP_CLI_PACKAGIST\Package\Arguments\Config as Config_Arg;
 use WP_CLI_PACKAGIST\Package\Arguments\Cookie;
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
@@ -51,7 +46,7 @@ class config {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get Config parameter
 		$parameter = $pkg_array['config'];
@@ -61,27 +56,27 @@ class config {
 
 		//Check is empty
 		if ( empty( $parameter ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config" ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config" ) ) );
 		} else {
 
 			//check is string
 			if ( is_string( $parameter ) ) {
-				$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config" ) ) );
+				$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config" ) ) );
 			} else {
 
 				//Check is not Assoc array
-				if ( PHP::is_assoc_array( $parameter ) === false ) {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config" ) ) );
+				if ( \WP_CLI_Util::is_assoc_array( $parameter ) === false ) {
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config" ) ) );
 				} else {
 
 					//Convert to lowercase key
 					$parameter = array_change_key_case( $parameter, CASE_LOWER );
 
 					//Check require key
-					$check_require_key = PHP::check_require_array( $parameter, $require_key, false );
+					$check_require_key = \WP_CLI_Util::check_require_array( $parameter, $require_key, false );
 					if ( $check_require_key['status'] === false ) {
 						foreach ( $check_require_key['data'] as $key ) {
-							$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { .. " ) ) );
+							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { .. " ) ) );
 							break;
 						}
 					}
@@ -89,7 +84,7 @@ class config {
 					//Check Anonymous Parameter
 					foreach ( $parameter as $k => $val ) {
 						if ( ! in_array( strtolower( $k ), $this->params_keys ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { "' . $k . '" ..' ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { "' . $k . '" ..' ) ) );
 						}
 					}
 
@@ -123,7 +118,7 @@ class config {
 						//Check Network Sub-domain for localhost
 						if ( ! $valid->is_cli_error() ) {
 							if ( $this->check_network_subdomain( $pkg_array ) === false ) {
-								$valid->add_error( CLI::_e( 'package', 'network_domain_local', array( "[url]" => "localhost" ) ) );
+								$valid->add_error( Package::_e( 'package', 'network_domain_local', array( "[url]" => "localhost" ) ) );
 							}
 						}
 
@@ -159,31 +154,31 @@ class config {
 		$require_key = array( 'title', 'url' );
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is empty
 		if ( empty( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { site: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { site: .." ) ) );
 		} else {
 
 			//check is string
 			if ( is_string( $array ) ) {
-				$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { site: .." ) ) );
+				$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { site: .." ) ) );
 			} else {
 
 				//Check is not Assoc array
-				if ( PHP::is_assoc_array( $array ) === false ) {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { site: .." ) ) );
+				if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: .." ) ) );
 				} else {
 
 					//Convert to lowercase key
 					$parameter = array_change_key_case( $array, CASE_LOWER );
 
 					//Check require key
-					$check_require_key = PHP::check_require_array( $parameter, $require_key, false );
+					$check_require_key = \WP_CLI_Util::check_require_array( $parameter, $require_key, false );
 					if ( $check_require_key['status'] === false ) {
 						foreach ( $check_require_key['data'] as $key ) {
-							$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { site: { .. " ) ) );
+							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { site: { .. " ) ) );
 							break;
 						}
 					}
@@ -191,7 +186,7 @@ class config {
 					//Check Anonymous Parameter
 					foreach ( $parameter as $k => $val ) {
 						if ( ! in_array( strtolower( $k ), $require_key ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { site: { "' . $k . '" ..' ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { site: { "' . $k . '" ..' ) ) );
 						}
 					}
 
@@ -201,10 +196,10 @@ class config {
 						//Validate title
 						if ( empty( $parameter['title'] ) ) {
 
-							$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { site: { title: .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { site: { title: .." ) ) );
 						} elseif ( is_array( $parameter['title'] ) || is_object( $parameter['title'] ) ) {
 
-							$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { title: .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { title: .." ) ) );
 						} else {
 
 							//save original title
@@ -214,8 +209,8 @@ class config {
 							$var = strip_tags( $raw_title );
 
 							//Check Contain Html
-							if ( PHP::to_lower_string( $var ) != PHP::to_lower_string( $raw_title ) ) {
-								$valid->add_error( CLI::_e( 'package', 'er_contain_html', array( "[key]" => "config: { site: { title: .." ) ) );
+							if ( \WP_CLI_Util::to_lower_string( $var ) != \WP_CLI_Util::to_lower_string( $raw_title ) ) {
+								$valid->add_error( Package::_e( 'package', 'er_contain_html', array( "[key]" => "config: { site: { title: .." ) ) );
 							} else {
 
 								//Sanitize Title
@@ -223,15 +218,15 @@ class config {
 
 								//Check Website Url
 								if ( empty( $parameter['url'] ) ) {
-									$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { site: { url: .." ) ) );
+									$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { site: { url: .." ) ) );
 								} elseif ( is_array( $parameter['url'] ) || is_object( $parameter['url'] ) ) {
 
-									$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { url: .." ) ) );
+									$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { url: .." ) ) );
 								} else {
 
 									//Check validate Url
 									if ( filter_var( $parameter['url'], FILTER_VALIDATE_URL ) === false ) {
-										$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { url: .." ) ) );
+										$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { url: .." ) ) );
 									} else {
 
 										//Sanitize Website Url
@@ -272,7 +267,7 @@ class config {
 		$status = false;
 
 		//Load Mustache
-		$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
+		$mustache = \WP_CLI_FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 
 		//Create GET Request Key
 		$get_key = strtolower( WP_CLI_Util::random_key( 80, false ) );
@@ -291,10 +286,10 @@ class config {
 		$content = $mustache->render( 'check-siteurl', array_merge( $data ) );
 
 		//Create File
-		FileSystem::file_put_content( $file_path, $content );
+		\WP_CLI_FileSystem::file_put_content( $file_path, $content );
 
 		//Connect To file
-		$response = CLI::http_request( rtrim( $url, "/" ) . "/" . $file_name . '?wp_cli_app_package_check_url=' . $get_key );
+		$response = \WP_CLI_Helper::http_request( rtrim( $url, "/" ) . "/" . $file_name . '?wp_cli_app_package_check_url=' . $get_key );
 
 		//Check Error Connecting
 		if ( $response != false ) {
@@ -310,14 +305,14 @@ class config {
 
 		//Remove File From Server if exist
 		if ( file_exists( $file_path ) ) {
-			FileSystem::remove_file( $file_path );
+			\WP_CLI_FileSystem::remove_file( $file_path );
 		}
 
 		//Return Status
 		if ( $status === true ) {
 			return array( 'status' => true );
 		} else {
-			return array( 'status' => false, 'data' => CLI::_e( 'package', 'er_incorrect_site_url', array( "[url]" => preg_replace( "(^https?://)", "", $url ) ) ) );
+			return array( 'status' => false, 'data' => Package::_e( 'package', 'er_incorrect_site_url', array( "[url]" => preg_replace( "(^https?://)", "", $url ) ) ) );
 		}
 	}
 
@@ -338,24 +333,24 @@ class config {
 		$not_empty = array( 'admin_user', 'admin_pass', 'admin_email', 'display_name', 'role', 'first_name', 'last_name' );
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get Default value from Config
 		$config = $this->get_default_users_arg();
 
 		//Check is String
 		if ( is_string( $array ) || is_object( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { admin: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { admin: .." ) ) );
 
 			//Check Empty Array
 		} elseif ( empty( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { admin: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { admin: .." ) ) );
 
 		} else {
 
 			//Check is assoc Array
-			if ( PHP::is_assoc_array( $array ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { admin: .." ) ) );
+			if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { admin: .." ) ) );
 			}
 
 			if ( ! $valid->is_cli_error() ) {
@@ -364,7 +359,7 @@ class config {
 				$array = array_change_key_case( $array, CASE_LOWER );
 
 				//Check Require Key
-				$check_require_key = PHP::check_require_array( $array, $require_key, true );
+				$check_require_key = \WP_CLI_Util::check_require_array( $array, $require_key, true );
 				if ( $check_require_key['status'] === false ) {
 					foreach ( $check_require_key['data'] as $key ) {
 
@@ -374,7 +369,7 @@ class config {
 						} elseif ( $key == "admin_user" ) {
 							$array['admin_user'] = $config['admin_user'];
 						} else {
-							$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { admin: { [" . $key . "]" ) ) );
+							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { admin: { [" . $key . "]" ) ) );
 							break;
 						}
 					}
@@ -383,7 +378,7 @@ class config {
 				//Check Empty value Key
 				foreach ( $not_empty as $a_k ) {
 					if ( array_key_exists( $a_k, $array ) === true and ( empty( $array[ $a_k ] ) || is_array( $array[ $a_k ] ) ) ) {
-						$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { admin: { ['" . $a_k . "']" ) ) );
+						$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { admin: { ['" . $a_k . "']" ) ) );
 						break;
 					}
 				}
@@ -391,17 +386,17 @@ class config {
 
 			//Disable 'Role' for Admin User
 			if ( array_key_exists( 'role', $array ) ) {
-				$valid->add_error( CLI::_e( 'package', 'forbidden_role' ) );
+				$valid->add_error( Package::_e( 'package', 'forbidden_role' ) );
 			}
 
 			//Check User Login
 			if ( array_key_exists( "admin_user", $array ) === true and mb_strlen( $array['admin_user'] ) > 60 ) {
-				$valid->add_error( CLI::_e( 'package', 'nv_user_login', array( "[key]" => "config: { admin: { ..", "[which]" => "admin_user" ) ) );
+				$valid->add_error( Package::_e( 'package', 'nv_user_login', array( "[key]" => "config: { admin: { ..", "[which]" => "admin_user" ) ) );
 			}
 
 			//Check User Email
 			if ( array_key_exists( "admin_email", $array ) === true and filter_var( $array['admin_email'], FILTER_VALIDATE_EMAIL ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'nv_user_email', array( "[key]" => "config: { admin: { ..", "[which]" => "admin_email" ) ) );
+				$valid->add_error( Package::_e( 'package', 'nv_user_email', array( "[key]" => "config: { admin: { ..", "[which]" => "admin_email" ) ) );
 			}
 
 			//Check Exist Password
@@ -417,16 +412,16 @@ class config {
 
 				//check is array
 				if ( empty( $meta ) ) {
-					$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { admin: { meta: .." ) ) );
+					$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { admin: { meta: .." ) ) );
 				} else {
 
 					if ( is_string( $meta ) ) {
-						$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { admin: { meta: .." ) ) );
+						$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { admin: { meta: .." ) ) );
 					} else {
 
 						//Check is not Assoc array
-						if ( PHP::is_assoc_array( $meta ) === false ) {
-							$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { admin: { meta: .." ) ) );
+						if ( \WP_CLI_Util::is_assoc_array( $meta ) === false ) {
+							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { admin: { meta: .." ) ) );
 						} else {
 
 							//Sanitize Meta Key
@@ -470,23 +465,23 @@ class config {
 		$unique_key = array( 'user_login', 'user_email' );
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get Default value from Config
 		$config = $this->get_default_users_arg();
 
 		//Check is String
 		if ( is_string( $array ) || is_object( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { users: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { users: .." ) ) );
 
 			//Check Empty Array
 		} elseif ( empty( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { users: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { users: .." ) ) );
 
 		} else {
 
 			//Convert To Multi array
-			if ( PHP::is_multi_array( $array ) === false ) {
+			if ( \WP_CLI_Util::is_multi_array( $array ) === false ) {
 				$list   = array();
 				$list[] = $array;
 				$array  = $list;
@@ -499,10 +494,10 @@ class config {
 				$array[ $x ] = array_change_key_case( $array[ $x ], CASE_LOWER );
 
 				//Check Require Key
-				$check_require_key = PHP::check_require_array( $array[ $x ], $require_key, true );
+				$check_require_key = \WP_CLI_Util::check_require_array( $array[ $x ], $require_key, true );
 				if ( $check_require_key['status'] === false ) {
 					foreach ( $check_require_key['data'] as $key ) {
-						$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { users: { [" . ( $x + 1 ) . "]" ) ) );
+						$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { users: { [" . ( $x + 1 ) . "]" ) ) );
 						break;
 					}
 				}
@@ -510,7 +505,7 @@ class config {
 				//Check Empty value Key
 				foreach ( $not_empty as $a_k ) {
 					if ( array_key_exists( $a_k, $array[ $x ] ) === true and ( empty( $array[ $x ][ $a_k ] ) || is_array( $array[ $x ][ $a_k ] ) ) ) {
-						$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]['" . $a_k . "']" ) ) );
+						$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]['" . $a_k . "']" ) ) );
 						break;
 					}
 				}
@@ -546,7 +541,7 @@ class config {
 
 				//Push To Error iF Duplicate
 				if ( $is_duplicate === true ) {
-					$valid->add_error( CLI::_e( 'package', 'nv_duplicate', array( "[key]" => $u_k, "[array]" => "config: { users: .." ) ) );
+					$valid->add_error( Package::_e( 'package', 'nv_duplicate', array( "[key]" => $u_k, "[array]" => "config: { users: .." ) ) );
 				}
 			}
 
@@ -555,13 +550,13 @@ class config {
 
 				//Check User Login
 				if ( array_key_exists( "user_login", $array[ $x ] ) === true and mb_strlen( $array[ $x ]['user_login'] ) > 60 ) {
-					$valid->add_error( CLI::_e( 'package', 'nv_user_login', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]", "[which]" => "user_login" ) ) );
+					$valid->add_error( Package::_e( 'package', 'nv_user_login', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]", "[which]" => "user_login" ) ) );
 					break;
 				}
 
 				//Check User Email
 				if ( array_key_exists( "user_email", $array[ $x ] ) === true and filter_var( $array[ $x ]['user_email'], FILTER_VALIDATE_EMAIL ) === false ) {
-					$valid->add_error( CLI::_e( 'package', 'nv_user_email', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]", "[which]" => "user_email" ) ) );
+					$valid->add_error( Package::_e( 'package', 'nv_user_email', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]", "[which]" => "user_email" ) ) );
 					break;
 				}
 
@@ -573,16 +568,16 @@ class config {
 
 					//Check is empty
 					if ( empty( $meta ) ) {
-						$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { users[" . ( $x + 1 ) . "]: { meta: { .." ) ) );
+						$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { users[" . ( $x + 1 ) . "]: { meta: { .." ) ) );
 					} else {
 
 						if ( is_string( $meta ) ) {
-							$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { users[" . ( $x + 1 ) . "]: { meta: { .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { users[" . ( $x + 1 ) . "]: { meta: { .." ) ) );
 						} else {
 
 							//Check is not Assoc array
-							if ( PHP::is_assoc_array( $meta ) === false ) {
-								$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { users[" . ( $x + 1 ) . "]: { meta: { .." ) ) );
+							if ( \WP_CLI_Util::is_assoc_array( $meta ) === false ) {
+								$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { users[" . ( $x + 1 ) . "]: { meta: { .." ) ) );
 							} else {
 
 								//Sanitize Meta Key
@@ -623,7 +618,7 @@ class config {
 
 			//Check in Config
 			try {
-				$get = WP_CLI_CONFIG::get( $k );
+				$get = \WP_CLI_CONFIG::get( $k );
 			} catch ( \Exception $e ) {
 				$get = false;
 			}
@@ -664,21 +659,21 @@ class config {
 		);
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is empty
 		if ( empty( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { constant: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { constant: .." ) ) );
 		} else {
 
 			//check is string
 			if ( is_string( $array ) ) {
-				$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { constant: .." ) ) );
+				$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { constant: .." ) ) );
 			} else {
 
 				//Check is not Assoc array
-				if ( PHP::is_assoc_array( $array ) === false ) {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { constant: .." ) ) );
+				if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { constant: .." ) ) );
 				} else {
 
 					//Check Prohibit Keys
@@ -686,7 +681,7 @@ class config {
 						foreach ( $p_val['list'] as $l ) {
 							foreach ( $array as $key => $val ) {
 								if ( trim( strtoupper( $key ) ) == $l ) {
-									$valid->add_error( CLI::_e( 'package', 'er_forbidden', array( "[key]" => "config: { constant: { ['" . trim( strtoupper( $key ) ) . "']" ) ) . '' . $p_val['help'] );
+									$valid->add_error( Package::_e( 'package', 'er_forbidden', array( "[key]" => "config: { constant: { ['" . trim( strtoupper( $key ) ) . "']" ) ) . '' . $p_val['help'] );
 									break;
 								}
 							}
@@ -696,7 +691,7 @@ class config {
 					//Check is not Array or object value
 					foreach ( $array as $key => $val ) {
 						if ( is_array( $val ) || is_object( $val ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { constant: { ['" . $key . "']" ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { constant: { ['" . $key . "']" ) ) );
 						}
 					}
 
@@ -740,15 +735,15 @@ class config {
 	public function sanitize_cookie( $var, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is Empty
 		if ( empty( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { cookie: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { cookie: .." ) ) );
 
 			//Check is array
 		} elseif ( is_array( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "config: { cookie: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { cookie: .." ) ) );
 
 		} else {
 
@@ -759,8 +754,8 @@ class config {
 			$var = preg_replace( $this->package_config['preg_prefix'], '', $var );
 
 			//Check valid
-			if ( PHP::to_lower_string( $var ) != PHP::to_lower_string( $pkg_raw ) ) {
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { cookie: .." ) ) );
+			if ( \WP_CLI_Util::to_lower_string( $var ) != \WP_CLI_Util::to_lower_string( $pkg_raw ) ) {
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { cookie: .." ) ) );
 			} else {
 
 				//Return Sanitize Data
@@ -798,7 +793,7 @@ class config {
 		);
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Create For Empty List
 		$list = array();
@@ -806,17 +801,17 @@ class config {
 		//Check is empty
 		if ( empty( $array ) ) {
 
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { options: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { options: .." ) ) );
 		} else {
 
 			//check is string
 			if ( is_string( $array ) ) {
-				$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { options: .." ) ) );
+				$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { options: .." ) ) );
 			} else {
 
 				//Check is not Assoc array
-				if ( PHP::is_assoc_array( $array ) === false ) {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { options: .." ) ) );
+				if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { options: .." ) ) );
 				} else {
 
 					//Check Prohibit Keys
@@ -824,7 +819,7 @@ class config {
 						foreach ( $p_val['list'] as $l ) {
 							foreach ( $array as $key => $val ) {
 								if ( trim( $key ) == $l ) {
-									$valid->add_error( CLI::_e( 'package', 'er_forbidden', array( "[key]" => "config: { options: { ['" . trim( $key ) . "']" ) ) . '' . $p_val['help'] );
+									$valid->add_error( Package::_e( 'package', 'er_forbidden', array( "[key]" => "config: { options: { ['" . trim( $key ) . "']" ) ) . '' . $p_val['help'] );
 									break;
 								}
 							}
@@ -841,7 +836,7 @@ class config {
 						if ( is_array( $option_value ) ) {
 
 							//Check is Assoc Array For Default Parameter
-							if ( PHP::is_assoc_array( $option_value ) === true ) {
+							if ( \WP_CLI_Util::is_assoc_array( $option_value ) === true ) {
 
 								//check LowerCase
 								$opt_val = array_change_key_case( $option_value, CASE_LOWER );
@@ -851,7 +846,7 @@ class config {
 
 									//Check Exist Any parameter
 									if ( count( $opt_val ) > 2 ) {
-										$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { options: { " . $option_name . " .." ) ) );
+										$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { options: { " . $option_name . " .." ) ) );
 										break;
 									}
 
@@ -901,7 +896,7 @@ class config {
 	public function sanitize_rest_api( $var, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check if Not Rest-Api in WordPress
 		if ( ( is_bool( $var ) and $var === false ) || ( is_array( $var ) and ! empty( $var ) ) ) {
@@ -910,7 +905,7 @@ class config {
 			if ( is_array( $var ) ) {
 
 				//Check is assoc array
-				if ( PHP::is_assoc_array( $var ) ) {
+				if ( \WP_CLI_Util::is_assoc_array( $var ) ) {
 
 					//Lower case array key
 					$var = array_change_key_case( $var, CASE_LOWER );
@@ -925,24 +920,24 @@ class config {
 					$not_empty = $accept_params;
 
 					//Check Require Key
-					$check_require_key = PHP::check_require_array( $var, $require_key, true );
+					$check_require_key = \WP_CLI_Util::check_require_array( $var, $require_key, true );
 					if ( $check_require_key['status'] === false ) {
 						foreach ( $check_require_key['data'] as $key ) {
-							$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { rest-api: { .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { rest-api: { .." ) ) );
 						}
 					}
 
 					//Check Anonymous Parameter
 					foreach ( $var as $k => $val ) {
 						if ( ! in_array( strtolower( $k ), $accept_params ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { rest-api: { "' . $k . '" ..' ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { rest-api: { "' . $k . '" ..' ) ) );
 						}
 					}
 
 					//Check Not Empty key
 					foreach ( $not_empty as $k ) {
 						if ( array_key_exists( $k, $var ) and empty( $var[ $k ] ) ) {
-							$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => 'config: { rest-api: { "' . $k . '" ..' ) ) );
+							$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => 'config: { rest-api: { "' . $k . '" ..' ) ) );
 						}
 					}
 
@@ -959,12 +954,12 @@ class config {
 							$var['prefix'] = preg_replace( $this->package_config['preg_prefix'], '', $var['prefix'] );
 
 							//Check valid
-							if ( PHP::to_lower_string( $var['prefix'] ) != PHP::to_lower_string( $prefix_raw ) ) {
-								$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { .." ) ) );
+							if ( \WP_CLI_Util::to_lower_string( $var['prefix'] ) != \WP_CLI_Util::to_lower_string( $prefix_raw ) ) {
+								$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { .." ) ) );
 							}
 						} else {
 
-							$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { .." ) ) );
 						}
 
 						//Validate disable route
@@ -978,11 +973,11 @@ class config {
 
 									//Check if value === default
 									if ( $var['disable'] != "default" ) {
-										$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { disable: { .." ) ) );
+										$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { disable: { .." ) ) );
 									}
 
 									//Check If Array
-								} else if ( is_array( $var['disable'] ) and PHP::is_assoc_array( $var['disable'] ) === false ) {
+								} else if ( is_array( $var['disable'] ) and \WP_CLI_Util::is_assoc_array( $var['disable'] ) === false ) {
 
 									//Check Validate every item
 									$x = 0;
@@ -994,14 +989,14 @@ class config {
 											//Check if contain white space
 											if ( preg_match( '/\s/', $route ) ) {
 
-												$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { [" . ( $x + 1 ) . "]" ) ) );
+												$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { [" . ( $x + 1 ) . "]" ) ) );
 												break;
 											} else {
 												//Sanitize $route
-												$var['disable'][ $x ] = "/" . ltrim( str_replace( "\\", "/", PHP::to_lower_string( $route ) ), "/" );
+												$var['disable'][ $x ] = "/" . ltrim( str_replace( "\\", "/", \WP_CLI_Util::to_lower_string( $route ) ), "/" );
 											}
 										} else {
-											$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { [" . ( $x + 1 ) . "]" ) ) );
+											$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { [" . ( $x + 1 ) . "]" ) ) );
 											break;
 										}
 
@@ -1009,7 +1004,7 @@ class config {
 									}
 
 								} else {
-									$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { disable: .." ) ) );
+									$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { disable: .." ) ) );
 								}
 							}
 						}
@@ -1021,7 +1016,7 @@ class config {
 
 					} //Cli Error
 				} else {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: .." ) ) );
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: .." ) ) );
 				}
 			} else {
 
@@ -1029,7 +1024,7 @@ class config {
 				$valid->add_success( $var );
 			}
 		} else {
-			$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: .." ) ) );
 		}
 
 		return ( $validate === true ? $valid->result() : $var );
@@ -1052,21 +1047,21 @@ class config {
 		$require_key = array( 'common' );
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is empty
 		if ( empty( $array ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { permalink: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { permalink: .." ) ) );
 		} else {
 
 			//check is string
 			if ( is_string( $array ) ) {
-				$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "config: { permalink: .." ) ) );
+				$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { permalink: .." ) ) );
 			} else {
 
 				//Check is not Assoc array
-				if ( PHP::is_assoc_array( $array ) === false ) {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { permalink: .." ) ) );
+				if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { permalink: .." ) ) );
 				} else {
 
 					//Convert to lowercase key
@@ -1075,16 +1070,16 @@ class config {
 					//Check is not Array or object value
 					foreach ( $array as $key => $val ) {
 						if ( ! is_string( $val ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { permalink: { '" . $key . "'" ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { permalink: { '" . $key . "'" ) ) );
 							break;
 						}
 					}
 
 					//Check require key
-					$check_require_key = PHP::check_require_array( $array, $require_key, false );
+					$check_require_key = \WP_CLI_Util::check_require_array( $array, $require_key, false );
 					if ( $check_require_key['status'] === false ) {
 						foreach ( $check_require_key['data'] as $key ) {
-							$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { permalink: { .. " ) ) );
+							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { permalink: { .. " ) ) );
 							break;
 						}
 					}
@@ -1092,7 +1087,7 @@ class config {
 					//Check Anonymous Parameter
 					foreach ( $array as $k => $val ) {
 						if ( ! in_array( strtolower( $k ), $accept_key ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { permalink: { "' . $k . '" ..' ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { permalink: { "' . $k . '" ..' ) ) );
 							break;
 						}
 					}
@@ -1100,7 +1095,7 @@ class config {
 					//Check White Space
 					foreach ( $array as $k => $val ) {
 						if ( preg_match( '/\s/', $val ) ) {
-							$valid->add_error( CLI::_e( 'package', 'er_contain_space', array( "[key]" => 'config: { permalink: { "' . $k . '" ..' ) ) );
+							$valid->add_error( Package::_e( 'package', 'er_contain_space', array( "[key]" => 'config: { permalink: { "' . $k . '" ..' ) ) );
 							break;
 						}
 					}
@@ -1112,13 +1107,13 @@ class config {
 						$array = array_map( function ( $value ) {
 
 							//Remove Quote and White Space
-							$return = str_replace( array( " ", "'", "\"" ), "", PHP::remove_quote( $value ) );
+							$return = str_replace( array( " ", "'", "\"" ), "", \WP_CLI_Util::remove_quote( $value ) );
 
 							//Sanitize Slash
 							$return = str_replace( "\\", "/", trim( $return, "/" ) );
 
 							//Remove Double Slash
-							$return = PHP::remove_double_slash( $return );
+							$return = \WP_CLI_Util::remove_double_slash( $return );
 
 							//Add Slash
 							$return = "/" . $return . "/";
@@ -1147,15 +1142,15 @@ class config {
 	public function sanitize_timezone( $var, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is Empty
 		if ( empty( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { timezone: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { timezone: .." ) ) );
 
 			//Check is array
 		} elseif ( is_array( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "config: { timezone: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { timezone: .." ) ) );
 
 		} else {
 			//Sanitize TimeZone
@@ -1163,7 +1158,7 @@ class config {
 
 			//Check Validate TimeZone
 			if ( Timezone::search_timezone( $var ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'wrong_timezone' ) );
+				$valid->add_error( Package::_e( 'package', 'wrong_timezone' ) );
 			} else {
 				$valid->add_success( $var );
 			}
@@ -1183,25 +1178,25 @@ class config {
 	public function sanitize_theme( $var, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is Empty
 		if ( empty( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "config: { theme: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { theme: .." ) ) );
 
 			//Check is array
 		} elseif ( is_array( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "config: { theme: .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { theme: .." ) ) );
 
 		} else {
 
 			//To Lowercase
-			$var = PHP::to_lower_string( $var );
+			$var = \WP_CLI_Util::to_lower_string( $var );
 
 			//Check theme slug
-			$slug = PHP::to_lower_string( preg_replace( Package::get_config( 'wordpress_api', 'slug' ), '', $var ) );
+			$slug = \WP_CLI_Util::to_lower_string( preg_replace( Package::get_config( 'wordpress_api', 'slug' ), '', $var ) );
 			if ( $slug != $var ) {
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "config: { theme: { .." ) ) );
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { theme: { .." ) ) );
 			} else {
 
 				//Return Sanitize Data
@@ -1237,8 +1232,8 @@ class config {
 
 					//Push To array
 					$array['site'] = array(
-						'title' => CLI::get_flag_value( $args, 'title', $this->package_config['default']['title'] ),
-						'url'   => CLI::get_flag_value( $args, 'url', '' ),
+						'title' => \WP_CLI_Helper::get_flag_value( $args, 'title', $this->package_config['default']['title'] ),
+						'url'   => \WP_CLI_Helper::get_flag_value( $args, 'url', '' ),
 					);
 
 					//Sanitize
@@ -1248,9 +1243,9 @@ class config {
 
 					//Push to array
 					$array['admin'] = array(
-						'admin_user'  => CLI::get_flag_value( $args, 'admin_user', $config['admin_user'] ),
-						'admin_email' => CLI::get_flag_value( $args, 'admin_email', $config['admin_email'] ),
-						'admin_pass'  => CLI::get_flag_value( $args, 'admin_pass', $config['admin_pass'] )
+						'admin_user'  => \WP_CLI_Helper::get_flag_value( $args, 'admin_user', $config['admin_user'] ),
+						'admin_email' => \WP_CLI_Helper::get_flag_value( $args, 'admin_email', $config['admin_email'] ),
+						'admin_pass'  => \WP_CLI_Helper::get_flag_value( $args, 'admin_pass', $config['admin_pass'] )
 					);
 
 					//Check Valid Users
@@ -1282,7 +1277,7 @@ class config {
 	public function check_network_subdomain( $pkg_array ) {
 
 		//To Lowercase
-		$pkg_array = PHP::array_change_key_case_recursive( $pkg_array );
+		$pkg_array = \WP_CLI_Util::array_change_key_case_recursive( $pkg_array );
 
 		//Check exist network
 		if ( isset( $pkg_array['core']['network']['subdomain'] ) and $pkg_array['core']['network']['subdomain'] === true ) {
@@ -1319,12 +1314,12 @@ class config {
 		$all_step = $args['all_step'];
 
 		//Create Config File
-		install::install_log( $step, $all_step, CLI::_e( 'package', 'create_config' ) );
-		CLI::pl_wait_start();
+		install::install_log( $step, $all_step, Package::_e( 'package', 'create_config' ) );
+		\WP_CLI_Helper::pl_wait_start();
 		Config_Arg::create_config( $pkg_array['mysql'] );
-		CLI::pl_wait_end();
-		install::add_detail_log( CLI::_e( 'package', 'salt_generate' ) );
-		install::add_detail_log( CLI::_e( 'package', 'added_db_const' ) );
+		\WP_CLI_Helper::pl_wait_end();
+		install::add_detail_log( Package::_e( 'package', 'salt_generate' ) );
+		install::add_detail_log( Package::_e( 'package', 'added_db_const' ) );
 
 		//Check Extra Constant
 		if ( isset( $pkg_array['config']['constant'] ) and count( $pkg_array['config']['constant'] ) > 0 ) {
@@ -1335,7 +1330,7 @@ class config {
 		//Cookie Constant
 		if ( isset( $pkg_array['config']['cookie'] ) and ! empty( $pkg_array['config']['cookie'] ) and isset( $pkg_array['config']['site']['url'] ) ) {
 			Cookie::set_cookie_prefix( $pkg_array['config']['cookie'], $pkg_array['config']['site']['url'] );
-			install::add_detail_log( CLI::_e( 'package', 'change_cookie_prefix' ) );
+			install::add_detail_log( Package::_e( 'package', 'change_cookie_prefix' ) );
 		}
 
 		//Create require Dir in wp-content

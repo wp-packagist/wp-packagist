@@ -3,7 +3,6 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\FileSystem;
 
 class Rest_API {
 	/**
@@ -126,11 +125,11 @@ class Rest_API {
 	public static function update_rest_api( $mu_plugin_path, $args ) {
 
 		//Get MU PLUGIN Path
-		$plugin = FileSystem::path_join( $mu_plugin_path, 'rest-api.php' );
+		$plugin = \WP_CLI_FileSystem::path_join( $mu_plugin_path, 'rest-api.php' );
 
 		//Remove Plugin if Exist
 		if ( file_exists( $plugin ) ) {
-			FileSystem::remove_file( $plugin );
+			\WP_CLI_FileSystem::remove_file( $plugin );
 		}
 
 		//Reset REST API url prefix
@@ -173,8 +172,8 @@ class Rest_API {
 			}
 
 			//Push new Plugin
-			$mustache = FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
-			FileSystem::file_put_content(
+			$mustache = \WP_CLI_FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
+			\WP_CLI_FileSystem::file_put_content(
 				$plugin,
 				$mustache->render( 'mu-plugins/rest-api', $content )
 			);

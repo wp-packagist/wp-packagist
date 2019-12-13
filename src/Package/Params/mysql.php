@@ -7,12 +7,6 @@ use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Config;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\Wordpress;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_CONFIG;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 use WP_CLI_PACKAGIST\Package\Arguments\Commands;
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
 use WP_CLI_PACKAGIST\Package\Arguments\Options;
@@ -58,7 +52,7 @@ class mysql {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get mysql parameter
 		$parameter = $pkg_array['mysql'];
@@ -98,44 +92,41 @@ class mysql {
 		$not_empty = array( 'DB_NAME', 'DB_USER', 'DB_HOST', 'table_prefix', 'DB_CHARSET' );
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
-
-		//Create Obj Global Config
-		$config = new Config();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is String
 		if ( is_string( $array ) ) {
 
-			$valid->add_error( CLI::_e( 'package', 'is_string', array( "[key]" => "mysql: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "mysql: { .." ) ) );
 		} elseif ( empty( $array ) ) {
 
 			//Check Empty Array
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "mysql: { .." ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "mysql: { .." ) ) );
 		} else {
 
 			//Check is Assoc array
-			if ( PHP::is_assoc_array( $array ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "mysql: { .." ) ) );
+			if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "mysql: { .." ) ) );
 			} else {
 
 				//Convert To Uppercase Keys
 				$array = self::_to_uppercase( $array );
 
 				//Check Require Key
-				$check_require_key = PHP::check_require_array( $array, $require_key, true );
+				$check_require_key = \WP_CLI_Util::check_require_array( $array, $require_key, true );
 				if ( $check_require_key['status'] === false ) {
 					foreach ( $check_require_key['data'] as $key ) {
 
 						//Check in global config
 						try {
-							$get = WP_CLI_CONFIG::get( strtolower( $key ) );
+							$get = \WP_CLI_CONFIG::get( strtolower( $key ) );
 						} catch ( \Exception $e ) {
 							$get = false;
 						}
 						if ( $get != false ) {
 							$array[ $key ] = $get;
 						} else {
-							$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "mysql: { .. " ) ) );
+							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "mysql: { .. " ) ) );
 							break;
 						}
 
@@ -149,7 +140,7 @@ class mysql {
 						//Check if array value show error
 						if ( is_array( $array[ $k ] ) ) {
 
-							$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "mysql: { " . $k . ": .." ) ) );
+							$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "mysql: { " . $k . ": .." ) ) );
 							break;
 						} else {
 
@@ -158,14 +149,14 @@ class mysql {
 
 								//Check in global config
 								try {
-									$get = WP_CLI_CONFIG::get( strtolower( $k ) );
+									$get = \WP_CLI_CONFIG::get( strtolower( $k ) );
 								} catch ( \Exception $e ) {
 									$get = false;
 								}
 								if ( $get != false ) {
 									$array[ $k ] = $get;
 								} else {
-									$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "mysql: { " . $k . ": .." ) ) );
+									$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "mysql: { " . $k . ": .." ) ) );
 									break;
 								}
 							}
@@ -174,8 +165,8 @@ class mysql {
 				}
 
 				//Check MYSQL Database DB-CHARSET
-				if ( isset( $array['DB_CHARSET'] ) and ! in_array( PHP::to_lower_string( $array['DB_CHARSET'] ), Package::get_config( 'package', 'mysql_character' ) ) ) {
-					$valid->add_error( CLI::_e( 'package', 'er_valid', array( "[key]" => "DB_CHARSET" ) ) );
+				if ( isset( $array['DB_CHARSET'] ) and ! in_array( \WP_CLI_Util::to_lower_string( $array['DB_CHARSET'] ), Package::get_config( 'package', 'mysql_character' ) ) ) {
+					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "DB_CHARSET" ) ) );
 				}
 
 				//Set Default for params
@@ -191,7 +182,7 @@ class mysql {
 
 					//Check Status
 					$status = 'install';
-					if ( Wordpress::check_wp_exist() === true ) {
+					if ( Core::check_wp_exist() === true ) {
 						$status = 'update';
 					}
 
@@ -256,7 +247,7 @@ class mysql {
 		//Check Connect To DB
 		$conn = @mysqli_connect( $args['DB_HOST'], $args['DB_USER'], $args['DB_PASSWORD'] );
 		if ( ! $conn ) {
-			return array( 'status' => false, 'data' => CLI::_e( 'package', 'er_db_connect' ) );
+			return array( 'status' => false, 'data' => Package::_e( 'package', 'er_db_connect' ) );
 		}
 
 		//Check Database in Update
@@ -264,7 +255,7 @@ class mysql {
 			@$db_select = mysqli_select_db( $conn, $args['DB_NAME'] );
 			if ( ! $db_select ) {
 				if ( $status == "update" ) {
-					return array( 'status' => false, 'data' => CLI::_e( 'package', 'er_not_exist_db', array( '[name]' => $args['DB_NAME'] ) ) );
+					return array( 'status' => false, 'data' => Package::_e( 'package', 'er_not_exist_db', array( '[name]' => $args['DB_NAME'] ) ) );
 				}
 			} else {
 				//Check Table Exist in install status
@@ -288,7 +279,7 @@ class mysql {
 							if ( $tbl_number > 1 ) {
 								$s = 's';
 							}
-							return array( 'status' => false, 'data' => CLI::_e( 'package', 'er_exist_db_tbl', array( '[table]' => $tbl_number, '[name]' => $args['DB_NAME'], '[sum]' => $s ) ) );
+							return array( 'status' => false, 'data' => Package::_e( 'package', 'er_exist_db_tbl', array( '[table]' => $tbl_number, '[name]' => $args['DB_NAME'], '[sum]' => $s ) ) );
 						}
 					}
 				}
@@ -361,8 +352,8 @@ class mysql {
 			//exist database
 			$exist_db = self::exist_db_name( $pkg_array['mysql'] );
 			if ( $exist_db === false ) {
-				CLI::run_command( "db create" );
-				install::install_log( $step, $all_step, CLI::_e( 'package', 'create_db', array( "[db_name]" => $pkg_array['mysql']['DB_NAME'] ) ) );
+				\WP_CLI_Helper::run_command( "db create" );
+				install::install_log( $step, $all_step, Package::_e( 'package', 'create_db', array( "[db_name]" => $pkg_array['mysql']['DB_NAME'] ) ) );
 				$step ++;
 			}
 		}
@@ -374,10 +365,10 @@ class mysql {
 		}
 
 		//install WordPress
-		install::install_log( $step, $all_step, CLI::_e( 'package', ( $network === false ? "install_wp" : "install_wp_network" ) ) );
-		CLI::pl_wait_start();
+		install::install_log( $step, $all_step, Package::_e( 'package', ( $network === false ? "install_wp" : "install_wp_network" ) ) );
+		\WP_CLI_Helper::pl_wait_start();
 		Core::install_wordpress( $pkg_array, $network );
-		CLI::pl_wait_end();
+		\WP_CLI_Helper::pl_wait_end();
 		$step ++;
 
 		//Check Mod Rewrite file
@@ -386,7 +377,7 @@ class mysql {
 		//Create Mod_Rewrite for Multi Site
 		if ( $network === true ) {
 			Permalink::run_permalink_file( $pkg_array );
-			install::add_detail_log( CLI::_e( 'package', 'created_file', array( "[file]" => $mod_rewrite['mod_rewrite_file'] ) ) );
+			install::add_detail_log( Package::_e( 'package', 'created_file', array( "[file]" => $mod_rewrite['mod_rewrite_file'] ) ) );
 		}
 
 		//Get Table Prefix
@@ -400,46 +391,46 @@ class mysql {
 		//Check Language Setup
 		if ( isset( $pkg_array['core']['locale'] ) and $pkg_array['core']['locale'] != $this->package_config['default']['locale'] ) {
 			$lang = Locale::get_locale_detail( $pkg_array['core']['locale'] );
-			install::install_log( $step, $all_step, CLI::_e( 'package', "install_language", array( "[key]" => $pkg_array['core']['locale'] . ( $lang == "" ? '' : CLI::color( " [" . $lang . "]", "P" ) ) ) ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', "install_language", array( "[key]" => $pkg_array['core']['locale'] . ( $lang == "" ? '' : \WP_CLI_Helper::color( " [" . $lang . "]", "P" ) ) ) ) );
 			Locale::install_lang( $pkg_array );
 			$step ++;
 		}
 
 		//Check Permalink structure
 		if ( isset( $pkg_array['config']['permalink'] ) and is_array( $pkg_array['config']['permalink'] ) and $network === false ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "change_permalink" ) );
-			CLI::pl_wait_start();
+			install::install_log( $step, $all_step, Package::_e( 'package', "change_permalink" ) );
+			\WP_CLI_Helper::pl_wait_start();
 			Permalink::change_permalink_structure( $pkg_array );
 			Permalink::run_permalink_file();
-			CLI::pl_wait_end();
-			install::add_detail_log( CLI::_e( 'package', 'created_file', array( "[file]" => $mod_rewrite['mod_rewrite_file'] ) ) );
+			\WP_CLI_Helper::pl_wait_end();
+			install::add_detail_log( Package::_e( 'package', 'created_file', array( "[file]" => $mod_rewrite['mod_rewrite_file'] ) ) );
 			$step ++;
 		}
 
 		//Check install Sites in Network
 		if ( $network === true and isset( $pkg_array['core']['network']['sites'] ) and count( $pkg_array['core']['network']['sites'] ) > 0 ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "add_sites_network" ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', "add_sites_network" ) );
 			Core::install_network_sites( $pkg_array['core']['network']['sites'] );
 			$step ++;
 		}
 
 		//Change TimeZone Wordpress
 		if ( isset( $pkg_array['config']['timezone'] ) and ! empty( $pkg_array['config']['timezone'] ) ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "change_timezone" ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', "change_timezone" ) );
 			Timezone::update_timezone( $pkg_array['config']['timezone'] );
 			$step ++;
 		}
 
 		//Update WordPress Option
 		if ( isset( $pkg_array['config']['options'] ) and count( $pkg_array['config']['options'] ) > 0 ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "update_options" ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', "update_options" ) );
 			Options::install_options( $pkg_array['config']['options'], $table_prefix );
 			$step ++;
 		}
 
 		//Create WordPress Users
 		if ( isset( $pkg_array['config']['users'] ) and count( $pkg_array['config']['users'] ) > 0 ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "create_users" ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', "create_users" ) );
 			foreach ( $pkg_array['config']['users'] as $users ) {
 				Users::add_new_user( $users );
 			}
@@ -448,26 +439,26 @@ class mysql {
 
 		//Check Update REST API
 		if ( isset( $pkg_array['config']['rest-api'] ) ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "update_rest_api" ) );
-			CLI::pl_wait_start();
+			install::install_log( $step, $all_step, Package::_e( 'package', "update_rest_api" ) );
+			\WP_CLI_Helper::pl_wait_start();
 			$mu_plugins_path = Dir::eval_get_mu_plugins_path();
 			Rest_API::update_rest_api( $mu_plugins_path, $pkg_array['config']['rest-api'] );
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 			$step ++;
 		}
 
 		//Check WordPress Plugins
 		if ( isset( $pkg_array['plugins'] ) ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "install_wp_plugins" ) );
-			CLI::pl_wait_start();
+			install::install_log( $step, $all_step, Package::_e( 'package', "install_wp_plugins" ) );
+			\WP_CLI_Helper::pl_wait_start();
 			Plugins::update_plugins( $pkg_array['plugins'], $current_plugin_list = array(), $options = array( 'force' => true, 'remove' => false ) );
 			$step ++;
 		}
 
 		//Check WordPress Theme
 		if ( isset( $pkg_array['themes'] ) ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "install_wp_themes" ) );
-			CLI::pl_wait_start();
+			install::install_log( $step, $all_step, Package::_e( 'package', "install_wp_themes" ) );
+			\WP_CLI_Helper::pl_wait_start();
 			Themes::update_themes( $pkg_array['themes'], $current_theme_list = array(), $options = array( 'force' => true, 'remove' => false ) );
 			$step ++;
 		}
@@ -481,13 +472,13 @@ class mysql {
 
 		//Run Custom Commands
 		if ( isset( $pkg_array['commands'] ) ) {
-			install::install_log( $step, $all_step, CLI::_e( 'package', "run_pkg_commands" ) );
+			install::install_log( $step, $all_step, Package::_e( 'package', "run_pkg_commands" ) );
 			Commands::run_commands( $pkg_array['commands'] );
 			$step ++;
 		}
 
 		//WordPress Security
-		install::install_log( $step, $all_step, CLI::_e( 'package', 'wp_sec_file' ) );
+		install::install_log( $step, $all_step, Package::_e( 'package', 'wp_sec_file' ) );
 		Security::remove_security_file( true );
 		if ( ! defined( 'WP_CLI_APP_PACKAGE_DISABLE_WORDPRESS_JSON_SECURITY' ) ) {
 			Security::wordpress_package_security_plugin( $pkg_array, true );

@@ -7,8 +7,6 @@ use WP_CLI_PACKAGIST\API\WP_Themes_Api;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
 
 class help {
 	/**
@@ -46,7 +44,7 @@ class help {
 
 		# Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		# Get List of Wordpress version
@@ -54,12 +52,12 @@ class help {
 
 		# Check Error
 		if ( $list['status'] === false ) {
-			CLI::error( $list['data'] );
+			\WP_CLI_Helper::error( $list['data'] );
 		} else {
 
 			# Show List
 			foreach ( $list['data'] as $key => $val ) {
-				CLI::line( $key . ( $val == "latest" ? " " . CLI::color( "(Latest)", "B" ) : '' ) );
+				\WP_CLI_Helper::line( $key . ( $val == "latest" ? " " . \WP_CLI_Helper::color( "(Latest)", "B" ) : '' ) );
 			}
 		}
 
@@ -72,7 +70,7 @@ class help {
 
 		# Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		# Get List of Wordpress locale
@@ -80,7 +78,7 @@ class help {
 
 		# Check Error
 		if ( $list['status'] === false ) {
-			CLI::error( $list['data'] );
+			\WP_CLI_Helper::error( $list['data'] );
 		} else {
 
 			//Create List
@@ -95,7 +93,7 @@ class help {
 			}
 
 			//Show List
-			CLI::format_items( 'table', $array, false );
+			\WP_CLI_Helper::format_items( 'table', $array, false );
 		}
 	}
 
@@ -106,7 +104,7 @@ class help {
 
 		# Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		# Get List of Wordpress TimeZone
@@ -119,7 +117,7 @@ class help {
 		}
 
 		# Show List
-		CLI::format_items( 'table', $array, false );
+		\WP_CLI_Helper::format_items( 'table', $array, false );
 	}
 
 	/**
@@ -132,7 +130,7 @@ class help {
 
 		# Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		# Get Plugin Data
@@ -141,33 +139,33 @@ class help {
 
 		# Check Error
 		if ( $plugin_inf['status'] === false ) {
-			CLI::error( $plugin_inf['data'] );
+			\WP_CLI_Helper::error( $plugin_inf['data'] );
 		} else {
 
 			// Show Title Plugin information
-			CLI::br();
-			CLI::line( CLI::color( "# Plugin information", "Y" ) );
-			CLI::br();
+			\WP_CLI_Helper::br();
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# Plugin information", "Y" ) );
+			\WP_CLI_Helper::br();
 
 			//Name
-			CLI::line( ucfirst( "name" ) . "           " . CLI::color( $plugin_inf['data']['name'], "P" ) . " by " . CLI::color( strip_tags( $plugin_inf['data']['author'] ), "B" ) );
+			\WP_CLI_Helper::line( ucfirst( "name" ) . "           " . \WP_CLI_Helper::color( $plugin_inf['data']['name'], "P" ) . " by " . \WP_CLI_Helper::color( strip_tags( $plugin_inf['data']['author'] ), "B" ) );
 
 			//Url
-			CLI::line( ucfirst( "url" ) . "            https://fa.wordpress.org/plugins/" . ( isset( $plugin_inf['data']['slug'] ) ? $plugin_inf['data']['slug'] : $plugin ) );
+			\WP_CLI_Helper::line( ucfirst( "url" ) . "            https://fa.wordpress.org/plugins/" . ( isset( $plugin_inf['data']['slug'] ) ? $plugin_inf['data']['slug'] : $plugin ) );
 
 			//Author
 			if ( isset( $plugin_inf['data']['author_profile'] ) ) {
-				CLI::line( ucfirst( "author" ) . "         " . ucfirst( basename( $plugin_inf['data']['author_profile'] ) ) . " (" . $plugin_inf['data']['author_profile'] . ")" );
+				\WP_CLI_Helper::line( ucfirst( "author" ) . "         " . ucfirst( basename( $plugin_inf['data']['author_profile'] ) ) . " (" . $plugin_inf['data']['author_profile'] . ")" );
 			}
 
 			//HomePage
 			if ( isset( $plugin_inf['data']['homepage'] ) ) {
-				CLI::line( ucfirst( "home page" ) . "      " . $plugin_inf['data']['homepage'] );
+				\WP_CLI_Helper::line( ucfirst( "home page" ) . "      " . $plugin_inf['data']['homepage'] );
 			}
 
 			//Downloaded
 			if ( isset( $plugin_inf['data']['downloaded'] ) ) {
-				CLI::line( ucfirst( "downloaded" ) . "     " . number_format( $plugin_inf['data']['downloaded'] ) );
+				\WP_CLI_Helper::line( ucfirst( "downloaded" ) . "     " . number_format( $plugin_inf['data']['downloaded'] ) );
 			}
 
 			//Tags
@@ -180,32 +178,32 @@ class help {
 						$tags .= ', ';
 					}
 				}
-				CLI::line( ucfirst( "tags" ) . "           " . $tags );
+				\WP_CLI_Helper::line( ucfirst( "tags" ) . "           " . $tags );
 			}
 
 			//download Link
 			if ( isset( $plugin_inf['data']['download_link'] ) ) {
-				CLI::line( ucfirst( "download link" ) . "  " . $plugin_inf['data']['download_link'] );
+				\WP_CLI_Helper::line( ucfirst( "download link" ) . "  " . $plugin_inf['data']['download_link'] );
 			}
 
 			//last_updated
 			if ( isset( $plugin_inf['data']['last_updated'] ) ) {
-				CLI::line( ucfirst( "last updated" ) . "   " . str_replace( "GMT", "", $plugin_inf['data']['last_updated'] ) );
+				\WP_CLI_Helper::line( ucfirst( "last updated" ) . "   " . str_replace( "GMT", "", $plugin_inf['data']['last_updated'] ) );
 			}
 
 			//description
 			if ( isset( $plugin_inf['data']['sections']['description'] ) ) {
-				CLI::br();
-				CLI::line( CLI::color( "# Description", "Y" ) );
-				CLI::br();
-				$desc = PHP::substr( strip_tags( $plugin_inf['data']['sections']['description'] ), 3000 );
-				CLI::line( $desc . '..' );
+				\WP_CLI_Helper::br();
+				\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# Description", "Y" ) );
+				\WP_CLI_Helper::br();
+				$desc = \WP_CLI_Util::substr( strip_tags( $plugin_inf['data']['sections']['description'] ), 3000 );
+				\WP_CLI_Helper::line( $desc . '..' );
 			}
 
 			// Show List Versions
-			CLI::br();
-			CLI::line( CLI::color( "# List Versions", "Y" ) );
-			CLI::br();
+			\WP_CLI_Helper::br();
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# List Versions", "Y" ) );
+			\WP_CLI_Helper::br();
 
 			# Create List version
 			$version_list = $plugins_api->get_list_plugin_versions( $plugin );
@@ -216,7 +214,7 @@ class help {
 				}
 
 				# Show List
-				CLI::format_items( 'table', $array, false );
+				\WP_CLI_Helper::format_items( 'table', $array, false );
 			}
 		}
 	}
@@ -231,7 +229,7 @@ class help {
 
 		# Remove please wait
 		if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-			CLI::pl_wait_end();
+			\WP_CLI_Helper::pl_wait_end();
 		}
 
 		# Get Plugin Data
@@ -240,48 +238,48 @@ class help {
 
 		# Check Error
 		if ( $theme_inf['status'] === false ) {
-			CLI::error( $theme_inf['data'] );
+			\WP_CLI_Helper::error( $theme_inf['data'] );
 		} else {
 
 			// Show Title theme information
-			CLI::br();
-			CLI::line( CLI::color( "# Theme information", "Y" ) );
-			CLI::br();
+			\WP_CLI_Helper::br();
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# Theme information", "Y" ) );
+			\WP_CLI_Helper::br();
 
 			//Name
-			CLI::line( ucfirst( "name" ) . "            " . CLI::color( $theme_inf['data']['name'], "P" ) . " by " . CLI::color( strip_tags( $theme_inf['data']['author'] ), "B" ) );
+			\WP_CLI_Helper::line( ucfirst( "name" ) . "            " . \WP_CLI_Helper::color( $theme_inf['data']['name'], "P" ) . " by " . \WP_CLI_Helper::color( strip_tags( $theme_inf['data']['author'] ), "B" ) );
 
 			//preview_url
 			if ( isset( $theme_inf['data']['preview_url'] ) ) {
-				CLI::line( ucfirst( "preview url" ) . "     " . $theme_inf['data']['preview_url'] );
+				\WP_CLI_Helper::line( ucfirst( "preview url" ) . "     " . $theme_inf['data']['preview_url'] );
 			}
 
 			//HomePage
 			if ( isset( $theme_inf['data']['homepage'] ) ) {
-				CLI::line( ucfirst( "home page" ) . "       " . $theme_inf['data']['homepage'] );
+				\WP_CLI_Helper::line( ucfirst( "home page" ) . "       " . $theme_inf['data']['homepage'] );
 			}
 
 			//num_ratings
 			if ( isset( $theme_inf['data']['num_ratings'] ) ) {
 				$num_rating = (int) $theme_inf['data']['num_ratings'];
 				if ( $num_rating > 0 ) {
-					CLI::line( ucfirst( "number ratings" ) . "  " . number_format( $theme_inf['data']['num_ratings'] ) );
+					\WP_CLI_Helper::line( ucfirst( "number ratings" ) . "  " . number_format( $theme_inf['data']['num_ratings'] ) );
 				}
 			}
 
 			//description
 			if ( isset( $theme_inf['data']['description'] ) ) {
-				CLI::br();
-				CLI::line( CLI::color( "# Description", "Y" ) );
-				CLI::br();
-				$desc = PHP::substr( strip_tags( $theme_inf['data']['description'] ), 3000 );
-				CLI::line( $desc . '..' );
+				\WP_CLI_Helper::br();
+				\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# Description", "Y" ) );
+				\WP_CLI_Helper::br();
+				$desc = \WP_CLI_Util::substr( strip_tags( $theme_inf['data']['description'] ), 3000 );
+				\WP_CLI_Helper::line( $desc . '..' );
 			}
 
 			// Show List Versions
-			CLI::br();
-			CLI::line( CLI::color( "# List Versions", "Y" ) );
-			CLI::br();
+			\WP_CLI_Helper::br();
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "# List Versions", "Y" ) );
+			\WP_CLI_Helper::br();
 
 			# Create List version
 			$version_list = $themes_api->get_list_theme_versions( $theme );
@@ -292,7 +290,7 @@ class help {
 				}
 
 				# Show List
-				CLI::format_items( 'table', $array, false );
+				\WP_CLI_Helper::format_items( 'table', $array, false );
 			}
 		}
 
@@ -306,20 +304,20 @@ class help {
 		// Get Helper List
 		$help_list = self::$list;
 		$x         = 1;
-		CLI::br();
+		\WP_CLI_Helper::br();
 		foreach ( $help_list as $name => $value ) {
-			CLI::line( "{$x}. " . CLI::color( $value['title'], "Y" ) );
-			CLI::line( CLI::color( "     " . $value['desc'], "P" ) );
-			CLI::br();
+			\WP_CLI_Helper::line( "{$x}. " . \WP_CLI_Helper::color( $value['title'], "Y" ) );
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "     " . $value['desc'], "P" ) );
+			\WP_CLI_Helper::br();
 			$x ++;
 		}
 
 		//Define STDIN
-		PHP::define_stdin();
+		\WP_CLI_Util::define_stdin();
 
 		// Input Get ID
 		while ( true ) {
-			echo "Please type ID and press enter key :  ";
+			echo "Please type ID and press enter key:  ";
 			$ID = fread( STDIN, 80 );
 			if ( is_numeric( trim( $ID ) ) ) {
 				if ( $ID <= count( $help_list ) ) {
@@ -346,7 +344,7 @@ class help {
 					case "version":
 					case "locale":
 					case "timezone":
-						CLI::pl_wait_start();
+						\WP_CLI_Helper::pl_wait_start();
 						help::{$method}();
 						break;
 
@@ -372,14 +370,14 @@ class help {
 	public static function input( $type = 'theme', $example = array() ) {
 
 		// Show separator
-		CLI::line( "--------------------------------" );
-		CLI::br();
+		\WP_CLI_Helper::line( "--------------------------------" );
+		\WP_CLI_Helper::br();
 
 		// Input Get Slug
 		while ( true ) {
 
 			// Helper log
-			echo "Please type " . $type . " slug e.g " . CLI::color( $example[0], "B" ) . " or " . CLI::color( $example[1], "B" ) . " and press enter key :  ";
+			echo "Please type " . $type . " slug e.g " . \WP_CLI_Helper::color( $example[0], "B" ) . " or " . \WP_CLI_Helper::color( $example[1], "B" ) . " and press enter key :  ";
 
 			// Get input
 			$slug = fread( STDIN, 100 );
@@ -395,10 +393,9 @@ class help {
 			$slug = strtolower( str_ireplace( array( "_", " " ), "-", trim( $slug ) ) );
 
 			//Get Plugin Data
-			CLI::pl_wait_start();
+			\WP_CLI_Helper::pl_wait_start();
 			self::{$type}( $slug );
 		}
-
 	}
 
 }

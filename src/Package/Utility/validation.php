@@ -2,9 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 use WP_CLI_PACKAGIST\Package\Package;
 
 /**
@@ -60,7 +57,7 @@ class validation extends Package {
 						$obj = new $class();
 
 						//check validation method exist in class
-						if ( PHP::search_method_from_class( $obj, 'validation' ) ) {
+						if ( \WP_CLI_Util::search_method_from_class( $obj, 'validation' ) ) {
 
 							//Check list of error
 							$error = $obj->validation( $pkg_array );
@@ -98,15 +95,15 @@ class validation extends Package {
 
 			//Remove please wait
 			if ( defined( 'WP_CLI_PLEASE_WAIT_LOG' ) ) {
-				CLI::pl_wait_end();
+				\WP_CLI_Helper::pl_wait_end();
 			}
 
 			//Check has error in validation
-			CLI::line( CLI::color( "Error: ", "R" ) );
+			\WP_CLI_Helper::line( \WP_CLI_Helper::color( "Error: ", "R" ) );
 			foreach ( $valid['data'] as $text_error ) {
-				CLI::line( "  - " . $text_error );
+				\WP_CLI_Helper::line( "  - " . $text_error );
 			}
-			CLI::br();
+			\WP_CLI_Helper::br();
 
 		} else {
 			//Get Package Data if not exist error
@@ -127,13 +124,13 @@ class validation extends Package {
 	public function check_primary_keys( $pkg_data ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check Primary keys exist
-		$check_require_key = PHP::check_require_array( $pkg_data, $this->primary_keys, true );
+		$check_require_key = \WP_CLI_Util::check_require_array( $pkg_data, $this->primary_keys, true );
 		if ( $check_require_key['status'] === false ) {
 			foreach ( $check_require_key['data'] as $key ) {
-				$valid->add_error( CLI::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "WordPress Package file", "`" => "" ) ) );
+				$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "WordPress Package file", "`" => "" ) ) );
 			}
 		}
 
@@ -141,7 +138,7 @@ class validation extends Package {
 		$pkg_params_list = $this->package_config['params'];
 		foreach ( $pkg_data as $k => $v ) {
 			if ( ! in_array( $k, $pkg_params_list ) ) {
-				$valid->add_error( CLI::_e( 'package', 'er_unknown_param', array( "[key]" => $k ) ) );
+				$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => $k ) ) );
 			}
 		}
 

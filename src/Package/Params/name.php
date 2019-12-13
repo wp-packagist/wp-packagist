@@ -3,9 +3,6 @@
 namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Utility\CLI;
-use WP_CLI_PACKAGIST\Utility\PHP;
-use WP_CLI_PACKAGIST\Utility\WP_CLI_ERROR;
 
 class name {
 
@@ -35,7 +32,7 @@ class name {
 	public function validation( $pkg_array ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Get name parameter
 		$parameter = $pkg_array['name'];
@@ -64,27 +61,27 @@ class name {
 	public function sanitize_name( $var, $validate = false ) {
 
 		//Create new validation
-		$valid = new WP_CLI_ERROR();
+		$valid = new \WP_CLI_ERROR();
 
 		//Check is Empty
 		if ( empty( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'empty_val', array( "[key]" => "name" ) ) );
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "name" ) ) );
 
 			//Check is array
 		} elseif ( is_array( $var ) ) {
-			$valid->add_error( CLI::_e( 'package', 'is_not_string', array( "[key]" => "Package name" ) ) );
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "Package name" ) ) );
 
 		} else {
 
 			//Check @ in Package Name
 			if ( stristr( $var, $this->package_config['separator_name'] ) === false ) {
-				$valid->add_error( CLI::_e( 'package', 'er_package_name' ) );
+				$valid->add_error( Package::_e( 'package', 'er_package_name' ) );
 			} else {
 
 				//separate username and Package name
 				$pkg = explode( $this->package_config['separator_name'], $var );
 				if ( count( $pkg ) != 2 || empty( $pkg[0] ) || empty( $pkg[1] ) || is_numeric( substr( $pkg[0], 0, 1 ) ) || is_numeric( substr( $pkg[1], 0, 1 ) ) ) {
-					$valid->add_error( CLI::_e( 'package', 'er_package_name' ) );
+					$valid->add_error( Package::_e( 'package', 'er_package_name' ) );
 				} else {
 
 					//Save original Package name
@@ -94,7 +91,7 @@ class name {
 					$pkg = array_map( function ( $value ) {
 
 						//Trim Word
-						$return = PHP::to_lower_string( $value );
+						$return = \WP_CLI_Util::to_lower_string( $value );
 
 						//Convert _ to -
 						$return = str_ireplace( "_", "-", $return );
@@ -107,8 +104,8 @@ class name {
 
 					//Check different between user input and sanitize
 					for ( $i = 0; $i < count( $pkg_raw ); $i ++ ) {
-						if ( PHP::to_lower_string( $pkg_raw[ $i ] ) != $pkg[ $i ] ) {
-							$valid->add_error( CLI::_e( 'package', 'er_package_name' ) );
+						if ( \WP_CLI_Util::to_lower_string( $pkg_raw[ $i ] ) != $pkg[ $i ] ) {
+							$valid->add_error( Package::_e( 'package', 'er_package_name' ) );
 							break;
 						}
 					}
