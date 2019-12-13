@@ -114,7 +114,7 @@ return array(
 		'wordpress_core_url_file'  => WP_CLI_PACKAGIST_CACHE_PATH . '/core-url.json',
 
 		# List of all WordPress Package Parameter
-		'params'                   => array( 'name', 'description', 'keywords', 'core', 'config', 'dir', 'mysql', 'plugins', 'themes', 'commands' ),
+		'params'                   => array( /*'name', 'description', 'keywords',*/ 'core', 'config', 'dir', 'mysql', 'plugins', 'themes', 'commands' ),
 
 		# List of Default Value in WordPress Package System
 		'default'                  => array(

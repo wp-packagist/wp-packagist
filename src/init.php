@@ -95,7 +95,7 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
 		}
 	}
 
-	//remove command log
+	//Remove command log
 	Package::remove_command_log();
 
 	//Create new package file
@@ -109,7 +109,7 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
 		$warnings = $return['data'];
 
 		//Show Warning
-		if ( count( $warnings ) > 0 ) {
+		if ( count( $warnings ) >0 ) {
 			\WP_CLI_Helper::br();
 			\WP_CLI_Helper::warning();
 			foreach ( $warnings as $text_warning ) {
