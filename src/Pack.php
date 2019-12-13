@@ -198,18 +198,10 @@ class Pack extends \WP_CLI_Command {
 	/**
 	 * Show Documentation in the web browser.
 	 *
-	 * ## OPTIONS
-	 *
-	 * [<page>]
-	 * : Custom page url
-	 *
 	 * ## EXAMPLES
 	 *
 	 *      # Show WP-CLI PACKAGIST Documentation in the web browser.
 	 *      $ wp app docs
-	 *
-	 *      # Show '/config' page from WP-CLI PACKAGIST Documentation in the web browser.
-	 *      $ wp app docs config
 	 *
 	 * @when before_wp_load
 	 * @alias doc
@@ -218,11 +210,6 @@ class Pack extends \WP_CLI_Command {
 
 		//Get basic docs url
 		$url = Package::get_config( 'docs' );
-
-		//Check custom page
-		if ( isset( $args[0] ) ) {
-			$url = rtrim( $url, "/" ) . "/" . ltrim( \WP_CLI_Util::backslash_to_slash( $_[0] ), "/" );
-		}
 
 		//Check Valid Url
 		$web_url = filter_var( $url, FILTER_VALIDATE_URL );

@@ -57,10 +57,8 @@ return array(
 	 */
 	'config'        => array(
 
-		# The list of acceptable options for application
+		# The list of acceptable options
 		'options' => array(
-			'app.username',
-			'app.token',
 			'default.clone.role',
 			'db_host',
 			'db_user',
@@ -96,7 +94,7 @@ return array(
 		# Save List of Wordpress Version in cache
 		'version'                  => array(
 			'file' => WP_CLI_PACKAGIST_CACHE_PATH . '/version.json',
-			'age'  => 3, //Hour
+			'age'  => 1, //Hour
 		),
 
 		# Save List Of Wordpress Locale in cache
