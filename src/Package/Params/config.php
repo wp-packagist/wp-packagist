@@ -270,10 +270,10 @@ class config {
 		$mustache = \WP_CLI_FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
 
 		//Create GET Request Key
-		$get_key = strtolower( WP_CLI_Util::random_key( 80, false ) );
+		$get_key = strtolower( \WP_CLI_Util::random_key( 80, false ) );
 
 		//Create File name
-		$file_name = strtolower( WP_CLI_Util::random_key( 40, false ) ) . ".php";
+		$file_name = strtolower( \WP_CLI_Util::random_key( 40, false ) ) . ".php";
 		$file_path = rtrim( str_ireplace( "\\", "/", getcwd() ), "/" ) . "/" . $file_name;
 
 		//Get Render Data
