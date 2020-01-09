@@ -106,7 +106,7 @@ class Security {
 		\WP_CLI_FileSystem::file_put_content( \WP_CLI_FileSystem::path_join( $mu_plugins_path, 'pretty-permalinks.php' ), $text );
 
 		//Connect to WordPress
-		$url     = $pkg_array['config']['site']['url'];
+		$url     = $pkg_array['config']['url'];
 		$request = \WP_CLI_Helper::http_request( rtrim( $url, "/" ) . "/?wp_cli_iis7_check=" . $get_key );
 		if ( $request != false ) {
 			if ( isset( $request['is_iis7'] ) and $request['is_iis7'] == "true" ) {

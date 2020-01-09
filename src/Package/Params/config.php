@@ -18,7 +18,7 @@ class config {
 	 *
 	 * @var array
 	 */
-	public $params_keys = array( 'site', 'admin', 'users', 'constant', 'options', 'cookie', 'rest-api', 'permalink', 'timezone', 'theme' );
+	public $params_keys = array( 'url', 'title', 'admin', 'users', 'constant', 'options', 'cookie', 'rest-api', 'permalink', 'timezone', 'theme' );
 
 	/**
 	 * Get Wordpress Package options
@@ -52,7 +52,7 @@ class config {
 		$parameter = $pkg_array['config'];
 
 		//Require Key
-		$require_key = array( 'site' );
+		$require_key = array( 'url' );
 
 		//Check is empty
 		if ( empty( $parameter ) ) {
@@ -109,8 +109,8 @@ class config {
 								}
 							}
 
-							//Push Admin info if not exist after Site
-							if ( $keys == "site" and ! array_key_exists( "admin", $parameter ) ) {
+							//Push Admin info if not exist after permalink
+							if ( $keys == "permalink" and ! array_key_exists( "admin", $parameter ) ) {
 								$return["admin"] = $this->get_default_users_arg();
 							}
 						}
@@ -141,118 +141,96 @@ class config {
 	}
 
 	/**
-	 * Sanitize Site Params
+	 * Sanitize URL Parameter
 	 *
-	 * @param $array
+	 * @param $var
 	 * @param bool $validate
-	 * @return string|boolean|array
-	 * @since 1.0.0
+	 * @return array|string
 	 */
-	public function sanitize_site( $array, $validate = false ) {
-
-		//List of require Key
-		$require_key = array( 'title', 'url' );
+	public function sanitize_url( $var, $validate = false ) {
 
 		//Create new validation
 		$valid = new \WP_CLI_ERROR();
 
-		//Check is empty
-		if ( empty( $array ) ) {
-			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { site: .." ) ) );
+		//Check is Empty
+		if ( empty( $var ) ) {
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { url: .." ) ) );
+
+			//Check is array
+		} elseif ( is_array( $var ) || is_object( $var )  ) {
+
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { url: .." ) ) );
 		} else {
 
-			//check is string
-			if ( is_string( $array ) ) {
-				$valid->add_error( Package::_e( 'package', 'is_string', array( "[key]" => "config: { site: .." ) ) );
+			//Check validate Url
+			if ( filter_var( $var, FILTER_VALIDATE_URL ) === false ) {
+				$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { url: .." ) ) );
 			} else {
 
-				//Check is not Assoc array
-				if ( \WP_CLI_Util::is_assoc_array( $array ) === false ) {
-					$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: .." ) ) );
-				} else {
+				//Sanitize Website Url
+				$var = trim( filter_var( $var, FILTER_VALIDATE_URL ) );
 
-					//Convert to lowercase key
-					$parameter = array_change_key_case( $array, CASE_LOWER );
+				//For Push to site url options
+				$var = rtrim( $var, "/" );
 
-					//Check require key
-					$check_require_key = \WP_CLI_Util::check_require_array( $parameter, $require_key, false );
-					if ( $check_require_key['status'] === false ) {
-						foreach ( $check_require_key['data'] as $key ) {
-							$valid->add_error( Package::_e( 'package', 'not_exist_key', array( "[require]" => $key, "[key]" => "config: { site: { .. " ) ) );
-							break;
-						}
-					}
-
-					//Check Anonymous Parameter
-					foreach ( $parameter as $k => $val ) {
-						if ( ! in_array( strtolower( $k ), $require_key ) ) {
-							$valid->add_error( Package::_e( 'package', 'er_unknown_param', array( "[key]" => 'config: { site: { "' . $k . '" ..' ) ) );
-						}
-					}
-
-					//Validation Separate Parameter
-					if ( ! $valid->is_cli_error() ) {
-
-						//Validate title
-						if ( empty( $parameter['title'] ) ) {
-
-							$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { site: { title: .." ) ) );
-						} elseif ( is_array( $parameter['title'] ) || is_object( $parameter['title'] ) ) {
-
-							$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { title: .." ) ) );
-						} else {
-
-							//save original title
-							$raw_title = $parameter['title'];
-
-							//Strip all tags
-							$var = strip_tags( $raw_title );
-
-							//Check Contain Html
-							if ( \WP_CLI_Util::to_lower_string( $var ) != \WP_CLI_Util::to_lower_string( $raw_title ) ) {
-								$valid->add_error( Package::_e( 'package', 'er_contain_html', array( "[key]" => "config: { site: { title: .." ) ) );
-							} else {
-
-								//Sanitize Title
-								$parameter['title'] = trim( $parameter['title'] );
-
-								//Check Website Url
-								if ( empty( $parameter['url'] ) ) {
-									$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { site: { url: .." ) ) );
-								} elseif ( is_array( $parameter['url'] ) || is_object( $parameter['url'] ) ) {
-
-									$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { url: .." ) ) );
-								} else {
-
-									//Check validate Url
-									if ( filter_var( $parameter['url'], FILTER_VALIDATE_URL ) === false ) {
-										$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { site: { url: .." ) ) );
-									} else {
-
-										//Sanitize Website Url
-										$parameter['url'] = trim( filter_var( $parameter['url'], FILTER_VALIDATE_URL ) );
-										$parameter['url'] = rtrim( $parameter['url'], "/" ); //For Push to site url options
-
-										// Check connecting to url
-										if ( defined( 'WP_CLI_PACKAGIST_RUN_CHECK_SITE_URL' ) ) {
-											$check_url = $this->_check_site_url( $parameter['url'] );
-											if ( $check_url['status'] === false ) {
-												$valid->add_error( $check_url['data'] );
-											}
-										}
-
-										//Push To sanitize return data
-										$valid->add_success( $parameter );
-									}
-								}
-							}
-						}
+				//Check connecting to url
+				if ( defined( 'WP_CLI_PACKAGIST_RUN_CHECK_SITE_URL' ) ) {
+					$check_url = $this->_check_site_url( $var );
+					if ( $check_url['status'] === false ) {
+						$valid->add_error( $check_url['data'] );
 					}
 				}
+
+				//Push To sanitize return data
+				$valid->add_success( $var );
 			}
 		}
 
-		return ( $validate === true ? $valid->result() : $array );
+		return ( $validate === true ? $valid->result() : $var );
+	}
+
+	/**
+	 * Sanitize Title Parameter
+	 *
+	 * @param $var
+	 * @param bool $validate
+	 * @return array|string
+	 */
+	public function sanitize_title( $var, $validate = false ) {
+
+		//Create new validation
+		$valid = new \WP_CLI_ERROR();
+
+		//Check is Empty
+		if ( empty( $var ) ) {
+			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { title: .." ) ) );
+
+			//Check is array
+		} elseif ( is_array( $var ) || is_object( $var )  ) {
+
+			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { title: .." ) ) );
+		} else {
+
+			//save original title
+			$raw_title = $var;
+
+			//Strip all tags
+			$var = strip_tags( $raw_title );
+
+			//Check Contain Html
+			if ( \WP_CLI_Util::to_lower_string( $var ) != \WP_CLI_Util::to_lower_string( $raw_title ) ) {
+				$valid->add_error( Package::_e( 'package', 'er_contain_html', array( "[key]" => "config: { title: .." ) ) );
+			} else {
+
+				//Sanitize Title
+				$var = trim( $var );
+
+				//Push To sanitize return data
+				$valid->add_success( $var );
+			}
+		}
+
+		return ( $validate === true ? $valid->result() : $var );
 	}
 
 	/**
@@ -1224,20 +1202,25 @@ class config {
 		$config = $this->get_default_users_arg();
 
 		//Create init params
-		foreach ( array( 'site', 'admin' ) as $key ) {
+		foreach ( array( 'url', 'title', 'admin' ) as $key ) {
 
 			//Check Default Value
 			switch ( $key ) {
-				case "site":
+				case "url":
 
 					//Push To array
-					$array['site'] = array(
-						'title' => \WP_CLI_Helper::get_flag_value( $args, 'title', $this->package_config['default']['title'] ),
-						'url'   => \WP_CLI_Helper::get_flag_value( $args, 'url', '' ),
-					);
+					$array['url'] = \WP_CLI_Helper::get_flag_value( $args, 'url', '' );
 
 					//Sanitize
-					$default = $this->sanitize_site( $array['site'], $validate );
+					$default = $this->sanitize_url( $array['url'], $validate );
+					break;
+				case "title":
+
+					//Push To array
+					$array['title'] = \WP_CLI_Helper::get_flag_value( $args, 'title', $this->package_config['default']['title'] );
+
+					//Sanitize
+					$default = $this->sanitize_title( $array['title'], $validate );
 					break;
 				case "admin":
 
@@ -1283,10 +1266,10 @@ class config {
 		if ( isset( $pkg_array['core']['network']['subdomain'] ) and $pkg_array['core']['network']['subdomain'] === true ) {
 
 			//Check Site Url
-			if ( isset( $pkg_array['config']['site']['url'] ) ) {
+			if ( isset( $pkg_array['config']['url'] ) ) {
 
 				//Get Domain name
-				$parse = @parse_url( $pkg_array['config']['site']['url'] );
+				$parse = @parse_url( $pkg_array['config']['url'] );
 				if ( $parse != false ) {
 
 					//Check domain is localhost
@@ -1328,8 +1311,8 @@ class config {
 		}
 
 		//Cookie Constant
-		if ( isset( $pkg_array['config']['cookie'] ) and ! empty( $pkg_array['config']['cookie'] ) and isset( $pkg_array['config']['site']['url'] ) ) {
-			Cookie::set_cookie_prefix( $pkg_array['config']['cookie'], $pkg_array['config']['site']['url'] );
+		if ( isset( $pkg_array['config']['cookie'] ) and ! empty( $pkg_array['config']['cookie'] ) and isset( $pkg_array['config']['url'] ) ) {
+			Cookie::set_cookie_prefix( $pkg_array['config']['cookie'], $pkg_array['config']['url'] );
 			install::add_detail_log( Package::_e( 'package', 'change_cookie_prefix' ) );
 		}
 

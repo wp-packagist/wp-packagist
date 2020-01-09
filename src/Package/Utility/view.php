@@ -71,16 +71,20 @@ class view extends Package {
 					break;
 
 				case 'config':
-					# 'site'
-					if ( isset( $value['site'] ) ) {
-						foreach ( $value['site'] as $k => $v ) {
-							//Private Site Url
-							if ( $private and $k == "url" ) {
-								$v = "[ Your site url ]";
-							}
-
-							\WP_CLI_Helper::line( ucfirst( $k ) . ": " . $v );
+					# 'URL'
+					if ( isset( $value['url'] ) ) {
+						//Private Site Url
+						$v = $value['url'];
+						if ( $private ) {
+							$v = "[ Your site url ]";
 						}
+
+						\WP_CLI_Helper::line( ucfirst( 'url' ) . ": " . $v );
+					}
+
+					# 'Title'
+					if ( isset( $value['title'] ) ) {
+						\WP_CLI_Helper::line( ucfirst( 'title' ) . ": " . $value['title'] );
 					}
 
 					# 'rest api'

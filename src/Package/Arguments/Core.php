@@ -41,15 +41,15 @@ class Core {
 
 		// Check Url Path for Network
 		$network_url_path = '';
-		if ( $is_network === true and isset( $pkg_array['config']['site']['url'] ) and \WP_CLI_Util::get_path_url( $pkg_array['config']['site']['url'] ) != "/" ) {
-			$network_url_path = ' --base=' . \WP_CLI_Util::get_path_url( $pkg_array['config']['site']['url'] );
+		if ( $is_network === true and isset( $pkg_array['config']['url'] ) and \WP_CLI_Util::get_path_url( $pkg_array['config']['url'] ) != "/" ) {
+			$network_url_path = ' --base=' . \WP_CLI_Util::get_path_url( $pkg_array['config']['url'] );
 		}
 
 		// Prepare Command
 		$cmd = "core " . ( $is_network === false ? 'install' : 'multisite-install' ) . " --url=%s --title=%s --admin_user=%s --admin_password=%s --admin_email=%s --skip-email{$is_sub_domains}{$network_url_path}";
 
 		// Run WP-CLI
-		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $pkg_array['config']['site']['url'], $pkg_array['config']['site']['title'], $pkg_array['config']['admin']['admin_user'], $pkg_array['config']['admin']['admin_pass'], $pkg_array['config']['admin']['admin_email'] ) );
+		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $pkg_array['config']['url'], $pkg_array['config']['title'], $pkg_array['config']['admin']['admin_user'], $pkg_array['config']['admin']['admin_pass'], $pkg_array['config']['admin']['admin_email'] ) );
 	}
 
 	/**
@@ -366,8 +366,8 @@ class Core {
 
 		// Get Current Site title
 		$site_title = get_bloginfo( 'name' );
-		if ( isset( $pkg_array ) and isset( $pkg_array['config']['site']['title'] ) and trim( $pkg_array['config']['site']['title'] ) != "" ) {
-			$site_title = $pkg_array['config']['site']['title'];
+		if ( isset( $pkg_array ) and isset( $pkg_array['config']['title'] ) and trim( $pkg_array['config']['title'] ) != "" ) {
+			$site_title = $pkg_array['config']['title'];
 		}
 
 		// Convert Single to Multi-Site
@@ -385,8 +385,8 @@ class Core {
 
 			// Check Path for network
 			$network_url_path = '';
-			if ( isset( $pkg['config']['site']['url'] ) and \WP_CLI_Util::get_path_url( $pkg['config']['site']['url'] ) != "/" ) {
-				$network_url_path = ' --base=' . \WP_CLI_Util::get_path_url( $pkg['config']['site']['url'] );
+			if ( isset( $pkg['config']['url'] ) and \WP_CLI_Util::get_path_url( $pkg['config']['url'] ) != "/" ) {
+				$network_url_path = ' --base=' . \WP_CLI_Util::get_path_url( $pkg['config']['url'] );
 			}
 
 			// Run Multi-site Convert

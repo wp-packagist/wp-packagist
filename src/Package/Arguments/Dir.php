@@ -66,7 +66,7 @@ class Dir {
 		$config_transformer = Config::get_config_transformer();
 
 		//Add Site Constant
-		self::update_site_constant( $dir, $pkg_array['config']['site']['url'], $config_transformer );
+		self::update_site_constant( $dir, $pkg_array['config']['url'], $config_transformer );
 
 		//Change folders
 		foreach ( $params as $folder ) {
