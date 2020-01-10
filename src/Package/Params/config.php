@@ -967,14 +967,14 @@ class config {
 											//Check if contain white space
 											if ( preg_match( '/\s/', $route ) ) {
 
-												$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { [" . ( $x + 1 ) . "]" ) ) );
+												$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { disable: { [" . ( $x + 1 ) . "]" ) ) );
 												break;
 											} else {
 												//Sanitize $route
 												$var['disable'][ $x ] = "/" . ltrim( str_replace( "\\", "/", \WP_CLI_Util::to_lower_string( $route ) ), "/" );
 											}
 										} else {
-											$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { prefix: { [" . ( $x + 1 ) . "]" ) ) );
+											$valid->add_error( Package::_e( 'package', 'er_valid', array( "[key]" => "config: { rest-api: { disable: { [" . ( $x + 1 ) . "]" ) ) );
 											break;
 										}
 
