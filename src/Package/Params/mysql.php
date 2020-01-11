@@ -339,6 +339,7 @@ class mysql {
 	 * @param $pkg_array
 	 * @param array $args
 	 * @return array
+	 * @throws \WP_CLI\ExitException
 	 */
 	public function install( $pkg_array, $args = array() ) {
 

@@ -100,7 +100,14 @@ class install extends Package {
 	 */
 	public function get_number_step( $package_data ) {
 
-		//Default number step
+		/**
+		 * Default Number Step
+		 *
+		 * 1) WordPress Core
+		 * 2) Create wp-config.php file
+		 * 3) Install WordPress
+		 * 4) wordPress security Removed file
+		 */
 		$step = 4;
 
 		//Check WordPress Locale
@@ -118,7 +125,7 @@ class install extends Package {
 			'dir'           => array( 'key' => ( isset( $package_data['dir'] ) ? $package_data['dir'] : array() ), 'min' => 0 ),
 			'network-sites' => array( 'key' => ( isset( $package_data['core']['network']['sites'] ) ? $package_data['core']['network']['sites'] : array() ), 'min' => 0 ),
 			'options'       => array( 'key' => ( isset( $package_data['config']['options'] ) ? $package_data['config']['options'] : array() ), 'min' => 0 ),
-			'users'         => array( 'key' => ( isset( $package_data['config']['users'] ) ? $package_data['config']['users'] : array() ), 'min' => 1 ),
+			'users'         => array( 'key' => ( isset( $package_data['config']['users'] ) ? $package_data['config']['users'] : array() ), 'min' => 0 ),
 			'plugins'       => array( 'key' => ( isset( $package_data['plugins'] ) ? $package_data['plugins'] : array() ), 'min' => 0 ),
 			'themes'        => array( 'key' => ( isset( $package_data['themes'] ) ? $package_data['themes'] : array() ), 'min' => 0 ),
 			'commands'      => array( 'key' => ( isset( $package_data['commands'] ) ? $package_data['commands'] : array() ), 'min' => 0 ),
