@@ -624,15 +624,15 @@ class config {
 		$forbidden_values = array(
 			'mysql'   => array(
 				'list' => array( 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_CHARSET', 'DB_COLLATE' ),
-				'help' => "this key is used in the 'mysql: { ..' parameter."
+				'help' => "This key is used in the 'mysql: { ..' parameter."
 			),
 			'core'    => array(
 				'list' => array( 'ABSPATH' ),
-				'help' => "this key is used in the WordPress core."
+				'help' => "This key is used in the WordPress core."
 			),
 			'network' => array(
 				'list' => array( 'WP_ALLOW_MULTISITE', 'MULTISITE', 'SUBDOMAIN_INSTALL', 'DOMAIN_CURRENT_SITE', 'PATH_CURRENT_SITE' ),
-				'help' => "this key is used in the 'core: { network: { ..' parameter."
+				'help' => "This key is used in the 'core: { network: { ..' parameter."
 			)
 		);
 
@@ -758,15 +758,15 @@ class config {
 		$forbidden_values = array(
 			'url'      => array(
 				'list' => array( 'siteurl', 'home' ),
-				'help' => "this key is used in the 'config: { site: { ..' parameter."
+				'help' => "This key is used in the 'config: { site: { ..' parameter."
 			),
 			'timezone' => array(
 				'list' => array( 'timezone_string', 'gmt_offset' ),
-				'help' => "this key is used in the 'config: { timezone: { ..' parameter."
+				'help' => "This key is used in the 'config: { timezone: { ..' parameter."
 			),
 			'theme'    => array(
 				'list' => array( 'template', 'stylesheet' ),
-				'help' => "this key is used in the 'config: { theme: { ..' parameter."
+				'help' => "This key is used in the 'config: { theme: { ..' parameter."
 			)
 		);
 
