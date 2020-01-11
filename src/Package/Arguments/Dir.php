@@ -2,6 +2,7 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
+use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 
 class Dir {
