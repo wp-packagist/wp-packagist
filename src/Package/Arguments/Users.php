@@ -8,6 +8,11 @@ use WP_CLI_PACKAGIST\Package\Utility\temp;
 
 class Users {
 	/**
+	 * @var string
+	 */
+	public static $current_user_login_opt = 'wp-cli-acl-auto-login';
+
+	/**
 	 * Get List Of Default User Meta
 	 */
 	public static function get_default_user_meta() {
@@ -513,22 +518,23 @@ class Users {
 	 * @run after_wp_load
 	 */
 	public static function check_exist_user( $user = array() ) {
+
 		// Default
 		$return = array( 'status' => false, 'data' => '' );
 
-		// Exist Username
-		if ( isset( $user['user_login'] ) ) {
-			$get = get_user_by( 'login', $user['user_login'] );
-			if ( $get ) {
-				$return = array( 'status' => true, 'key' => 'user_login', 'ID' => $get->ID );
-			}
-		}
-
-		// Exist User Email
-		if ( isset( $user['user_email'] ) and ! isset( $user_id ) ) {
-			$get = get_user_by( 'email', $user['user_email'] );
-			if ( $get ) {
-				$return = array( 'status' => true, 'key' => 'user_email', 'ID' => $get->ID );
+		// List Of Parameter
+		$parameter = array(
+			'user_login' => 'login',
+			'user_email' => 'email',
+			'ID'         => 'ID',
+		);
+		foreach ( $parameter as $key => $key_in_user_function ) {
+			if ( isset( $user[ $key ] ) ) {
+				$get = get_user_by( $key_in_user_function, $user[ $key ] );
+				if ( $get ) {
+					$return = array( 'status' => true, 'key' => $key, 'ID' => $get->ID );
+					break;
+				}
 			}
 		}
 
@@ -538,6 +544,68 @@ class Users {
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Get First User Of WordPress
+	 *
+	 * @return int user ID
+	 * @run after_wp_load
+	 */
+	public static function get_first_wordpress_user() {
+		global $wpdb;
+		return (int) $wpdb->get_var( "SELECT `ID` FROM {$wpdb->users} ORDER BY `ID` ASC LIMIT 1" );
+	}
+
+	/**
+	 * Set Current User
+	 *
+	 * @param $user_id
+	 * @param $redirect
+	 * @return array
+	 * @run after_wp_load
+	 */
+	public static function set_login_user( $user_id, $redirect = false ) {
+
+		// Set Default wp-admin for redirect
+		if ( ! $redirect ) {
+			$redirect = admin_url( "index.php" );
+		}
+
+		// Generate auth Key
+		$hash = wp_generate_password( 30, false );
+
+		//Create Login Option
+		$arg = array(
+			'hash'     => $hash,
+			'type'     => 'login',
+			'id'       => $user_id,
+			'time'     => time(),
+			'redirect' => $redirect
+		);
+		update_option( self::$current_user_login_opt, $arg, "no" );
+
+		// Create Mu-Plugins Folder if not exist
+		$mu_plugins_path = \WP_CLI_FileSystem::normalize_path( WPMU_PLUGIN_DIR );
+		if ( \WP_CLI_FileSystem::folder_exist( $mu_plugins_path ) === false ) {
+			$mkdir = \WP_CLI_FileSystem::create_dir( 'mu-plugins', dirname( $mu_plugins_path ) );
+			if ( $mkdir['status'] === false ) {
+				return $mkdir;
+			}
+		}
+
+		// Load Mustache and Create MU Plugins
+		$mustache = \WP_CLI_FileSystem::load_mustache( WP_CLI_PACKAGIST_TEMPLATE_PATH );
+		$create_mu_plugin = \WP_CLI_FileSystem::file_put_content(
+			\WP_CLI_FileSystem::path_join( $mu_plugins_path, "wp-cli-acl.php" ),
+			$mustache->render( 'mu-plugins/auto-login', array( 'wp_acl' => self::$current_user_login_opt ) )
+		);
+		if ( $create_mu_plugin === false ) {
+			return array( 'status' => false, 'message' => 'Cannot create mu-plugin in WordPress.' );
+		}
+
+		// Create link to Show in browser
+		return array( 'status' => true, 'link' => add_query_arg( self::$current_user_login_opt, 'login,' . $hash, Core::get_site_url() ) );
 	}
 
 }

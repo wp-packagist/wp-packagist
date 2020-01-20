@@ -22,5 +22,8 @@ require_once( WP_CLI_PACKAGIST_PATH . '/src/install.php' );
 # Register 'uninstall' Command
 require_once( WP_CLI_PACKAGIST_PATH . '/src/uninstall.php' );
 
+# Register 'run' Command
+require_once( WP_CLI_PACKAGIST_PATH . '/src/run.php' );
+
 # Register 'Pack' Command
 \WP_CLI::add_command( 'pack', Pack::class );
