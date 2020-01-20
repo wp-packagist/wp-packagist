@@ -4,7 +4,7 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Core;
 use \WP_CLI_PACKAGIST\Package\Arguments\Users;
 
 /**
- * Run WordPress site in browser.
+ * Open WordPress site in browser.
  *
  * ## OPTIONS
  *
@@ -27,19 +27,19 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  *
  * ## EXAMPLES
  *
- *      # Show WordPress site homepage.
+ *      # Open WordPress site homepage.
  *      $ wp run
  *
- *      # Automatic login as the WordPress admin user and show /wp-admin in browser.
+ *      # Automatic login as the WordPress admin user and open /wp-admin in browser.
  *      $ wp run admin
  *
- *      # Automatic login as the WordPress user with ID=5 and show /wp-admin in browser.
+ *      # Automatic login as the WordPress user with ID=5 and open /wp-admin in browser.
  *      $ wp run admin --user_id=5
  *
- *      # Automatic login as the WordPress user with user_login=alain and show admin area.
+ *      # Automatic login as the WordPress user with user_login=alain and open admin area.
  *      $ wp run admin --user_login=alain
  *
- *      # Automatic login as the WordPress user with user_email=email@site.com and show admin area.
+ *      # Automatic login as the WordPress user with user_email=email@site.com and open admin area.
  *      $ wp run admin --user_email=email@site.com
  */
 \WP_CLI::add_command( 'run', function ( $args, $assoc_args ) {
@@ -53,7 +53,7 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
 		return;
 	}
 
-	// Show /wp-admin/ in browser
+	// Open /wp-admin/ in browser
 	if ( isset( $args[0] ) and $args[0] == "admin" ) {
 
 		// Check Custom User Id or User login
@@ -95,7 +95,7 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
 			return;
 		}
 
-		// Run in Browser
+		// Open in Browser
 		\WP_CLI_Helper::pl_wait_end();
 		\WP_CLI_Helper::Browser( $set_current_user['link'] );
 		return;
