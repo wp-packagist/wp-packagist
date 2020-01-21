@@ -151,7 +151,7 @@ class help {
 			\WP_CLI_Helper::line( ucfirst( "name" ) . "           " . \WP_CLI_Helper::color( $plugin_inf['data']['name'], "P" ) . " by " . \WP_CLI_Helper::color( strip_tags( $plugin_inf['data']['author'] ), "B" ) );
 
 			//Url
-			\WP_CLI_Helper::line( ucfirst( "url" ) . "            https://fa.wordpress.org/plugins/" . ( isset( $plugin_inf['data']['slug'] ) ? $plugin_inf['data']['slug'] : $plugin ) );
+			\WP_CLI_Helper::line( ucfirst( "url" ) . "            https://wordpress.org/plugins/" . ( isset( $plugin_inf['data']['slug'] ) ? $plugin_inf['data']['slug'] : $plugin ) );
 
 			//Author
 			if ( isset( $plugin_inf['data']['author_profile'] ) ) {
