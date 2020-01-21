@@ -51,7 +51,7 @@ class Options {
 		$option_name = self::sanitize_option_name( $option_name );
 
 		//Check Exist Option
-		$exist       = self::exist_option_name( $option_name );
+		$exist = self::exist_option_name( $option_name );
 
 		//We don't Use [wp option add] Command Because we want Force Push to database
 		if ( $exist === true ) {
@@ -88,10 +88,12 @@ class Options {
 	 * @param $table_prefix
 	 * @param $options
 	 */
-	public static function install_options( $table_prefix, $options ) {
-		foreach ( $options as $option ) {
-			$exist = self::update_option( $table_prefix, $option['option_name'], $option['option_value'], $option['autoload'] );
-			install::add_detail_log( Package::_e( 'package', 'item_log', array( "[what]" => "option", "[key]" => $option['option_name'], "[run]" => ( $exist === true ? "Updated" : "Added" ) ) ) );
+	public static function install_options( $options, $table_prefix ) {
+		if ( is_array( $options ) ) {
+			foreach ( $options as $option ) {
+				$exist = self::update_option( $table_prefix, $option['option_name'], $option['option_value'], $option['autoload'] );
+				install::add_detail_log( Package::_e( 'package', 'item_log', array( "[what]" => "option", "[key]" => $option['option_name'], "[run]" => ( $exist === true ? "Updated" : "Added" ) ) ) );
+			}
 		}
 	}
 
