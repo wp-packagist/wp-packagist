@@ -11,7 +11,6 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  * [<type>]
  * : Show type of WordPress page.
  * ---
- * default: admin
  * options:
  *  - admin
  * ---
