@@ -111,7 +111,7 @@ class config {
 
 							//Push Admin info if not exist after permalink
 							if ( $keys == "permalink" and ! array_key_exists( "admin", $parameter ) ) {
-								$return["admin"] = $this->get_default_users_arg();
+								$return["admin"] = $this->get_default_admin_user_arg();
 							}
 						}
 
@@ -157,7 +157,7 @@ class config {
 			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { url: .." ) ) );
 
 			//Check is array
-		} elseif ( is_array( $var ) || is_object( $var )  ) {
+		} elseif ( is_array( $var ) || is_object( $var ) ) {
 
 			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { url: .." ) ) );
 		} else {
@@ -206,7 +206,7 @@ class config {
 			$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { title: .." ) ) );
 
 			//Check is array
-		} elseif ( is_array( $var ) || is_object( $var )  ) {
+		} elseif ( is_array( $var ) || is_object( $var ) ) {
 
 			$valid->add_error( Package::_e( 'package', 'is_not_string', array( "[key]" => "config: { title: .." ) ) );
 		} else {
@@ -314,7 +314,7 @@ class config {
 		$valid = new \WP_CLI_ERROR();
 
 		//Get Default value from Config
-		$config = $this->get_default_users_arg();
+		$config = $this->get_default_admin_user_arg();
 
 		//Check is String
 		if ( is_string( $array ) || is_object( $array ) ) {
@@ -445,8 +445,12 @@ class config {
 		//Create new validation
 		$valid = new \WP_CLI_ERROR();
 
-		//Get Default value from Config
-		$config = $this->get_default_users_arg();
+		// Get Default User Password in global Parameters
+		try {
+			$default_user_pass = \WP_CLI_CONFIG::get( 'user_pass' );
+		} catch ( \Exception $e ) {
+			$default_user_pass = '';
+		}
 
 		//Check is String
 		if ( is_string( $array ) || is_object( $array ) ) {
@@ -498,7 +502,14 @@ class config {
 						}
 					}
 					if ( $_push_pass ) {
-						$array[ $x ]['user_pass'] = $config['admin_pass'];
+						// Check Empty Default User Password
+						if ( empty( $default_user_pass ) ) {
+							$valid->add_error( Package::_e( 'package', 'empty_val', array( "[key]" => "config: { users: { [" . ( $x + 1 ) . "]['user_pass']" ) ) );
+							break;
+						}
+
+						// Set Global Password in User_Pass
+						$array[ $x ]['user_pass'] = $default_user_pass;
 					}
 				}
 			}
@@ -581,9 +592,9 @@ class config {
 	}
 
 	/**
-	 * Get Default Users Value From WP_CLI_APP Config
+	 * Get Default Admin User Value From WordPress Package Management Config
 	 */
-	public function get_default_users_arg() {
+	public function get_default_admin_user_arg() {
 
 		//Create Empty Obj
 		$result = array();
@@ -1199,7 +1210,7 @@ class config {
 		$error = array();
 
 		//Get Default Users Value
-		$config = $this->get_default_users_arg();
+		$config = $this->get_default_admin_user_arg();
 
 		//Create init params
 		foreach ( array( 'url', 'title', 'admin' ) as $key ) {

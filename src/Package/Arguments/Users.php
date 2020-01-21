@@ -66,11 +66,11 @@ class Users {
 	public static function get_default_clone_role() {
 
 		// Get Default Params
-		$default_params = Package::get_config( 'package', 'default.clone.role' );
+		$default_params = Package::get_config( 'package', 'default_clone_role' );
 
 		// Check From Global Config
 		try {
-			$get = \WP_CLI_CONFIG::get( 'default.clone.role' );
+			$get = \WP_CLI_CONFIG::get( 'default_clone_role' );
 		} catch ( \Exception $e ) {
 			$get = false;
 		}

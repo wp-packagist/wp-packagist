@@ -27,7 +27,7 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  *
  * ## EXAMPLES
  *
- *      # Open WordPress site homepage.
+ *      # Open the WordPress homepage.
  *      $ wp run
  *
  *      # Automatic login as the WordPress admin user and open /wp-admin in browser.

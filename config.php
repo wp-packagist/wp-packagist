@@ -59,7 +59,7 @@ return array(
 
 		# The list of acceptable options
 		'options' => array(
-			'default.clone.role',
+			'default_clone_role',
 			'db_host',
 			'db_user',
 			'db_password',
@@ -67,6 +67,7 @@ return array(
 			'admin_email',
 			'admin_pass',
 			'admin_user',
+			'user_pass',
 		),
 
 		# Hidden Options
@@ -164,7 +165,7 @@ return array(
 		'localhost_domain'         => array( 'localhost', '127.0.0.1' ),
 
 		# Default Clone Role
-		'default.clone.role'       => 'author',
+		'default_clone_role'       => 'subscriber',
 
 		# Check MySQL Character and Collation
 		# @see https://dev.mysql.com/doc/refman/5.5/en/charset-charsets.html
