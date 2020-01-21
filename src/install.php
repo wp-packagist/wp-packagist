@@ -19,6 +19,10 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
  *      $ wp install
  *      Success: Completed install WordPress.
  *
+ *      # Rebuilding Database Tables then install WordPress Package.
+ *      $ wp install --force
+ *      Success: Completed install WordPress.
+ *
  * @when before_wp_load
  */
 \WP_CLI::add_command( 'install', function ( $args, $assoc_args ) {
