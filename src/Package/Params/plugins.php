@@ -195,7 +195,7 @@ class plugins {
 									$valid->add_error( Package::_e( 'package', 'er_wrong_plugin_v', array( "[key]" => $plugin_slug, "[type]" => "plugin" ) ) );
 									break;
 								} else {
-									$version = $plugin_v;
+									$version = $plugin_v['version'];
 								}
 							} else {
 								$version = 'latest';
