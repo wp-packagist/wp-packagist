@@ -63,6 +63,14 @@ class install extends Package {
 		//Success Process
 		\WP_CLI_Helper::br();
 		\WP_CLI_Helper::success( Package::_e( 'package', 'success_install' ) . ' ' . Package::_e( 'config', 'process_time', array( "[time]" => \WP_CLI_Helper::process_time( $start_time ) ) ) );
+		\WP_CLI_Helper::br();
+		\WP_CLI_Helper::line( "-> Open WordPress Site in Browser:" );
+		\WP_CLI_Helper::br();
+		\WP_CLI_Helper::line( " ".\WP_CLI_Helper::color( "wp run", "Y" ) );
+		\WP_CLI_Helper::br();
+		\WP_CLI_Helper::line( "-> Automatic Login as WordPress admin user and Open in Browser:" );
+		\WP_CLI_Helper::br();
+		\WP_CLI_Helper::line( " ".\WP_CLI_Helper::color( "wp run admin", "Y" ) );
 	}
 
 	/**

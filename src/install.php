@@ -10,16 +10,13 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
  *
  * ## OPTIONS
  *
- * [<package-name>]
- * : WordPress Package name e.g : wordpress@core
- *
  * [--force]
- * : remove all MySQL tables before installing if exist
+ * : Remove all MySQL tables before installing if exist.
  *
  * ## EXAMPLES
  *
  *      # install WordPress Package.
- *      $ wp app install
+ *      $ wp install
  *      Success: Completed install WordPress.
  *
  * @when before_wp_load
