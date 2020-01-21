@@ -71,7 +71,7 @@ return array(
 		),
 
 		# Hidden Options
-		'hidden'  => array( 'db_password', 'admin_pass' ),
+		'hidden'  => array( 'db_password', 'admin_pass', 'user_pass' ),
 
 		# List of Cli log for WP-CLI-APP Config
 		'log'     => array(
