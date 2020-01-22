@@ -267,7 +267,7 @@ class config {
 		\WP_CLI_FileSystem::file_put_content( $file_path, $content );
 
 		//Connect To file
-		$response = \WP_CLI_Helper::http_request( rtrim( $url, "/" ) . "/" . $file_name . '?wp_cli_app_package_check_url=' . $get_key );
+		$response = \WP_CLI_Helper::http_request( rtrim( $url, "/" ) . "/" . $file_name . '?wp_cli_package_check_url=' . $get_key );
 
 		//Check Error Connecting
 		if ( $response != false ) {
