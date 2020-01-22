@@ -239,7 +239,7 @@ return array(
 			'er_db_connect'         => "Error connecting to MySQL database, Please check your inputs and the server.",
 			'er_not_exist_db'       => "There is no MySQL database with the name of '" . \WP_CLI_Helper::color( "[name]", "Y" ) . "' in the database.",
 			'er_exist_db_tbl'       => "There are " . \WP_CLI_Helper::color( "[table]", "Y" ) . " table[sum] in the " . \WP_CLI_Helper::color( "[name]", "B" ) . " database. Please remove it before install or use 'wp install --force'.",
-			'pkg_is_valid'          => "WordPress package is valid.",
+			'pkg_is_valid'          => "The WordPress package file is valid.",
 			'er_unknown_param'      => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' has an unknown parameter in the WordPress package.",
 			'er_package_name'       => "Your package name is not valid.",
 			'er_contain_html'       => "The '" . \WP_CLI_Helper::color( "[key]", "Y" ) . "' contains the HTML code.",

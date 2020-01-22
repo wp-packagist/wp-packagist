@@ -124,7 +124,6 @@ class Pack extends \WP_CLI_Command {
 		# Run Package Validation
 		$validation_pkg = new validation();
 		$get_pkg        = $validation_pkg->validation( $log = true );
-		print_r( $get_pkg['data'] ); //TODO remove this line
 		if ( $get_pkg['status'] === true ) {
 			\WP_CLI_Helper::success( Package::_e( 'package', 'pkg_is_valid' ) );
 		}
