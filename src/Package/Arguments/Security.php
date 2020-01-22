@@ -43,11 +43,16 @@ class Security {
 			if ( self::iis7_supports_permalinks( $pkg_array ) === false || file_exists( $htaccess ) ) {
 				$file_content = $htaccess_code;
 				if ( file_exists( $htaccess ) ) {
-					$file_content = @file_get_contents( $htaccess );
-					$file_content .= "\n" . $htaccess_code;
-				}
 
-				\WP_CLI_FileSystem::file_put_content( $htaccess, $file_content );
+					$contents = @file( $htaccess, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+					if ( $contents != false ) {
+						$size                  = count( $contents );
+						$contents[ $size - 2 ] = $htaccess_code;
+						$file_content          = implode( "\n", $contents );
+					}
+
+					\WP_CLI_FileSystem::file_put_content( $htaccess, $file_content );
+				}
 			}
 
 			//log
