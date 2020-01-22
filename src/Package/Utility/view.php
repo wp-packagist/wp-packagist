@@ -79,7 +79,7 @@ class view extends Package {
 							$v = "[ Your site url ]";
 						}
 
-						\WP_CLI_Helper::line( ucfirst( 'url' ) . ": " . $v );
+						\WP_CLI_Helper::line( ucfirst( 'URL' ) . ": " . $v );
 					}
 
 					# 'Title'
@@ -186,10 +186,10 @@ class view extends Package {
 
 					# 'rest api'
 					if ( isset( $value['rest-api'] ) and is_array( $value['rest-api'] ) ) {
-						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'Rest-Api:' ), "C" ) );
+						\WP_CLI_Helper::line( \WP_CLI_Helper::color( "- " . ucfirst( 'REST-API:' ), "C" ) );
 
 						//Prefix
-						\WP_CLI_Helper::line( "- Prefix url: " . $value['rest-api']['prefix'] );
+						\WP_CLI_Helper::line( "- Prefix URL: " . $value['rest-api']['prefix'] );
 
 						//List disable Route
 						if ( isset( $value['rest-api']['disable'] ) ) {

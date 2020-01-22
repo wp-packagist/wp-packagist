@@ -73,7 +73,7 @@ class Pack extends \WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * [--force]
-	 * : Deletes the file without question.
+	 * : Delete the file without question.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -157,7 +157,7 @@ class Pack extends \WP_CLI_Command {
 
 			# View WordPress Package
 			$view_pkg = new view();
-			$view_pkg->view( $get_pkg['data'] );
+			$view_pkg->view( $get_pkg['data'], false );
 		}
 	}
 
