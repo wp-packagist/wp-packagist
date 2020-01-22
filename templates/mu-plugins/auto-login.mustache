@@ -47,7 +47,7 @@ function wp_cli_application_acl() {
 						update_option( WP_CLI_ACL, array(), "no" );
 
 						//Remove Mu Plugins
-						@unlink( path_join( WPMU_PLUGIN_DIR, "acl.php" ) );
+						@unlink( path_join( WPMU_PLUGIN_DIR, "wp-cli-acl.php" ) );
 
 						//Redirect
 						if ( isset( $wp_cli_acl['redirect'] ) and $wp_cli_acl['redirect'] != "" ) {
