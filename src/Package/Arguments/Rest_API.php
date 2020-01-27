@@ -72,9 +72,9 @@ class Rest_API {
 		$t = "# Removed All WordPress Rest API Route\n";
 		$t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); });' . "\n";
 		$t .= "# Remove Action in WordPress Theme" . "\n";
-		$t .= 'remove_action( \'wp_head\', \'rest_output_link_wp_head\' );' . "\n";
+		$t .= 'remove_action( \'wp_head\', \'rest_output_link_wp_head\', \'10\' );' . "\n";
 		$t .= 'remove_action( \'wp_head\', \'wp_oembed_add_discovery_links\' );' . "\n";
-		$t .= 'remove_action( \'template_redirect\', \'rest_output_link_header\' );' . "\n";
+		$t .= 'remove_action( \'template_redirect\', \'rest_output_link_header\', \'11\' );' . "\n";
 
 		return $t;
 	}
