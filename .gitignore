@@ -1,10 +1,28 @@
-.idea
 .DS_Store
-wp-cli.local.yml
+
+# NodeJs
 node_modules/
-vendor/
-*.zip
-*.tar.gz
+
+# Composer Vendor
 composer.lock
-*.log
-.idea/
+vendor/
+
+# WP-CLI Config
+wp-cli.local.yml
+
+# WordPress
+wordpress/
+/.subsplit
+/deploy/*
+!/deploy/*.sh
+!/deploy/*.enc
+
+# PHP Storm
+.idea
+
+# PHP-CS-Fixer
+/.php_cs
+/.php_cs.cache
+
+# PHPUnit
+.phpunit.result.cache
