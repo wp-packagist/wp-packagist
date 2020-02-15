@@ -6,210 +6,208 @@ use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 use WP_CLI_PACKAGIST\Package\Utility\temp;
 
-class Locale {
-	/**
-	 * Get Locale Detail
-	 *
-	 * @param $locale
-	 * @return string
-	 */
-	public static function get_locale_detail( $locale ) {
-		$return  = '';
-		$country = self::get_wordpress_locale( trim( $locale ) );
-		if ( $country['status'] === true ) {
-			$return = $country['data'];
-		}
+class Locale
+{
+    /**
+     * Get Locale Detail
+     *
+     * @param $locale
+     * @return string
+     */
+    public static function get_locale_detail($locale)
+    {
+        $return  = '';
+        $country = self::get_wordpress_locale(trim($locale));
+        if ($country['status'] === true) {
+            $return = $country['data'];
+        }
 
-		return $return;
-	}
+        return $return;
+    }
 
-	/**
-	 * Installs a given language.
-	 *
-	 * @see https://developer.wordpress.org/cli/commands/language/core/install/
-	 * @param $locale
-	 */
-	public static function run_language_install( $locale ) {
-		$cmd = "language core install %s";
-		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $locale ) );
-	}
+    /**
+     * Installs a given language.
+     *
+     * @see https://developer.wordpress.org/cli/commands/language/core/install/
+     * @param $locale
+     */
+    public static function run_language_install($locale)
+    {
+        $cmd = "language core install %s";
+        \WP_CLI_Helper::run_command(\WP_CLI\Utils\esc_cmd($cmd, $locale));
+    }
 
-	/**
-	 * Activates a given language.
-	 *
-	 * @see https://developer.wordpress.org/cli/commands/site/switch-language/
-	 * @param $locale
-	 */
-	public static function run_switch_language( $locale ) {
-		$cmd = "site switch-language %s";
-		\WP_CLI_Helper::run_command( \WP_CLI\Utils\esc_cmd( $cmd, $locale ) );
-	}
+    /**
+     * Activates a given language.
+     *
+     * @see https://developer.wordpress.org/cli/commands/site/switch-language/
+     * @param $locale
+     */
+    public static function run_switch_language($locale)
+    {
+        $cmd = "site switch-language %s";
+        \WP_CLI_Helper::run_command(\WP_CLI\Utils\esc_cmd($cmd, $locale));
+    }
 
-	/**
-	 * Get List Of Available List language in WordPress
-	 *
-	 * @return bool|mixed
-	 */
-	public static function get_available_languages() {
+    /**
+     * Get List Of Available List language in WordPress
+     *
+     * @return bool|mixed
+     */
+    public static function get_available_languages()
+    {
+        //Get List languages
+        $locale = \WP_CLI::runcommand('eval "echo json_encode(get_available_languages());"', array('return' => 'stdout', 'parse' => 'json'));
 
-		//Get List languages
-		$locale = \WP_CLI::runcommand( 'eval "echo json_encode(get_available_languages());"', array( 'return' => 'stdout', 'parse' => 'json' ) );
+        //Return
+        return array_merge(array(Package::get_config('package', 'default', 'locale')), $locale);
+    }
 
-		//Return
-		return array_merge( array( Package::get_config( 'package', 'default', 'locale' ) ), $locale );
-	}
+    /**
+     * install and active language in WordPress
+     *
+     * @param $pkg_array
+     */
+    public static function install_lang($pkg_array)
+    {
+        \WP_CLI_Helper::pl_wait_start();
+        self::run_language_install($pkg_array['core']['locale']); # Download Language
+        \WP_CLI_Helper::pl_wait_end();
+        install::add_detail_log(Package::_e('package', 'install_lang', array("[key]" => $pkg_array['core']['locale'])));
+        self::run_switch_language($pkg_array['core']['locale']); # Switch To Language
+        install::add_detail_log(Package::_e('package', 'active_lang', array("[key]" => $pkg_array['core']['locale'])));
+    }
 
-	/**
-	 * install and active language in WordPress
-	 *
-	 * @param $pkg_array
-	 */
-	public static function install_lang( $pkg_array ) {
-		\WP_CLI_Helper::pl_wait_start();
-		self::run_language_install( $pkg_array['core']['locale'] ); # Download Language
-		\WP_CLI_Helper::pl_wait_end();
-		install::add_detail_log( Package::_e( 'package', 'install_lang', array( "[key]" => $pkg_array['core']['locale'] ) ) );
-		self::run_switch_language( $pkg_array['core']['locale'] ); # Switch To Language
-		install::add_detail_log( Package::_e( 'package', 'active_lang', array( "[key]" => $pkg_array['core']['locale'] ) ) );
-	}
+    /**
+     * Get Wordpress Locale List From WordPress.org API
+     */
+    public static function fetch_wordpress_locale()
+    {
+        //Cache File name for wordpress locale
+        $locale_list = Package::get_config('package', 'locale', 'file');
 
-	/**
-	 * Get Wordpress Locale List From WordPress.org API
-	 */
-	public static function fetch_wordpress_locale() {
+        //Connect To Wordpress API
+        $list = \WP_CLI_Helper::http_request(Package::get_config('wordpress_api', 'translations'));
+        if ($list != false) {
+            //Convert To Json data
+            $list = json_decode($list, true);
+            $list = $list['translations'];
+            $json = array();
+            foreach ($list as $k => $v) {
+                if (array_key_exists('language', $v)) {
+                    $json[$v['language']] = $v['english_name'];
+                }
+            }
+            $list = $json;
 
-		//Cache File name for wordpress locale
-		$locale_list = Package::get_config( 'package', 'locale', 'file' );
+            //Save File to Cache System
+            \WP_CLI_FileSystem::create_json_file($locale_list, $list, false);
+        } else {
+            //Show Error connect to WP API
+            return array('status' => false, 'data' => Package::_e('wordpress_api', 'connect'));
+        }
 
-		//Connect To Wordpress API
-		$list = \WP_CLI_Helper::http_request( Package::get_config( 'wordpress_api', 'translations' ) );
-		if ( $list != false ) {
+        return array('status' => true, 'data' => $list);
+    }
 
-			//Convert To Json data
-			$list = json_decode( $list, true );
-			$list = $list['translations'];
-			$json = array();
-			foreach ( $list as $k => $v ) {
-				if ( array_key_exists( 'language', $v ) ) {
-					$json[ $v['language'] ] = $v['english_name'];
-				}
-			}
-			$list = $json;
+    /**
+     * Get List Wordpress Locale
+     *
+     * @param bool $key
+     * @param bool $force_update
+     * @return array|bool
+     */
+    public static function get_wordpress_locale($key = false, $force_update = false)
+    {
+        //Cache File name for wordpress locale
+        $file_path = Package::get_config('package', 'locale', 'file');
 
-			//Save File to Cache System
-			\WP_CLI_FileSystem::create_json_file( $locale_list, $list, false );
-		} else {
+        //Check Cache File exist
+        if (file_exists($file_path)) {
+            //if cache file exist we used same file
+            $json_data = \WP_CLI_FileSystem::read_json_file($file_path);
+        }
 
-			//Show Error connect to WP API
-			return array( 'status' => false, 'data' => Package::_e( 'wordpress_api', 'connect' ) );
-		}
+        // if Force Update
+        if ($force_update === false) {
+            //if require update by calculate cache time
+            if (isset($json_data) and \WP_CLI_FileSystem::check_file_age($file_path, Package::get_config('package', 'locale', 'age')) === false) {
+                $list = $json_data;
+            }
+        }
 
-		return array( 'status' => true, 'data' => $list );
-	}
+        //Fetch Locale List
+        if ( ! isset($list) || $force_update === true) {
+            //Get Wordpress Locale From API
+            $locale_list = Locale::fetch_wordpress_locale();
+            if ($locale_list['status'] === false) {
+                if ( ! isset($json_data)) {
+                    return $locale_list;
+                } else {
+                    $list = $json_data;
+                }
+            } else {
+                $list = $locale_list['data'];
+            }
+        }
 
-	/**
-	 * Get List Wordpress Locale
-	 *
-	 * @param bool $key
-	 * @param bool $force_update
-	 * @return array|bool
-	 */
-	public static function get_wordpress_locale( $key = false, $force_update = false ) {
+        //Check Version number
+        if (isset($list) and $list != false) {
+            //Push Default To list if not exist
+            $list['en_US'] = 'English';
 
-		//Cache File name for wordpress locale
-		$file_path = Package::get_config( 'package', 'locale', 'file' );
+            //Sort List By Alpha
+            ksort($list);
 
-		//Check Cache File exist
-		if ( file_exists( $file_path ) ) {
+            //Get All List
+            if ($key === false) {
+                return array('status' => true, 'data' => $list);
+            } else {
+                if (array_key_exists($key, $list)) {
+                    return array('status' => true, 'data' => $list[$key]);
+                }
+            }
+        }
 
-			//if cache file exist we used same file
-			$json_data = \WP_CLI_FileSystem::read_json_file( $file_path );
-		}
+        return array('status' => false, 'data' => Package::_e('package', 'wrong_locale'));
+    }
 
-		// if Force Update
-		if ( $force_update === false ) {
+    /**
+     * Update WordPress language in Package
+     *
+     * @param $pkg
+     */
+    public static function update_language($pkg)
+    {
+        //Get Local Temp
+        $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp       = ($localTemp === false ? array() : $localTemp);
 
-			//if require update by calculate cache time
-			if ( isset( $json_data ) and \WP_CLI_FileSystem::check_file_age( $file_path, Package::get_config( 'package', 'locale', 'age' ) ) === false ) {
-				$list = $json_data;
-			}
-		}
+        // Get WordPress default locale
+        $default_locale = Package::get_config('package', 'default', 'locale');
 
-		//Fetch Locale List
-		if ( ! isset( $list ) || $force_update === true ) {
+        // Check Tmp locale
+        $tmp_locale = (isset($tmp['core']['locale']) ? $tmp['core']['locale'] : get_locale());
 
-			//Get Wordpress Locale From API
-			$locale_list = Locale::fetch_wordpress_locale();
-			if ( $locale_list['status'] === false ) {
-				if ( ! isset( $json_data ) ) {
-					return $locale_list;
-				} else {
-					$list = $json_data;
-				}
-			} else {
-				$list = $locale_list['data'];
-			}
-		}
+        // Check Pkg version
+        $pkg_locale = (isset($pkg['core']['locale']) ? $pkg['core']['locale'] : $default_locale);
 
-		//Check Version number
-		if ( isset( $list ) and $list != false ) {
+        // Check if Changed
+        if ($tmp_locale != $pkg_locale) {
+            //Show Please wait
+            \WP_CLI_Helper::pl_wait_start();
 
-			//Push Default To list if not exist
-			$list['en_US'] = 'English';
+            // Change WordPress Locale
+            self::run_language_install($pkg_locale); # Download Language
+            self::run_switch_language($pkg_locale); # Switch To Language
 
-			//Sort List By Alpha
-			ksort( $list );
+            // Remove Pls wait
+            \WP_CLI_Helper::pl_wait_end();
 
-			//Get All List
-			if ( $key === false ) {
-				return array( 'status' => true, 'data' => $list );
-			} else {
-				if ( array_key_exists( $key, $list ) ) {
-					return array( 'status' => true, 'data' => $list[ $key ] );
-				}
-			}
-		}
-
-		return array( 'status' => false, 'data' => Package::_e( 'package', 'wrong_locale' ) );
-	}
-
-	/**
-	 * Update WordPress language in Package
-	 *
-	 * @param $pkg
-	 */
-	public static function update_language( $pkg ) {
-
-		//Get Local Temp
-		$localTemp = temp::get_temp( \WP_CLI_Util::getcwd() );
-		$tmp       = ( $localTemp === false ? array() : $localTemp );
-
-		// Get WordPress default locale
-		$default_locale = Package::get_config( 'package', 'default', 'locale' );
-
-		// Check Tmp locale
-		$tmp_locale = ( isset( $tmp['core']['locale'] ) ? $tmp['core']['locale'] : get_locale() );
-
-		// Check Pkg version
-		$pkg_locale = ( isset( $pkg['core']['locale'] ) ? $pkg['core']['locale'] : $default_locale );
-
-		// Check if Changed
-		if ( $tmp_locale != $pkg_locale ) {
-
-			//Show Please wait
-			\WP_CLI_Helper::pl_wait_start();
-
-			// Change WordPress Locale
-			self::run_language_install( $pkg_locale ); # Download Language
-			self::run_switch_language( $pkg_locale ); # Switch To Language
-
-			// Remove Pls wait
-			\WP_CLI_Helper::pl_wait_end();
-
-			// Add log
-			$lang = Locale::get_locale_detail( $pkg_locale );
-			install::add_detail_log( Package::_e( 'package', 'manage_item_blue', array( "[work]" => "Changed", "[key]" => "WordPress language", "[type]" => "to " . $pkg_locale . ( $lang == "" ? '' : \WP_CLI_Helper::color( " [" . $lang . "]", "P" ) ) ) ) );
-		}
-	}
+            // Add log
+            $lang = Locale::get_locale_detail($pkg_locale);
+            install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => "WordPress language", "[type]" => "to " . $pkg_locale . ($lang == "" ? '' : \WP_CLI_Helper::color(" [" . $lang . "]", "P")))));
+        }
+    }
 
 }

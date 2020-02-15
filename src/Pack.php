@@ -36,283 +36,284 @@ use WP_CLI_PACKAGIST\Package\Utility\view;
  *
  * @package wp-cli
  */
-class Pack extends \WP_CLI_Command {
-	/**
-	 * The single instance of the class.
-	 */
-	protected static $_instance = null;
+class Pack extends \WP_CLI_Command
+{
+    /**
+     * The single instance of the class.
+     */
+    protected static $_instance = null;
 
-	/**
-	 * WordPress Package bootstrap class.
-	 */
-	private $package;
+    /**
+     * WordPress Package bootstrap class.
+     */
+    private $package;
 
-	/**
-	 * Main Instance.
-	 */
-	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
-			self::$_instance = new self();
-		}
+    /**
+     * Main Instance.
+     */
+    public static function instance()
+    {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
 
-		return self::$_instance;
-	}
+        return self::$_instance;
+    }
 
-	/**
-	 * Pack constructor.
-	 */
-	public function __construct() {
+    /**
+     * Pack constructor.
+     */
+    public function __construct()
+    {
+        # Create new obj package class
+        $this->package = new Package();
+    }
 
-		# Create new obj package class
-		$this->package = new Package();
-	}
+    /**
+     * Remove WordPress Package.
+     *
+     * ## OPTIONS
+     *
+     * [--force]
+     * : Delete the file without question.
+     *
+     * ## EXAMPLES
+     *
+     *      # Remove WordPress Package
+     *      $ wp pack remove
+     *      Success: Removed WordPress Package file.
+     *
+     * @when before_wp_load
+     */
+    function remove($_, $assoc)
+    {
+        # Exist wordpress package file
+        if ($this->package->exist_package_file() === false) {
+            \WP_CLI_Helper::error(Package::_e('package', 'no_exist_pkg'));
+        }
 
-	/**
-	 * Remove WordPress Package.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--force]
-	 * : Delete the file without question.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *      # Remove WordPress Package
-	 *      $ wp pack remove
-	 *      Success: Removed WordPress Package file.
-	 *
-	 * @when before_wp_load
-	 */
-	function remove( $_, $assoc ) {
+        # Confirm Remove WordPress Package
+        if ( ! isset($assoc['force'])) {
+            \WP_CLI_Helper::confirm(Package::_e('package', 'rm_pkg_confirm'));
+        }
 
-		# Exist wordpress package file
-		if ( $this->package->exist_package_file() === false ) {
-			\WP_CLI_Helper::error( Package::_e( 'package', 'no_exist_pkg' ) );
-		}
+        # Run Remove Package file
+        $this->package->remove_package_file();
 
-		# Confirm Remove WordPress Package
-		if ( ! isset( $assoc['force'] ) ) {
-			\WP_CLI_Helper::confirm( Package::_e( 'package', 'rm_pkg_confirm' ) );
-		}
+        # Show Success
+        \WP_CLI_Helper::success(Package::_e('package', 'remove_pkg'));
+    }
 
-		# Run Remove Package file
-		$this->package->remove_package_file();
+    /**
+     * Check if your WordPress Package file is valid.
+     *
+     * ## EXAMPLES
+     *
+     *      # Validation WordPress Package
+     *      $ wp pack validate
+     *      Success: WordPress Package is valid.
+     *
+     * @when before_wp_load
+     */
+    function validate($_, $assoc)
+    {
+        # Set global run check
+        $this->package->set_global_package_run_check();
 
-		# Show Success
-		\WP_CLI_Helper::success( Package::_e( 'package', 'remove_pkg' ) );
-	}
+        # Show Please Wait
+        \WP_CLI_Helper::pl_wait_start(false);
 
-	/**
-	 * Check if your WordPress Package file is valid.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *      # Validation WordPress Package
-	 *      $ wp pack validate
-	 *      Success: WordPress Package is valid.
-	 *
-	 * @when before_wp_load
-	 */
-	function validate( $_, $assoc ) {
+        # Run Package Validation
+        $validation_pkg = new validation();
+        $get_pkg        = $validation_pkg->validation($log = true);
+        if ($get_pkg['status'] === true) {
+            \WP_CLI_Helper::success(Package::_e('package', 'pkg_is_valid'));
+        }
+    }
 
-		# Set global run check
-		$this->package->set_global_package_run_check();
+    /**
+     * Show WordPress Package file.
+     *
+     * ## EXAMPLES
+     *
+     *      # Show Current WordPress Package
+     *      $ wp pack show
+     *
+     * @when before_wp_load
+     */
+    function show($_, $assoc)
+    {
+        # Show Local Package
+        if ($this->package->exist_package_file() === false) {
+            \WP_CLI_Helper::error(Package::_e('package', 'not_exist_pkg') . " " . Package::_e('package', 'create_new_pkg'));
+        }
 
-		# Show Please Wait
-		\WP_CLI_Helper::pl_wait_start( false );
+        # Show Please Wait
+        \WP_CLI_Helper::pl_wait_start(false);
 
-		# Run Package Validation
-		$validation_pkg = new validation();
-		$get_pkg        = $validation_pkg->validation( $log = true );
-		if ( $get_pkg['status'] === true ) {
-			\WP_CLI_Helper::success( Package::_e( 'package', 'pkg_is_valid' ) );
-		}
-	}
+        # Run Package Validation
+        $validation_pkg = new validation();
+        $get_pkg        = $validation_pkg->validation($log = true);
+        if ($get_pkg['status'] === true) {
+            # View WordPress Package
+            $view_pkg = new view();
+            $view_pkg->view($get_pkg['data'], false);
+        }
+    }
 
-	/**
-	 * Show WordPress Package file.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *      # Show Current WordPress Package
-	 *      $ wp pack show
-	 *
-	 * @when before_wp_load
-	 */
-	function show( $_, $assoc ) {
-		
-		# Show Local Package
-		if ( $this->package->exist_package_file() === false ) {
-			\WP_CLI_Helper::error( Package::_e( 'package', 'not_exist_pkg' ) . " " . Package::_e( 'package', 'create_new_pkg' ) );
-		}
+    /**
+     * Update WordPress Package.
+     *
+     * ## EXAMPLES
+     *
+     *      # Update WordPress Package
+     *      $ wp pack update
+     *      Success: Updated WordPress.
+     *
+     */
+    function update($_, $assoc)
+    {
+        # Exist wordpress package file
+        if ($this->package->exist_package_file() === false) {
+            \WP_CLI_Helper::error(Package::_e('package', 'no_exist_pkg'));
+        }
 
-		# Show Please Wait
-		\WP_CLI_Helper::pl_wait_start( false );
+        # Set global run check
+        $this->package->set_global_package_run_check();
 
-		# Run Package Validation
-		$validation_pkg = new validation();
-		$get_pkg        = $validation_pkg->validation( $log = true );
-		if ( $get_pkg['status'] === true ) {
+        # Show Please Wait
+        \WP_CLI_Helper::pl_wait_start(false);
 
-			# View WordPress Package
-			$view_pkg = new view();
-			$view_pkg->view( $get_pkg['data'], false );
-		}
-	}
+        # Run Package Validation
+        $validation_pkg = new validation();
+        $get_pkg        = $validation_pkg->validation(true);
+        if ($get_pkg['status'] === true) {
+            # Run Update
+            $run = new update();
+            $run->run($get_pkg['data']);
+        }
+    }
 
-	/**
-	 * Update WordPress Package.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *      # Update WordPress Package
-	 *      $ wp pack update
-	 *      Success: Updated WordPress.
-	 *
-	 */
-	function update( $_, $assoc ) {
+    /**
+     * Show Documentation in the web browser.
+     *
+     * ## EXAMPLES
+     *
+     *      # Show WP-CLI PACKAGIST Documentation in the web browser.
+     *      $ wp app docs
+     *
+     * @when before_wp_load
+     * @alias doc
+     */
+    function docs($_, $assoc)
+    {
+        //Get basic docs url
+        $url = Package::get_config('docs');
 
-		# Exist wordpress package file
-		if ( $this->package->exist_package_file() === false ) {
-			\WP_CLI_Helper::error( Package::_e( 'package', 'no_exist_pkg' ) );
-		}
+        //Check Valid Url
+        $web_url = filter_var($url, FILTER_VALIDATE_URL);
+        if ($web_url === false) {
+            $web_url = Package::get_config('docs');
+        }
 
-		# Set global run check
-		$this->package->set_global_package_run_check();
+        //Show in browser
+        \WP_CLI_Helper::Browser($web_url);
+    }
 
-		# Show Please Wait
-		\WP_CLI_Helper::pl_wait_start( false );
+    /**
+     * WordPress Package Helper.
+     *
+     * ## EXAMPLES
+     *
+     *      # WordPress Package Helper.
+     *      $ wp pack help
+     *
+     * @alias helper
+     * @when before_wp_load
+     */
+    function help($_, $assoc)
+    {
+        help::run();
+    }
 
-		# Run Package Validation
-		$validation_pkg = new validation();
-		$get_pkg        = $validation_pkg->validation( true );
-		if ( $get_pkg['status'] === true ) {
+    /**
+     * Launches system editor to edit the WordPress Package file.
+     *
+     * ## OPTIONS
+     *
+     * [--editor=<name>]
+     * : Editor name.
+     * ---
+     * options:
+     *   - notepad++
+     *   - atom
+     *   - vscode
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # Launch system editor to edit wordpress.json file
+     *     $ wp pack edit
+     *
+     *     # Edit wordpress.json file in a specific editor in macOS/linux
+     *     $ EDITOR=vim wp pack edit
+     *
+     *     # Edit wordpress.json file in a specific editor in windows
+     *     $ wp pack edit --editor=notepad++
+     *
+     * @when before_wp_load
+     */
+    public function edit($_, $assoc)
+    {
+        # Exist wordpress package file
+        if ($this->package->exist_package_file() === false) {
+            \WP_CLI_Helper::error(Package::_e('package', 'no_exist_pkg'));
+        }
 
-			# Run Update
-			$run = new update();
-			$run->run( $get_pkg['data'] );
-		}
-	}
+        # Lunch Editor
+        \WP_CLI_Helper::lunch_editor($this->package->package_path, (isset($assoc['editor']) ? $assoc['editor'] : false));
+    }
 
-	/**
-	 * Show Documentation in the web browser.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *      # Show WP-CLI PACKAGIST Documentation in the web browser.
-	 *      $ wp app docs
-	 *
-	 * @when before_wp_load
-	 * @alias doc
-	 */
-	function docs( $_, $assoc ) {
+    /**
+     * Create Htaccess or Web.config For Pretty Permalink WordPress.
+     *
+     * ## OPTIONS
+     *
+     * [--wp_content=<wp-content>]
+     * : wp-content dir path.
+     *
+     * [--plugins=<plugins>]
+     * : plugins dir path.
+     *
+     * [--uploads=<uploads>]
+     * : uploads dir path.
+     *
+     * [--themes=<themes>]
+     * : themes dir path.
+     *
+     * ## EXAMPLES
+     *
+     *     $ wp pack htaccess
+     *
+     * @alias webconfig
+     */
+    function htaccess($_, $assoc)
+    {
+        //Check Network
+        $network = Core::is_multisite();
 
-		//Get basic docs url
-		$url = Package::get_config( 'docs' );
+        //Check Custom directory
+        $dirs = array();
+        foreach (array('wp_content', 'plugins', 'uploads', 'themes') as $dir) {
+            if (isset($assoc[$dir])) {
+                $dirs[$dir] = $assoc[$dir];
+            }
+        }
 
-		//Check Valid Url
-		$web_url = filter_var( $url, FILTER_VALIDATE_URL );
-		if ( $web_url === false ) {
-			$web_url = Package::get_config( 'docs' );
-		}
+        //Create file
+        Permalink::create_permalink_file($network['network'], $network['subdomain'], $dirs);
 
-		//Show in browser
-		\WP_CLI_Helper::Browser( $web_url );
-	}
-
-	/**
-	 * WordPress Package Helper.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *      # WordPress Package Helper.
-	 *      $ wp pack help
-	 *
-	 * @alias helper
-	 * @when before_wp_load
-	 */
-	function help( $_, $assoc ) {
-		help::run();
-	}
-
-	/**
-	 * Launches system editor to edit the WordPress Package file.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--editor=<name>]
-	 * : Editor name.
-	 * ---
-	 * options:
-	 *   - notepad++
-	 *   - atom
-	 *   - vscode
-	 * ---
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     # Launch system editor to edit wordpress.json file
-	 *     $ wp pack edit
-	 *
-	 *     # Edit wordpress.json file in a specific editor in macOS/linux
-	 *     $ EDITOR=vim wp pack edit
-	 *
-	 *     # Edit wordpress.json file in a specific editor in windows
-	 *     $ wp pack edit --editor=notepad++
-	 *
-	 * @when before_wp_load
-	 */
-	public function edit( $_, $assoc ) {
-
-		# Exist wordpress package file
-		if ( $this->package->exist_package_file() === false ) {
-			\WP_CLI_Helper::error( Package::_e( 'package', 'no_exist_pkg' ) );
-		}
-
-		# Lunch Editor
-		\WP_CLI_Helper::lunch_editor( $this->package->package_path, ( isset( $assoc['editor'] ) ? $assoc['editor'] : false ) );
-	}
-
-	/**
-	 * Create Htaccess or Web.config For Pretty Permalink WordPress.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--wp_content=<wp-content>]
-	 * : wp-content dir path.
-	 *
-	 * [--plugins=<plugins>]
-	 * : plugins dir path.
-	 *
-	 * [--uploads=<uploads>]
-	 * : uploads dir path.
-	 *
-	 * [--themes=<themes>]
-	 * : themes dir path.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     $ wp pack htaccess
-	 *
-	 * @alias webconfig
-	 */
-	function htaccess( $_, $assoc ) {
-
-		//Check Network
-		$network = Core::is_multisite();
-
-		//Check Custom directory
-		$dirs = array();
-		foreach ( array( 'wp_content', 'plugins', 'uploads', 'themes' ) as $dir ) {
-			if ( isset( $assoc[ $dir ] ) ) {
-				$dirs[ $dir ] = $assoc[ $dir ];
-			}
-		}
-
-		//Create file
-		Permalink::create_permalink_file( $network['network'], $network['subdomain'], $dirs );
-
-		//Success
-		\WP_CLI_Helper::success( Package::_e( 'package', 'created_file', array( "[file]" => $network['mod_rewrite_file'] ) ) );
-	}
+        //Success
+        \WP_CLI_Helper::success(Package::_e('package', 'created_file', array("[file]" => $network['mod_rewrite_file'])));
+    }
 }

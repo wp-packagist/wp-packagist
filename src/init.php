@@ -66,62 +66,60 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
  *
  * @when before_wp_load
  */
-\WP_CLI::add_command( 'init', function ( $args, $assoc_args ) {
+\WP_CLI::add_command('init', function ($args, $assoc_args) {
+    //Load Package Class
+    $pkg = new Package();
 
-	//Load Package Class
-	$pkg = new Package();
+    //exist WordPress
+    if (Core::check_wp_exist()) {
+        \WP_CLI_Helper::error(Package::_e('package', 'exist_wp'));
+        return;
+    }
 
-	//exist WordPress
-	if ( Core::check_wp_exist() ) {
-		\WP_CLI_Helper::error( Package::_e( 'package', 'exist_wp' ) );
-		return;
-	}
+    //exist wordpress package file
+    if ($pkg->exist_package_file()) {
+        \WP_CLI_Helper::error(Package::_e('package', 'exist_pkg'));
+        return;
+    }
 
-	//exist wordpress package file
-	if ( $pkg->exist_package_file() ) {
-		\WP_CLI_Helper::error( Package::_e( 'package', 'exist_pkg' ) );
-		return;
-	}
+    //Get before Command
+    $before_command = Package::get_command_log();
 
-	//Get before Command
-	$before_command = Package::get_command_log();
+    // Force Only run With --Prompt
+    if ( ! isset ($assoc_args['prompt']) and count($assoc_args) == 0) {
+        if (empty($before_command) || (isset($before_command['command']) and $before_command['command'] != "init")) {
+            Package::save_last_command('init', $args, $assoc_args);
+            \WP_CLI::runcommand("init --prompt");
+            return;
+        }
+    }
 
-	// Force Only run With --Prompt
-	if ( ! isset ( $assoc_args['prompt'] ) and count( $assoc_args ) == 0 ) {
-		if ( empty( $before_command ) || ( isset( $before_command['command'] ) and $before_command['command'] != "init" ) ) {
-			Package::save_last_command( 'init', $args, $assoc_args );
-			\WP_CLI::runcommand( "init --prompt" );
-			return;
-		}
-	}
+    //Remove command log
+    Package::remove_command_log();
 
-	//Remove command log
-	Package::remove_command_log();
+    //Create new package file
+    $create_pkg = new create();
+    $return     = $create_pkg->create($assoc_args);
 
-	//Create new package file
-	$create_pkg = new create();
-	$return     = $create_pkg->create( $assoc_args );
+    //Show Alert
+    if ($return['status'] === true) {
+        //Check Warning
+        $warnings = $return['data'];
 
-	//Show Alert
-	if ( $return['status'] === true ) {
+        //Show Warning
+        if (count($warnings) > 0) {
+            \WP_CLI_Helper::br();
+            \WP_CLI_Helper::warning();
+            foreach ($warnings as $text_warning) {
+                \WP_CLI_Helper::line("  - " . $text_warning);
+            }
+            \WP_CLI_Helper::br();
+        }
 
-		//Check Warning
-		$warnings = $return['data'];
+        //Remove Package LocalTemp
+        temp::remove_temp_file(\WP_CLI_Util::getcwd());
 
-		//Show Warning
-		if ( count( $warnings ) >0 ) {
-			\WP_CLI_Helper::br();
-			\WP_CLI_Helper::warning();
-			foreach ( $warnings as $text_warning ) {
-				\WP_CLI_Helper::line( "  - " . $text_warning );
-			}
-			\WP_CLI_Helper::br();
-		}
-
-		//Remove Package LocalTemp
-		temp::remove_temp_file( \WP_CLI_Util::getcwd() );
-
-		//Show Success
-		\WP_CLI_Helper::success( Package::_e( 'package', 'created' ) );
-	}
-} );
+        //Show Success
+        \WP_CLI_Helper::success(Package::_e('package', 'created'));
+    }
+});
