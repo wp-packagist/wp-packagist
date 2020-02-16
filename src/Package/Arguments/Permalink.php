@@ -157,7 +157,6 @@ class Permalink
                 }
 
                 $file_content = <<<EOF
-# BEGIN WordPress
 
 RewriteEngine On
 RewriteBase {$base}
@@ -173,7 +172,8 @@ RewriteRule ^{$subdir_match}(wp-(content|admin|includes).*) {$rewrite_base}{$sub
 RewriteRule ^{$subdir_match}(.*\.php)$ {$rewrite_base}$subdir_replacement_12 [L]
 RewriteRule . index.php [L]
 
-# END WordPress
+
+
 EOF;
                 // Sanitize Path
                 $file_content = str_replace("//", "/", rtrim(str_replace(\WP_CLI_Util::getcwd(), $base, $file_content), "/"));
