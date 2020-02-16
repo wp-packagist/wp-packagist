@@ -15,7 +15,7 @@ include WP_CLI_ROOT . '/php/class-wp-cli-command.php';
 
 // Define Basic WP-CLI PACKAGIST Constant
 if ( ! defined('WP_CLI_PACKAGIST_PATH')) {
-    define("WP_CLI_PACKAGIST_PATH", dirname(__FILE__));
+    define("WP_CLI_PACKAGIST_PATH", realpath(dirname(__FILE__) . '/..'));
 }
 if ( ! defined('WP_CLI_PACKAGIST_TEMPLATE_PATH')) {
     define("WP_CLI_PACKAGIST_TEMPLATE_PATH", WP_CLI_PACKAGIST_PATH . '/templates/');
