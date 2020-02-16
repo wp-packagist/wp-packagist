@@ -23,4 +23,11 @@ class HelperClassTest extends TestCase
         $this->assertEquals($get_config, 'subscriber');
     }
 
+    /** @test */
+    public function checkBoolean()
+    {
+        $var = 'disable';
+        $this->assertEquals(null,  filter_var($var, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE));
+    }
+
 }

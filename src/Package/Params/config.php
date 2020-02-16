@@ -19,7 +19,7 @@ class config
      *
      * @var array
      */
-    public $params_keys = array('url', 'title', 'admin', 'users', 'constant', 'options', 'cookie', 'rest-api', 'permalink', 'timezone', 'theme');
+    public $params_keys = array('url', 'title', 'admin', 'users', 'constant', 'options', 'cookie', 'rest-api', 'permalink', 'timezone', 'theme', 'xml-rpc', 'emoji');
 
     /**
      * Get Wordpress Package options
@@ -1079,6 +1079,54 @@ class config
             } else {
                 $valid->add_success($var);
             }
+        }
+
+        return ($validate === true ? $valid->result() : $var);
+    }
+
+    /**
+     * Sanitize XML-RPC parameter
+     *
+     * @param $var
+     * @param bool $validate
+     * @return string|boolean|array
+     * @since 1.0.0
+     */
+    public function sanitize_xml_rpc($var, $validate = false)
+    {
+        //Create new validation
+        $valid = new \WP_CLI_ERROR();
+
+        //Check is Boolean
+        $var = filter_var($var, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if (is_null($var)) {
+            $valid->add_error(Package::_e('package', 'is_boolean', array("[key]" => "config: { xml-rpc: ..")));
+        } else {
+            $valid->add_success($var);
+        }
+
+        return ($validate === true ? $valid->result() : $var);
+    }
+
+    /**
+     * Sanitize Emoji parameter
+     *
+     * @param $var
+     * @param bool $validate
+     * @return string|boolean|array
+     * @since 1.0.0
+     */
+    public function sanitize_emoji($var, $validate = false)
+    {
+        //Create new validation
+        $valid = new \WP_CLI_ERROR();
+
+        //Check is Boolean
+        $var = filter_var($var, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if (is_null($var)) {
+            $valid->add_error(Package::_e('package', 'is_boolean', array("[key]" => "config: { emoji: ..")));
+        } else {
+            $valid->add_success($var);
         }
 
         return ($validate === true ? $valid->result() : $var);

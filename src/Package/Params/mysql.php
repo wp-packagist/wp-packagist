@@ -4,8 +4,10 @@ namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\Package\Arguments\Admin;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
+use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
+use WP_CLI_PACKAGIST\Package\Arguments\XML_RPC;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Arguments\Commands;
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
@@ -426,11 +428,29 @@ class mysql
         }
 
         //Check Update REST API
+        $mu_plugins_path = Dir::eval_get_mu_plugins_path();
         if (isset($pkg_array['config']['rest-api'])) {
             install::install_log($step, $all_step, Package::_e('package', "update_rest_api"));
             \WP_CLI_Helper::pl_wait_start();
-            $mu_plugins_path = Dir::eval_get_mu_plugins_path();
             Rest_API::update_rest_api($mu_plugins_path, $pkg_array['config']['rest-api']);
+            \WP_CLI_Helper::pl_wait_end();
+            $step++;
+        }
+
+        //Check WordPress XML-RPC
+        if (isset($pkg_array['config']['xml-rpc']) and $pkg_array['config']['xml-rpc'] === false) {
+            install::install_log($step, $all_step, Package::_e('package', "disable_xml_rpc"));
+            \WP_CLI_Helper::pl_wait_start();
+            XML_RPC::update_xml_rpc($mu_plugins_path, $pkg_array['config']['xml-rpc']);
+            \WP_CLI_Helper::pl_wait_end();
+            $step++;
+        }
+
+        //Check WordPress Emoji
+        if (isset($pkg_array['config']['emoji']) and $pkg_array['config']['emoji'] === false) {
+            install::install_log($step, $all_step, Package::_e('package', "disable_emoji"));
+            \WP_CLI_Helper::pl_wait_start();
+            Emoji::update_emoji($mu_plugins_path, $pkg_array['config']['emoji']);
             \WP_CLI_Helper::pl_wait_end();
             $step++;
         }

@@ -149,6 +149,13 @@ class install extends Package
             $step++;
         }
 
+        // Check XML-RPC and Emoji
+        foreach (array('xml-rpc', 'emoji') as $k) {
+            if (isset($package_data['config'][$k]) and $package_data['config'][$k] === false) {
+                $step++;
+            }
+        }
+
         //Check Created Database
         if (isset($package_data['mysql'])) {
             if (mysql::exist_db_name($package_data['mysql']) === false) {

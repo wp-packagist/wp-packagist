@@ -1,0 +1,47 @@
+<?php
+/**
+ * Plugin Name: Disable XML-RPC in WordPress
+ * Description: Disable XML-RPC completely from WordPress.
+ * Version:     1.0.0
+ * License:     MIT
+ *
+ * @package WP-PACKAGIST
+ */
+
+// Disable XML-RPC in WordPress hook
+add_filter('xmlrpc_enabled', '__return_false');
+
+// Hide X-Pingback from WordPress Request Header
+add_filter('wp_headers', 'wp_cli_remove_x_pingback');
+function wp_cli_remove_x_pingback($headers)
+{
+    unset($headers['X-Pingback']);
+    return $headers;
+}
+
+// Remove XML-RPC from WordPress <head>
+remove_action('wp_head', 'wlwmanifest_link');
+remove_action('wp_head', 'rsd_link');
+
+// disable Access to XML-RPC in Htaccess
+add_filter('mod_rewrite_rules', 'wp_cli_disable_xml_rpc');
+function wp_cli_disable_xml_rpc($rules)
+{
+    $content = <<<EOD
+\n# Disable Access to XML-RPC
+<Files xmlrpc.php>
+    Order Deny,Allow
+    Deny from all
+</Files>\n
+EOD;
+    return $rules . $content;
+}
+
+// Block XML-RPC Request [Usage for NGINX or windows Server]
+add_action('muplugins_loaded', 'wp_cli_block_xml_rpc_request');
+function wp_cli_block_xml_rpc_request()
+{
+    if (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST) {
+        exit;
+    }
+}
