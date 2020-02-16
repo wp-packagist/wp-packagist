@@ -14,7 +14,7 @@ include WP_CLI_ROOT . '/php/class-wp-cli-command.php';
 \WP_CLI\Utils\load_dependencies();
 
 // Define Basic WP-CLI PACKAGIST Constant
-require_once '../command.php';
+require_once realpath(dirname(__FILE__) . '/..') . '/command.php';
 
 // Start Logger
 require_once 'Logger.php';
