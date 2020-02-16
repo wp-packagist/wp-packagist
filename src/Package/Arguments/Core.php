@@ -62,7 +62,7 @@ class Core
     public static function install_network_sites($sites = array(), $when = 'install')
     {
         foreach ($sites as $site) {
-            self::add_new_blog($sites);
+            self::add_new_blog($site);
             install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $site['slug'])), ($when == "update" ? 5 : 1));
         }
     }
