@@ -193,6 +193,9 @@ return array(
         # WordPress Table-prefix key in option or meta
         'tbl_prefix_key'           => '[table-prefix]',
 
+        # Forbidden Word for Get Multi-Site Blog Slug
+        'forbidden_blog_slug'      => array('page', 'comments', 'blog', 'files', 'feed'),
+
         # Wordpress Default User Meta
         'default_user_meta'        => array(
             'nickname',
@@ -417,6 +420,7 @@ return array(
             'srdb_uploads'          => "Updated WordPress attachments link in the database.",
             'convert_single_multi'  => "Convert WordPress single-site to multi-site.",
             'change_subdomain_type' => "[work] WordPress multi-site subdomain.",
+            'mu_er_slug'            => \WP_CLI_Helper::color("[slug]", "B") ." words is reserved by WordPress core and cannot be used as blog slug.",
         )
     ),
 

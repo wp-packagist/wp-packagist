@@ -241,6 +241,14 @@ class core
                                             }
                                         }
 
+                                        // Check forbidden name for Slug
+                                        $forbidden_slug_name = Package::get_config('package', 'forbidden_blog_slug');
+                                        $blog_slug           = trim($var['sites'][$x]['slug']);
+                                        if (in_array($blog_slug, $forbidden_slug_name)) {
+                                            $valid->add_error(Package::_e('package', 'mu_er_slug', array("[slug]" => $blog_slug)));
+                                            break;
+                                        }
+
                                         //Check Validation Data
                                         if ( ! $valid->is_cli_error()) {
                                             //Get user original data
