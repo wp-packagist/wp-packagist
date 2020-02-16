@@ -8,7 +8,7 @@
 header( 'Content-Type: application/json' );
 
 # Set Default result
-$result = array( 'status' => 'error', 'data' => 'You don't have permission.' );
+$result = array( 'status' => "error", 'data' => "You don't have permission." );
 
 //Check Exist Security Code
 if ( isset( $_GET['wp_cli_package_check_url'] ) and trim( $_GET['wp_cli_package_check_url'] ) == "{{GET_KEY}}" ) {

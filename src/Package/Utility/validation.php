@@ -97,6 +97,8 @@ class validation extends Package
                 \WP_CLI_Helper::line("  - " . $text_error);
             }
             \WP_CLI_Helper::br();
+
+            return $valid;
         } else {
             //Get Package Data if not exist error
             if ($valid['status'] === true and isset($pkg_array)) {
