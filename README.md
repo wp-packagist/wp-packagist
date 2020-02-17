@@ -5,7 +5,7 @@
 ![Packagist](https://img.shields.io/packagist/l/wp-packagist/wp-packagist)
 ![GitHub repo size](https://img.shields.io/github/repo-size/wp-packagist/wp-packagist)
 
-The WordPress Package Management is a WP-CLI Package that lets you create and manage a WordPress workflow very fast.
+The WordPress Package Management is a WP-CLI Package that lets you create and manage a WordPress site very fast.
 The root package is the package defined by the `wordpress.json` at the root of your project. All parameters and commands are fully executed in the WP-CLI.
 
 ## Installation
