@@ -110,7 +110,7 @@ class Package
     public static function get_config()
     {
         // Load All Config
-        $list = include WP_CLI_PACKAGIST_PATH . '/config.php';
+        $list = include WP_CLI_PACKAGIST_PATH . '/config/package.php';
 
         // Check arg
         $numArgs = func_num_args();
