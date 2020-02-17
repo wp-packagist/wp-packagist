@@ -24,8 +24,15 @@ wp package install wp-packagist/wp-cli-global-config-command
 
 > Installing this package requires WP-CLI v2 or greater. Update to the latest stable release with `wp cli update`.
 
+<br/>
+<p align="center">
+<a href="https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE" target="_blank">
+<img src="https://via.placeholder.com/800X350.png" alt="">
+</a>
+</p>
+<br/>
 
-## Official Documentation
+## Documentation
 
 Documentation for the WordPress Package Manangment can be found on the [Github Wiki](https://github.com/wp-packagist/wp-packagist/wiki).
 
@@ -33,10 +40,8 @@ Documentation for the WordPress Package Manangment can be found on the [Github W
 
 - [Mehrshad Darzi](https://www.linkedin.com/in/mehrshaddarzi/)
 
-## Contributing
 
 We appreciate you taking the initiative to contribute to this project.
-
 Contributing isn’t limited to just code. We encourage you to contribute in the way that best fits your abilities, by writing tutorials, giving a demo at your local meetup, helping other users with their support questions, or revising our documentation.
 
 ### Reporting a bug
