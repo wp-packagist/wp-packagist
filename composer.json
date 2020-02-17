@@ -35,6 +35,22 @@
   "scripts": {
     "test": "phpunit"
   },
+  "extra": {
+    "commands": [
+      "init",
+      "install",
+      "uninstall",
+      "pack remove",
+      "pack validate",
+      "pack show",
+      "pack update",
+      "pack docs",
+      "pack help",
+      "pack edit",
+      "run",
+      "run admin"
+    ]
+  },
   "support": {
     "issues": "https://github.com/wp-packagist/wp-packagist/issues"
   }
