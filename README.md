@@ -16,7 +16,7 @@ You can install this package with:
 wp package install wp-packagist/wp-packagist
 ```
 
-Also for manage WP-CLI global parameters, install this package:
+Also for manage [WP-CLI global parameters](https://github.com/wp-packagist/wp-cli-global-config-command), install this package:
 
 ```console
 wp package install wp-packagist/wp-cli-global-config-command
