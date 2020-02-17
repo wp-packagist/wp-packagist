@@ -30,7 +30,6 @@ wp package install wp-packagist/wp-cli-global-config-command
 <img src="https://via.placeholder.com/800X350.png" alt="">
 </a>
 </p>
-<br/>
 
 ## Documentation
 
