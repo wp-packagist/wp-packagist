@@ -1,4 +1,4 @@
-# WordPress Package Manangment with WP-CLI
+# WordPress Package Management for WP-CLI
 
 [![Build Status](https://travis-ci.com/wp-packagist/wp-packagist.svg?branch=master)](https://travis-ci.com/wp-packagist/wp-packagist)
 ![Packagist Version](https://img.shields.io/packagist/v/wp-packagist/wp-packagist)
@@ -34,7 +34,7 @@ wp package install wp-packagist/wp-cli-global-config-command
 
 ## Documentation
 
-Documentation for the WordPress Package Manangment can be found on the [Github Wiki](https://github.com/wp-packagist/wp-packagist/wiki).
+Documentation for the WordPress Package Management can be found on the [Github Wiki](https://github.com/wp-packagist/wp-packagist/wiki).
 
 ## Contributing
 
@@ -61,4 +61,4 @@ Once you've decided to commit the time to seeing your pull request through, plea
 
 ## License
 
-The WordPress Package Managment is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The WordPress Package Management is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
