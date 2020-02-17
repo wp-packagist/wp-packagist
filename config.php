@@ -334,7 +334,7 @@ return array(
             'not_exist_key'         => "'" . \WP_CLI_Helper::color("[key]", "Y") . "' require " . \WP_CLI_Helper::color("[require]", "B") . " parameter.",
             'empty_val'             => "'" . \WP_CLI_Helper::color("[key]", "Y") . "' key is empty.",
             'is_string'             => "'" . \WP_CLI_Helper::color("[key]", "Y") . "' must be an array.",
-            'is_not_string'         => "'" . \WP_CLI_Helper::color("[key]", "Y") . "' must be an string.",
+            'is_not_string'         => "'" . \WP_CLI_Helper::color("[key]", "Y") . "' must be a string.",
             'is_boolean'            => "'" . \WP_CLI_Helper::color("[key]", "Y") . "' must be a boolean.",
             'nv_url'                => "url in '" . \WP_CLI_Helper::color("[key]", "Y") . "' is not valid.",
             'nv_duplicate'          => "The duplicate '" . \WP_CLI_Helper::color("[key]", "Y") . "' value is in the " . \WP_CLI_Helper::color("[array]", "B") . ".",
