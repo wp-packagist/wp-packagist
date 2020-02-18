@@ -71,11 +71,11 @@ class Admin
         $users = (isset($pkg_config['users']) ? $pkg_config['users'] : array());
         foreach ($users as $user) {
             if (\WP_CLI_Util::to_lower_string($user['user_login']) == \WP_CLI_Util::to_lower_string($pkg_config['admin']['admin_user'])) {
-                $valid->add_error(Package::_e('package', 'dup_admin_user', array("[what]" => "user-login")));
+                $valid->add_error(Package::_e('package', 'dup_admin_user', array("[what]" => "user_login")));
                 break;
             }
             if (\WP_CLI_Util::to_lower_string($user['user_email']) == \WP_CLI_Util::to_lower_string($pkg_config['admin']['admin_email'])) {
-                $valid->add_error(Package::_e('package', 'dup_admin_user', array("[what]" => "user-email")));
+                $valid->add_error(Package::_e('package', 'dup_admin_user', array("[what]" => "user_email")));
                 break;
             }
         }

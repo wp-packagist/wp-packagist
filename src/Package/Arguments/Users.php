@@ -337,8 +337,8 @@ class Users
         add_filter('send_password_change_email', '__return_false');
 
         //Get User List
-        $tmp_users = isset($tmp['config']['users']) ? $tmp['config']['users'] : array();
-        $pkg_users = isset($pkg['config']['users']) ? $pkg['config']['users'] : array();
+        $tmp_users = (isset($tmp['config']['users']) ? $tmp['config']['users'] : array());
+        $pkg_users = (isset($pkg['config']['users']) ? $pkg['config']['users'] : array());
 
         // Remove Users
         if (count($tmp_users) > count($pkg_users)) {
@@ -364,7 +364,25 @@ class Users
             }
         }
 
-        // Add OR Edit User item
+        // Add Users
+        if (count($pkg_users) > count($tmp_users)) {
+            foreach ($pkg_users as $package_users) {
+                $_exist = false;
+
+                // Check Exist Users in Temp
+                foreach ($tmp_users as $temp_users) {
+                    if (\WP_CLI_Util::to_lower_string($package_users['user_login']) == \WP_CLI_Util::to_lower_string($temp_users['user_login']) || \WP_CLI_Util::to_lower_string($package_users['user_email']) == \WP_CLI_Util::to_lower_string($temp_users['user_email'])) {
+                        $_exist = true;
+                    }
+                }
+
+                if ( ! $_exist) {
+                    self::add_new_user($package_users);
+                }
+            }
+        }
+
+        // Edit User item
         $x_pkg = 0;
         foreach ($pkg_users as $pack_users) {
             $_exist = $tmp_key = $pkg_key = false;
@@ -377,7 +395,7 @@ class Users
                     $tmp_key = $x_tmp;
                     $pkg_key = $x_pkg;
                 } else {
-                    // Create New User if User Changed user_login and user_email together or Added New key
+                    // Create New User if User Changed `user_login` and `user_email` together or Added New key
                     $_exist_DB = self::check_exist_user($pack_users);
                     if ($_exist_DB['status'] === false) {
                         self::add_new_user($pack_users);
@@ -461,8 +479,8 @@ class Users
                     }
 
                     // Update Users Meta
-                    $tmp_user_meta = isset($current_tmp_user['meta']) ? $current_tmp_user['meta'] : array();
-                    $pkg_user_meta = isset($current_pkg_user['meta']) ? $current_pkg_user['meta'] : array();
+                    $tmp_user_meta = (isset($current_tmp_user['meta']) ? $current_tmp_user['meta'] : array());
+                    $pkg_user_meta = (isset($current_pkg_user['meta']) ? $current_pkg_user['meta'] : array());
                     Users::update_package_user_meta($pkg_user_meta, $tmp_user_meta, $user_id, "for `" . $_exist_DB['data']['user_login'] . "` user meta");
                 }
             }
