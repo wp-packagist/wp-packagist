@@ -3,9 +3,19 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
+use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\update;
 
 class Timezone
 {
+    /**
+     * WordPress Default TimeZone
+     *
+     * @var string
+     */
+    public static $default_timezone = 'UTC+0';
+
     /**
      * Get List WordPress TimeZone
      *
@@ -79,9 +89,9 @@ class Timezone
         //Search
         if (in_array($search, $get_list)) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -96,17 +106,32 @@ class Timezone
          * SELECT * FROM `{prefix}_options` WHERE `option_name` ='timezone_string' OR `option_name` = 'gmt_offset'
          */
 
+        // Only in Update Process
+        if (update::isUpdateProcess()) {
+            // get Temp Package
+            $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp       = ($localTemp === false ? array() : $localTemp);
+
+            // Get Current Timezone status
+            $tmp_timezone = (isset($tmp['config']['timezone']) ? $tmp['config']['timezone'] : self::$default_timezone);
+
+            // If Not any change
+            if ($tmp_timezone == $timezone) {
+                return;
+            }
+
+            // Reset WordPress Option
+            foreach (array('timezone_string', 'gmt_offset') as $opt) {
+                \WP_CLI_Helper::run_command('option update ' . $opt . ' ""', array('exit_error' => false));
+            }
+        }
+
         //Check Validate
         if (self::search_timezone($timezone)) {
             //Check Options is timezone_string or gmt_offset
             $opt_name = 'timezone_string';
             if (stristr($timezone, "UTC+") != false || stristr($timezone, "UTC-") != false) {
                 $opt_name = 'gmt_offset';
-            }
-
-            //Reset WordPress Option
-            foreach (array('timezone_string', 'gmt_offset') as $opt) {
-                \WP_CLI_Helper::run_command('option update ' . $opt . ' ""', array('exit_error' => false));
             }
 
             //Update TimeZone
@@ -122,6 +147,11 @@ class Timezone
 
                 \WP_CLI_Helper::run_command('option update gmt_offset "' . $gmt_offset . '"', array('exit_error' => false));
             }
+        }
+
+        // Only in Update Process
+        if (update::isUpdateProcess()) {
+            install::add_detail_log("Changed WordPress Timezone");
         }
     }
 

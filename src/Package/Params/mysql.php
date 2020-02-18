@@ -525,6 +525,9 @@ class mysql
 
         # Update REST-API
         Rest_API::update_rest_api($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
+
+        # Update WordPress TimeZone
+        Timezone::update_timezone((isset($pkg_array['config']['timezone']) ? $pkg_array['config']['timezone'] : Timezone::$default_timezone));
     }
 
 }
