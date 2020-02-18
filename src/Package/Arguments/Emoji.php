@@ -12,6 +12,15 @@ class Emoji
     public static $default_active_emoji = true;
 
     /**
+     * Check Is Enable Emoji From WordPress
+     * @after_wp_load
+     */
+    public static function isEnableEmoji()
+    {
+        return has_action('wp_head', 'print_emoji_detection_script') != false;
+    }
+
+    /**
      * Update WordPress Emoji
      *
      * @param $mu_plugin_path
@@ -28,7 +37,7 @@ class Emoji
             $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current emoji status
-            $tmp_emoji = (isset($tmp['config']['emoji']) ? $tmp['config']['emoji'] : ! file_exists($_plugin_path));
+            $tmp_emoji = (isset($tmp['config']['emoji']) ? $tmp['config']['emoji'] : self::isEnableEmoji());
 
             // If Not any change
             if ($tmp_emoji == $activate) {
