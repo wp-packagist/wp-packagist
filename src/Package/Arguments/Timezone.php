@@ -95,6 +95,19 @@ class Timezone
     }
 
     /**
+     * Get Current WordPress TimeZone
+     * @run after_wp_load
+     */
+    public static function getTimezone()
+    {
+        $time_zone = get_option('timezone_string');
+        if ( ! empty($time_zone)) {
+            return $time_zone;
+        }
+        return self::sanitize_timezone(get_option('gmt_offset'));
+    }
+
+    /**
      * Update WordPress TimeZone
      *
      * @param $timezone
@@ -112,7 +125,7 @@ class Timezone
             $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current Timezone status
-            $tmp_timezone = (isset($tmp['config']['timezone']) ? $tmp['config']['timezone'] : self::$default_timezone);
+            $tmp_timezone = (isset($tmp['config']['timezone']) ? $tmp['config']['timezone'] : self::getTimezone());
 
             // If Not any change
             if ($tmp_timezone == $timezone) {
