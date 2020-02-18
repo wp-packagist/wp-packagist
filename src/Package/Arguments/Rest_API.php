@@ -11,7 +11,7 @@ class Rest_API
 {
     /**
      * Get List Of WordPress Rest API namespace/route
-     * @ after_wp_load
+     * @after_wp_load
      */
     public static function get_rest_list()
     {
@@ -44,7 +44,9 @@ class Rest_API
     public static function remove_all_default_route()
     {
         $t = "# Remove All WordPress Default Rest API Route\n";
-        $t .= "remove_action('rest_api_init', 'create_initial_rest_routes', 99);" . "\n";
+        $t .= "remove_action('rest_api_init', 'create_initial_rest_routes', 99);" . "\n"; // Remove WP namespace and default route
+        $t .= "remove_action('rest_api_init', 'wp_oembed_register_route');" . "\n"; // Remove Oembed namespace and route
+        $t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); });' . "\n"; // Remove "/" route from Rest API
         return $t;
     }
 
@@ -73,8 +75,7 @@ class Rest_API
          *
          * add_filter( 'rest_authentication_errors', function( $access ){ return new WP_Error( 'rest_cannot_access', 'Bye', array( 'status' => 403 ) ); } );
          */
-        $t = "# Removed All WordPress Rest API Route\n";
-        $t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); });' . "\n";
+        $t = self::remove_all_default_route();
         $t .= "# Remove Action in WordPress Theme" . "\n";
         $t .= 'remove_action( \'wp_head\', \'rest_output_link_wp_head\', \'10\' );' . "\n";
         $t .= 'remove_action( \'wp_head\', \'wp_oembed_add_discovery_links\' );' . "\n";
@@ -117,6 +118,24 @@ class Rest_API
     }
 
     /**
+     * Get Current WordPress REST API Parameter
+     *
+     * @see https://developer.wordpress.org/reference/functions/rest_get_url_prefix/
+     * @after_wp_load
+     */
+    public static function getRestAPI()
+    {
+        $prefix   = rest_get_url_prefix();
+        $rest_api = Rest_API::get_rest_list();
+        $routes   = $rest_api['route'];
+
+        return array(
+            'prefix'  => $prefix,
+            'disable' => (count($routes) < 1 ? "default" : []),
+        );
+    }
+
+    /**
      * Update WordPress REST API
      *
      * @param $mu_plugin_path
@@ -127,14 +146,9 @@ class Rest_API
         //Get MU PLUGIN Path
         $plugin = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'rest-api.php');
 
-        // Default
-        $default = array(
-            'prefix' => Package::get_config('package', 'default_rest_prefix')
-        );
-
         // Check $args
         if ($args == "default") {
-            $args = $default;
+            $args = self::getRestAPI();
         }
 
         // Only in Update Process
@@ -142,8 +156,8 @@ class Rest_API
             // get Temp Package
             $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
-            // Get Current REST-API status
-            $tmp_rest_api = (isset($tmp['config']['rest-api']) ? $tmp['config']['rest-api'] : $default);
+            // Get Current REST-API Status
+            $tmp_rest_api = (isset($tmp['config']['rest-api']) ? $tmp['config']['rest-api'] : self::getRestAPI());
 
             // If Not any change
             if ($tmp_rest_api == $args) {
