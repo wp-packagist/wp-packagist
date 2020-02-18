@@ -3,6 +3,9 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
+use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\update;
 
 class Rest_API
 {
@@ -108,11 +111,8 @@ class Rest_API
      */
     public static function reset_rest_url_prefix()
     {
-        //Get Default Prefix
         $default_prefix = Package::get_config('package', 'default_rest_prefix');
-
-        //Run
-        $command = 'eval "add_filter( \'rest_url_prefix\', function ($slug) { return \'' . $default_prefix . '\'; }); flush_rewrite_rules(true);"';
+        $command        = 'eval "add_filter( \'rest_url_prefix\', function ($slug) { return \'' . $default_prefix . '\'; }); flush_rewrite_rules(true);"';
         \WP_CLI::runcommand($command);
     }
 
@@ -127,13 +127,35 @@ class Rest_API
         //Get MU PLUGIN Path
         $plugin = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'rest-api.php');
 
-        //Remove Plugin if Exist
-        if (file_exists($plugin)) {
-            \WP_CLI_FileSystem::remove_file($plugin);
+        // Default
+        $default = array(
+            'prefix' => Package::get_config('package', 'default_rest_prefix')
+        );
+
+        // Check $args
+        if ($args == "default") {
+            $args = $default;
         }
 
-        //Reset REST API url prefix
-        self::reset_rest_url_prefix();
+        // Only in Update Process
+        if (update::isUpdateProcess()) {
+            // get Temp Package
+            $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp       = ($localTemp === false ? array() : $localTemp);
+
+            // Get Current REST-API status
+            $tmp_rest_api = (isset($tmp['config']['rest-api']) ? $tmp['config']['rest-api'] : $default);
+
+            // If Not any change
+            if ($tmp_rest_api == $args) {
+                return;
+            }
+
+            //Remove Plugin if Exist in Update Process
+            if (file_exists($plugin)) {
+                \WP_CLI_FileSystem::remove_file($plugin);
+            }
+        }
 
         //Create File Content
         if ( ! is_null($args)) {
@@ -175,8 +197,14 @@ class Rest_API
                 $mustache->render('mu-plugins/rest-api', $content)
             );
 
-            //Flush ReWrite
-            Permalink::flush_rewrite(true);
+            // Only in Update Process
+            if (update::isUpdateProcess()) {
+                //Flush ReWrite
+                Permalink::runFlushRewriteCLI();
+
+                // Add Update Log
+                install::add_detail_log("Updated WordPress REST API");
+            }
         }
     }
 

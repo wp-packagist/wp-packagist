@@ -36,13 +36,10 @@ class XML_RPC
                 return;
             }
 
-            // Show please wait ...
-            \WP_CLI_Helper::pl_wait_start();
-        }
-
-        //Remove Plugin if Exist
-        if (file_exists($_plugin_path)) {
-            \WP_CLI_FileSystem::remove_file($_plugin_path);
+            //Remove Plugin if Exist in Update Process
+            if (file_exists($_plugin_path)) {
+                \WP_CLI_FileSystem::remove_file($_plugin_path);
+            }
         }
 
         //Create File Content
@@ -54,16 +51,13 @@ class XML_RPC
             );
         }
 
-        // Show Log only in Update Process
+        // Only in Update Process
         if (update::isUpdateProcess()) {
             //Flush ReWrite
             Permalink::runFlushRewriteCLI();
 
-            // Remove please wait ...
-            \WP_CLI_Helper::pl_wait_end();
-
             // Add Update Log
-            install::add_detail_log(rtrim(Package::_e('package', 'manage_item_blue', array("[work]" => ($activate === true ? "Enable" : "Disable"), "[key]" => "WordPress XML-RPC", "[type]" => "")), "."));
+            install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress XML-RPC");
         }
     }
 

@@ -512,16 +512,19 @@ class mysql
         $MU_Plugins = \WP_CLI_FileSystem::normalize_path(WPMU_PLUGIN_DIR);
 
         # Update XML-RPC
-        XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : true));
+        XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : XML_RPC::$default_active_xml_rpc));
 
         # Update Emoji
-        Emoji::update_emoji($MU_Plugins, (isset($pkg_array['config']['emoji']) && $pkg_array['config']['emoji'] === false ? false : true));
+        Emoji::update_emoji($MU_Plugins, (isset($pkg_array['config']['emoji']) && $pkg_array['config']['emoji'] === false ? false : Emoji::$default_active_emoji));
 
         # Update WordPress Admin
         Admin::update_admin($pkg_array);
 
         # Update WordPress Users
         Users::update_users($pkg_array);
+
+        # Update REST-API
+        Rest_API::update_rest_api($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
     }
 
 }
