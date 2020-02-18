@@ -180,8 +180,7 @@ class Locale
     public static function update_language($pkg)
     {
         //Get Local Temp
-        $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
-        $tmp       = ($localTemp === false ? array() : $localTemp);
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
         // Get WordPress default locale
         $default_locale = Package::get_config('package', 'default', 'locale');

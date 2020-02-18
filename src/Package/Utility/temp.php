@@ -43,7 +43,6 @@ class temp
      */
     public static function save_temp($cwd, $pkg_array)
     {
-        self::clear_temp(); # Remove Expire temp
         $file      = self::get_temp_file_name($cwd);
         $pkg_array = self::do_hook_package($pkg_array);
         if (\WP_CLI_FileSystem::create_json_file($file, $pkg_array)) {
@@ -98,7 +97,6 @@ class temp
      */
     public static function get_temp($cwd)
     {
-        self::clear_temp(); # Remove Expire Temp
         $base_file = self::get_temp_file_name($cwd);
         $list      = \WP_CLI_FileSystem::get_dir_contents(Package::get_config('package', 'localTemp', 'path'));
         foreach ($list as $file_path) {
@@ -111,7 +109,7 @@ class temp
             }
         }
 
-        return false;
+        return array();
     }
 
     /**

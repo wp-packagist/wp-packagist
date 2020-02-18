@@ -472,22 +472,4 @@ class core
 
         return array('status' => true, 'step' => $step);
     }
-
-    /**
-     * WordPress Package Update
-     *
-     * @param $pkg_array
-     */
-    public function update($pkg_array)
-    {
-        # Update WordPress Version
-        Version::update_version($pkg_array);
-
-        # Update WordPress Locale
-        Locale::update_language($pkg_array);
-
-        # Update WordPress Multi-Site
-        \WP_CLI_PACKAGIST\Package\Arguments\Core::update_network($pkg_array);
-    }
-
 }

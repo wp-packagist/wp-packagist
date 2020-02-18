@@ -109,8 +109,7 @@ class Timezone
         // Only in Update Process
         if (update::isUpdateProcess()) {
             // get Temp Package
-            $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
-            $tmp       = ($localTemp === false ? array() : $localTemp);
+            $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current Timezone status
             $tmp_timezone = (isset($tmp['config']['timezone']) ? $tmp['config']['timezone'] : self::$default_timezone);

@@ -326,8 +326,7 @@ class Users
     public static function update_users($pkg)
     {
         //Get Local Temp
-        $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
-        $tmp       = ($localTemp === false ? array() : $localTemp);
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
         //Get Admin User ID
         $admin_ID = Admin::get_admin_id();

@@ -25,8 +25,7 @@ class Emoji
         // Only in Update Process
         if (update::isUpdateProcess()) {
             // get Temp Package
-            $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
-            $tmp       = ($localTemp === false ? array() : $localTemp);
+            $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current emoji status
             $tmp_emoji = (isset($tmp['config']['emoji']) ? $tmp['config']['emoji'] : ! file_exists($_plugin_path));

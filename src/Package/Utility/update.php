@@ -2,6 +2,15 @@
 
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
+use WP_CLI_PACKAGIST\Package\Arguments\Admin;
+use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
+use WP_CLI_PACKAGIST\Package\Arguments\Locale;
+use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
+use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
+use WP_CLI_PACKAGIST\Package\Arguments\Users;
+use WP_CLI_PACKAGIST\Package\Arguments\Version;
+use WP_CLI_PACKAGIST\Package\Arguments\XML_RPC;
+use \WP_CLI_PACKAGIST\Package\Arguments\Core as Network;
 use WP_CLI_PACKAGIST\Package\Package;
 
 class update extends Package
@@ -25,23 +34,8 @@ class update extends Package
         # Set Timer for Process
         $start_time = time();
 
-        # Run Params
-        foreach (Package::get_config('package', 'params') as $class_name) {
-            # Check Exist pkg Key
-            if (array_key_exists($class_name, $pkg_array)) {
-                # get Class name
-                $class = $this->package_config['params_namespace'] . $class_name;
-
-                # Create new Obj from class
-                $obj = new $class();
-
-                # check validation method exist in class
-                if (\WP_CLI_Util::search_method_from_class($obj, 'update')) {
-                    # Run install Method
-                    $obj->update($pkg_array);
-                }
-            }
-        }
+        # Run
+        self::runUpdatePackage($pkg_array);
 
         # Save Package LocalTemp
         temp::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
@@ -62,5 +56,43 @@ class update extends Package
     public static function isUpdateProcess()
     {
         return (defined('WP_CLI_PACKAGIST_RUN_UPDATE_PROCESS') && WP_CLI_PACKAGIST_RUN_UPDATE_PROCESS);
+    }
+
+    /**
+     * Run Package Update Parameter
+     *
+     * @param $pkg_array
+     */
+    public static function runUpdatePackage($pkg_array)
+    {
+        # Get MU-Plugins
+        $MU_Plugins = \WP_CLI_FileSystem::normalize_path(WPMU_PLUGIN_DIR);
+
+        # Update WordPress Version
+        Version::update_version($pkg_array);
+
+        # Update WordPress Locale
+        Locale::update_language($pkg_array);
+
+        # Update WordPress Multi-Site
+        Network::update_network($pkg_array);
+
+        # Update XML-RPC
+        XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : XML_RPC::$default_active_xml_rpc));
+
+        # Update Emoji
+        Emoji::update_emoji($MU_Plugins, (isset($pkg_array['config']['emoji']) && $pkg_array['config']['emoji'] === false ? false : Emoji::$default_active_emoji));
+
+        # Update WordPress Admin
+        Admin::update_admin($pkg_array);
+
+        # Update WordPress Users
+        Users::update_users($pkg_array);
+
+        # Update REST-API
+        Rest_API::update_rest_api($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
+
+        # Update WordPress TimeZone
+        Timezone::update_timezone((isset($pkg_array['config']['timezone']) ? $pkg_array['config']['timezone'] : Timezone::$default_timezone));
     }
 }

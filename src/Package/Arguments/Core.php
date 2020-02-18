@@ -350,8 +350,7 @@ class Core
     public static function update_network($pkg)
     {
         //Get Local Temp
-        $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
-        $tmp       = ($localTemp === false ? array() : $localTemp);
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
         // Check site Status in Tmp
         $before_status_network = is_multisite();

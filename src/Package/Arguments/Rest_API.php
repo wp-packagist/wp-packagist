@@ -140,8 +140,7 @@ class Rest_API
         // Only in Update Process
         if (update::isUpdateProcess()) {
             // get Temp Package
-            $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
-            $tmp       = ($localTemp === false ? array() : $localTemp);
+            $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current REST-API status
             $tmp_rest_api = (isset($tmp['config']['rest-api']) ? $tmp['config']['rest-api'] : $default);
