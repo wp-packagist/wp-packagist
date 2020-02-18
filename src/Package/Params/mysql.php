@@ -438,7 +438,7 @@ class mysql
         }
 
         //Check WordPress XML-RPC
-        if (isset($pkg_array['config']['xml-rpc']) and $pkg_array['config']['xml-rpc'] === false) {
+        if (isset($pkg_array['config']['xml-rpc']) and $pkg_array['config']['xml-rpc'] != XML_RPC::$default_active_xml_rpc) {
             install::install_log($step, $all_step, Package::_e('package', "disable_xml_rpc"));
             \WP_CLI_Helper::pl_wait_start();
             XML_RPC::update_xml_rpc($mu_plugins_path, $pkg_array['config']['xml-rpc']);
@@ -493,6 +493,11 @@ class mysql
         }
         $step++;
 
+        // Flush rewrite in End Of Install
+        sleep(2);
+        Permalink::runFlushRewriteCLI();
+
+        // Show Return
         return array('status' => true, 'step' => $step);
     }
 
@@ -503,6 +508,12 @@ class mysql
      */
     public function update($pkg_array)
     {
+        // Get MU-Plugins
+        $MU_Plugins = \WP_CLI_FileSystem::normalize_path(WPMU_PLUGIN_DIR);
+
+        # Update XML-RPC
+        XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : true));
+
         # Update WordPress Admin
         Admin::update_admin($pkg_array);
 

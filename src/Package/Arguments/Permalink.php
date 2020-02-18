@@ -16,6 +16,36 @@ class Permalink
     }
 
     /**
+     * Add automatic Mod_Rewrite in WP-CLI Config
+     */
+    public static function addModRewriteConfig()
+    {
+        try {
+            $apache_modules = \WP_CLI_CONFIG::get('apache_modules');
+        } catch (\Exception $e) {
+            $apache_modules = array();
+        }
+        if ( ! in_array("mod_rewrite", $apache_modules)) {
+            $apache_modules[]                 = "mod_rewrite";
+            $wp_cli_config                    = new \WP_CLI_CONFIG('global');
+            $current_config                   = $wp_cli_config->load_config_file();
+            $current_config['apache_modules'] = $apache_modules;
+            $wp_cli_config->save_config_file($current_config);
+            sleep(2);
+        }
+    }
+
+    /**
+     * Run Flush Rewrite in WP-CLI
+     * @see https://developer.wordpress.org/cli/commands/rewrite/flush/
+     */
+    public static function runFlushRewriteCLI()
+    {
+        self::addModRewriteConfig();
+        \WP_CLI_Helper::run_command('rewrite flush --hard');
+    }
+
+    /**
      * Create Mod_Rewrite File For Server (.htaccess or web.config)
      *
      * We Use Bottom Source Code :

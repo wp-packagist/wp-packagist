@@ -19,6 +19,9 @@ class update extends Package
             \WP_CLI_Helper::pl_wait_end();
         }
 
+        # Set define when update package is process
+        define('WP_CLI_PACKAGIST_RUN_UPDATE_PROCESS', true);
+
         # Set Timer for Process
         $start_time = time();
 
@@ -44,11 +47,20 @@ class update extends Package
         temp::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
 
         # Success Process
-        if (defined('WP_CLI_APP_PACKAGE_UPDATE_LOG')) {
+        if (defined('WP_CLI_PACKAGIST_UPDATE_LOG')) {
             \WP_CLI_Helper::success(Package::_e('package', 'success_update') . ' ' . Package::_e('config', 'process_time', array("[time]" => \WP_CLI_Helper::process_time($start_time))));
         } else {
             \WP_CLI_Helper::log(Package::_e('package', 'not_change_pkg'));
         }
     }
 
+    /**
+     * Check IS Package Update Process Running
+     *
+     * @return bool
+     */
+    public static function isUpdateProcess()
+    {
+        return (defined('WP_CLI_PACKAGIST_RUN_UPDATE_PROCESS') && WP_CLI_PACKAGIST_RUN_UPDATE_PROCESS);
+    }
 }

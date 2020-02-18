@@ -2,8 +2,15 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
+use WP_CLI_PACKAGIST\Package\Package;
+use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\update;
+
 class XML_RPC
 {
+    public static $default_active_xml_rpc = true;
+
     /**
      * Update WordPress XML-RPC
      *
@@ -15,6 +22,24 @@ class XML_RPC
         //Get MU PLUGIN Path
         $_plugin_path = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'disable-xmlrpc.php');
 
+        // Show Loading only in Update Process
+        if (update::isUpdateProcess()) {
+            // get Temp Package
+            $localTemp  = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp        = ($localTemp === false ? array() : $localTemp);
+
+            // Get Current xm_rpc status
+            $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : !file_exists($_plugin_path));
+
+            // If Not any change
+            if ($tmp_xml_rpc == $activate) {
+                return;
+            }
+
+            // Show please wait ...
+            \WP_CLI_Helper::pl_wait_start();
+        }
+
         //Remove Plugin if Exist
         if (file_exists($_plugin_path)) {
             \WP_CLI_FileSystem::remove_file($_plugin_path);
@@ -22,7 +47,6 @@ class XML_RPC
 
         //Create File Content
         if ($activate === false) {
-            //Push new Plugin
             $mustache = \WP_CLI_FileSystem::load_mustache(WP_CLI_PACKAGIST_TEMPLATE_PATH);
             \WP_CLI_FileSystem::file_put_content(
                 $_plugin_path,
@@ -30,8 +54,18 @@ class XML_RPC
             );
         }
 
-        //Flush ReWrite
-        Permalink::flush_rewrite(true);
+        // Show Log only in Update Process
+        if (update::isUpdateProcess()) {
+
+            //Flush ReWrite
+            Permalink::runFlushRewriteCLI();
+
+            // Remove please wait ...
+            \WP_CLI_Helper::pl_wait_end();
+
+            // Add Update Log
+            install::add_detail_log(rtrim(Package::_e('package', 'manage_item_blue', array("[work]" => ($activate === true ? "Enable" : "Disable"), "[key]" => "WordPress XML-RPC", "[type]" => "")), "."));
+        }
     }
 
 }

@@ -95,8 +95,8 @@ class install extends Package
         \WP_CLI_Helper::line(str_repeat(" ", $space) . "- " . $text);
 
         # Used in Update Package
-        if ( ! defined('WP_CLI_APP_PACKAGE_UPDATE_LOG')) {
-            define('WP_CLI_APP_PACKAGE_UPDATE_LOG', true);
+        if ( ! defined('WP_CLI_PACKAGIST_UPDATE_LOG')) {
+            define('WP_CLI_PACKAGIST_UPDATE_LOG', true);
         }
     }
 
