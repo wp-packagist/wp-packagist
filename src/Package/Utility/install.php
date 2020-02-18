@@ -109,14 +109,13 @@ class install extends Package
     public function get_number_step($package_data)
     {
         /**
-         * Default Number Step
+         * Default Number Step:
          *
          * 1) WordPress Core
          * 2) Create wp-config.php file
          * 3) Install WordPress
-         * 4) wordPress security Removed file
          */
-        $step = 4;
+        $step = 3;
 
         //Check WordPress Locale
         if (isset($package_data['core']['locale']) and $package_data['core']['locale'] != $this->package_config['default']['locale']) {
@@ -170,6 +169,11 @@ class install extends Package
 
         //Check Active theme
         if (isset($package_data['config']['theme'])) {
+            $step++;
+        }
+
+        // Run WordPress Security and Removed File
+        if (defined('WP_CLI_PACKAGIST_ENABLE_WORDPRESS_SECURITY')) {
             $step++;
         }
 

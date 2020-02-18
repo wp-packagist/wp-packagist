@@ -257,7 +257,7 @@ class mysql
                     $tbl_number = $row['total_count'];
                     if ($tbl_number > 0) {
                         //Force Remove Table
-                        if (defined('WP_CLI_APP_PACKAGE_FORCE_REMOVE_MYSQL_TABLE')) {
+                        if (defined('WP_CLI_PACKAGIST_FORCE_REMOVE_MYSQL_TABLE')) {
                             mysqli_query($conn, 'SET foreign_key_checks = 0');
                             if ($result = mysqli_query($conn, 'SHOW TABLES')) {
                                 while ($table = mysqli_fetch_array($result, MYSQLI_NUM)) {
@@ -486,12 +486,12 @@ class mysql
         }
 
         //WordPress Security
-        install::install_log($step, $all_step, Package::_e('package', 'wp_sec_file'));
-        Security::remove_security_file(true);
-        if ( ! defined('WP_CLI_APP_PACKAGE_DISABLE_WORDPRESS_JSON_SECURITY')) {
+        if (defined('WP_CLI_PACKAGIST_ENABLE_WORDPRESS_SECURITY')) {
+            install::install_log($step, $all_step, Package::_e('package', 'wp_sec_file'));
+            Security::remove_security_file(true);
             Security::wordpress_package_security_plugin($pkg_array, true);
+            $step++;
         }
-        $step++;
 
         // Flush rewrite in End Of Install
         sleep(2);

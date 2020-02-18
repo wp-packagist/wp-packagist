@@ -10,6 +10,9 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
  *
  * ## OPTIONS
  *
+ * [--not-sec]
+ * : Disable run security WordPress after install.
+ *
  * [--force]
  * : Remove all MySQL tables before installing if exist.
  *
@@ -46,7 +49,12 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
 
     //Check Force install
     if (isset($assoc_args['force'])) {
-        define('WP_CLI_APP_PACKAGE_FORCE_REMOVE_MYSQL_TABLE', true);
+        define('WP_CLI_PACKAGIST_FORCE_REMOVE_MYSQL_TABLE', true);
+    }
+
+    // Check Disable Security
+    if ( ! isset($assoc_args['not-sec'])) {
+        define('WP_CLI_PACKAGIST_ENABLE_WORDPRESS_SECURITY', true);
     }
 
     //Show Please Wait
