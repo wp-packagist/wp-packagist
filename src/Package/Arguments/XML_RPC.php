@@ -25,11 +25,11 @@ class XML_RPC
         // Show Loading only in Update Process
         if (update::isUpdateProcess()) {
             // get Temp Package
-            $localTemp  = temp::get_temp(\WP_CLI_Util::getcwd());
-            $tmp        = ($localTemp === false ? array() : $localTemp);
+            $localTemp = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp       = ($localTemp === false ? array() : $localTemp);
 
             // Get Current xm_rpc status
-            $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : !file_exists($_plugin_path));
+            $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : ! file_exists($_plugin_path));
 
             // If Not any change
             if ($tmp_xml_rpc == $activate) {
@@ -56,7 +56,6 @@ class XML_RPC
 
         // Show Log only in Update Process
         if (update::isUpdateProcess()) {
-
             //Flush ReWrite
             Permalink::runFlushRewriteCLI();
 

@@ -447,7 +447,7 @@ class mysql
         }
 
         //Check WordPress Emoji
-        if (isset($pkg_array['config']['emoji']) and $pkg_array['config']['emoji'] === false) {
+        if (isset($pkg_array['config']['emoji']) and $pkg_array['config']['emoji'] != Emoji::$default_active_emoji) {
             install::install_log($step, $all_step, Package::_e('package', "disable_emoji"));
             \WP_CLI_Helper::pl_wait_start();
             Emoji::update_emoji($mu_plugins_path, $pkg_array['config']['emoji']);
@@ -513,6 +513,9 @@ class mysql
 
         # Update XML-RPC
         XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : true));
+
+        # Update Emoji
+        Emoji::update_emoji($MU_Plugins, (isset($pkg_array['config']['emoji']) && $pkg_array['config']['emoji'] === false ? false : true));
 
         # Update WordPress Admin
         Admin::update_admin($pkg_array);
