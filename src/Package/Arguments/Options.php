@@ -4,6 +4,8 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\update;
 
 class Options
 {
@@ -27,12 +29,17 @@ class Options
      */
     public static function exist_option_name($option_name)
     {
-        //Run Command
+        global $wpdb;
+        if (update::isUpdateProcess()) {
+            $_count = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->options}` WHERE option_name = '{$option_name}'");
+            return $_count > 0;
+        }
+
+        //Run Command For Install WordPress Package Process
         $return = \WP_CLI::runcommand('eval "if(get_option(\'' . self::sanitize_option_name($option_name) . '\') ===false) { echo 0; } else { echo 1; }"', array('return' => 'stdout', 'parse' => 'json'));
         if ($return == "1") {
             return true;
         }
-
         return false;
     }
 
@@ -96,8 +103,146 @@ class Options
     {
         if (is_array($options)) {
             foreach ($options as $option) {
-                $exist = self::update_option($table_prefix, $option['option_name'], $option['option_value'], $option['autoload']);
-                install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "option", "[key]" => $option['option_name'], "[run]" => ($exist === true ? "Updated" : "Added"))));
+                self::runCurdOption($table_prefix, $option);
+            }
+        }
+    }
+
+    /**
+     * Run Update/Add Option
+     *
+     * @param $table_prefix
+     * @param $option
+     */
+    public static function runCurdOption($table_prefix, $option)
+    {
+        $exist = self::update_option($table_prefix, $option['option_name'], $option['option_value'], $option['autoload']);
+        install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "option", "[key]" => self::sanitize_option_name($option['option_name']), "[run]" => ($exist === true ? "Updated" : "Added"))));
+    }
+
+    /**
+     * Get List Of Default Options
+     */
+    public static function get_default_options()
+    {
+        $list = array();
+        foreach (Package::get_config('package', 'default_wp_options') as $key) {
+            $list[] = self::sanitize_option_name($key);
+        }
+        return $list;
+    }
+
+    /**
+     * Update command Option
+     *
+     * @param $pkg
+     */
+    public static function updateOptions($pkg)
+    {
+        global $wpdb;
+
+        //Get Local Temp
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+
+        //Get Options List
+        $tmp_options = (isset($tmp['config']['options']) ? $tmp['config']['options'] : array());
+        $pkg_options = (isset($pkg['config']['options']) ? $pkg['config']['options'] : array());
+
+        // Get Default WordPress Options
+        $default_options = self::get_default_options();
+
+        // Remove Options
+        if (count($tmp_options) > count($pkg_options)) {
+            self::removedLoopOptions($default_options, $tmp_options, $pkg_options);
+        }
+
+        // Add Options
+        if (count($pkg_options) > count($tmp_options)) {
+            foreach ($pkg_options as $package_options) {
+                $_exist = false;
+
+                // Check Exist Options in Temp
+                foreach ($tmp_options as $temp_options) {
+                    if (\WP_CLI_Util::to_lower_string($package_options['option_name']) == \WP_CLI_Util::to_lower_string($temp_options['option_name'])) {
+                        $_exist = true;
+                    }
+                }
+
+                if ( ! $_exist) {
+                    self::runCurdOption($wpdb->prefix, $package_options);
+                }
+            }
+        }
+
+        // Edit Options item
+        $x_pkg = 0;
+        foreach ($pkg_options as $pack_options) {
+            $_exist = $tmp_key = $pkg_key = false;
+
+            // Check Exist Option in Tmp
+            $x_tmp = 0;
+            foreach ($tmp_options as $temp_options) {
+                if (\WP_CLI_Util::to_lower_string($pack_options['option_name']) == \WP_CLI_Util::to_lower_string($temp_options['option_name'])) {
+                    $_exist  = true;
+                    $tmp_key = $x_tmp;
+                    $pkg_key = $x_pkg;
+                }
+                $x_tmp++;
+            }
+
+            if ($_exist === true) {
+                $current_pkg_option = $pkg_options[$pkg_key];
+                $current_tmp_option = $tmp_options[$tmp_key];
+
+                // Check different
+                if ($current_pkg_option != $current_tmp_option) {
+                    self::runCurdOption($wpdb->prefix, $current_pkg_option);
+                }
+            } else {
+                // If User Change a Option name in wordpress.json file we added new Option and remove before Option
+                self::removedLoopOptions($default_options, $tmp_options, $pkg_options); // This Function Removed IF options exist in Temp and not in Package
+                self::runCurdOption($wpdb->prefix, $pack_options);
+            }
+            $x_pkg++;
+        }
+    }
+
+    /**
+     * Run Remove Option in Update Command
+     *
+     * @param $default_options
+     * @param array $tmp_options
+     * @param array $pkg_options
+     */
+    public static function removedLoopOptions($default_options, $tmp_options = array(), $pkg_options = array())
+    {
+        global $wpdb;
+
+        foreach ($tmp_options as $temp_options) {
+            $_exist = false;
+
+            // Check Exist Options in Pkg
+            foreach ($pkg_options as $pack_options) {
+                if (\WP_CLI_Util::to_lower_string($pack_options['option_name']) == \WP_CLI_Util::to_lower_string($temp_options['option_name'])) {
+                    $_exist = true;
+                }
+            }
+
+            if ( ! $_exist) {
+                // Sanitize Option name
+                $_sanitize_name = self::sanitize_option_name($temp_options['option_name']);
+
+                // Check User Exist in WordPress Database and not in Default WordPress Options
+                $_exist_in_db = self::exist_option_name($_sanitize_name);
+
+                // Check Not in Default Options
+                if ($_exist_in_db === true and ! in_array($_sanitize_name, $default_options)) {
+                    // Delete From Database Without Cache
+                    $wpdb->query("DELETE FROM `{$wpdb->options}` WHERE option_name = '{$_sanitize_name}'");
+
+                    // Log
+                    install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $_sanitize_name, "[type]" => "option")));
+                }
             }
         }
     }

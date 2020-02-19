@@ -6,6 +6,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Admin;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
+use WP_CLI_PACKAGIST\Package\Arguments\Options;
 use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
@@ -82,6 +83,9 @@ class update extends Package
 
         # Update Title
         Core::updateTitle((isset($pkg_array['config']['title']) ? $pkg_array['config']['title'] : 'default'));
+
+        # Update Options
+        Options::updateOptions($pkg_array);
 
         # Update XML-RPC
         XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : XML_RPC::$default_active_xml_rpc));
