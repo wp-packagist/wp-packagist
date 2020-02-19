@@ -87,7 +87,7 @@ class view extends Package
                         \WP_CLI_Helper::line(ucfirst('title') . ": " . $value['title']);
                     }
 
-                    # 'rest api'
+                    # 'REST API'
                     if (isset($value['rest-api']) and is_bool($value['rest-api']) and $value['rest-api'] === false) {
                         \WP_CLI_Helper::line(ucfirst('Rest-Api') . ": no");
                     }
@@ -101,6 +101,12 @@ class view extends Package
                     if (isset($value['timezone']) and ! empty($value['timezone'])) {
                         \WP_CLI_Helper::line(ucfirst('timezone') . ": " . $value['timezone']);
                     }
+
+                    # 'XML-RPC'
+                    \WP_CLI_Helper::line("XML-RPC: " . (isset($value['xml-rpc']) && $value['xml-rpc'] ===false ? 'No' : 'Yes'));
+
+                    # 'Emoji'
+                    \WP_CLI_Helper::line("Emoji: " . (isset($value['emoji']) && $value['emoji'] ===false ? 'No' : 'Yes'));
 
                     # 'theme'
                     if (isset($value['theme']) and ! empty($value['theme'])) {
@@ -183,7 +189,7 @@ class view extends Package
                         \WP_CLI_Helper::br();
                     }
 
-                    # 'rest api'
+                    # 'REST API'
                     if (isset($value['rest-api']) and is_array($value['rest-api'])) {
                         \WP_CLI_Helper::line(\WP_CLI_Helper::color("- " . ucfirst('REST-API:'), "C"));
 

@@ -2,7 +2,6 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
 use WP_CLI_PACKAGIST\Package\Utility\temp;
 use WP_CLI_PACKAGIST\Package\Utility\update;
@@ -10,6 +9,16 @@ use WP_CLI_PACKAGIST\Package\Utility\update;
 class XML_RPC
 {
     public static $default_active_xml_rpc = true;
+
+    /**
+     * Check Enable XML RPC
+     * @after_wp_load
+     * @return bool
+     */
+    public static function isEnableXML_RPC()
+    {
+        return has_filter('xmlrpc_enabled') === false;
+    }
 
     /**
      * Update WordPress XML-RPC
@@ -28,7 +37,7 @@ class XML_RPC
             $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current xm_rpc status
-            $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : ! file_exists($_plugin_path));
+            $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : self::isEnableXML_RPC());
 
             // If Not any change
             if ($tmp_xml_rpc == $activate) {
