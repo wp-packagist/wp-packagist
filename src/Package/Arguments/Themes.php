@@ -5,6 +5,7 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 use WP_CLI_PACKAGIST\API\WP_Themes_Api;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
 
 class Themes
 {
@@ -327,5 +328,44 @@ class Themes
         }
     }
 
+    /**
+     * Update Command Theme
+     *
+     * @param $stylesheet
+     * @throws \WP_CLI\ExitException
+     */
+    public static function updateTheme($stylesheet)
+    {
+        //Get Active theme
+        $active_theme = self::eval_get_current_theme();
+
+        // Check Default
+        if ($stylesheet == "default") {
+            $stylesheet = $active_theme;
+        }
+
+        // get Temp Package
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+
+        // Get Current theme status
+        $tmp_theme = (isset($tmp['config']['theme']) ? $tmp['config']['theme'] : $active_theme);
+
+        // If Not any change
+        if ($tmp_theme == $stylesheet) {
+            return;
+        }
+
+        // Switch Theme
+        $switch = self::switch_theme($stylesheet);
+        if ($switch['status'] === false) {
+            \WP_CLI_Helper::error($switch['data'], true);
+        }
+
+        // it's better Flush after switch theme
+        Permalink::runFlushRewriteCLI();
+
+        // Return Data
+        install::add_detail_log($switch['data']);
+    }
 
 }

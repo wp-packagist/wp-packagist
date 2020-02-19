@@ -6,6 +6,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Admin;
 use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
+use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
 use WP_CLI_PACKAGIST\Package\Arguments\Users;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
@@ -62,6 +63,7 @@ class update extends Package
      * Run Package Update Parameter
      *
      * @param $pkg_array
+     * @throws \WP_CLI\ExitException
      */
     public static function runUpdatePackage($pkg_array)
     {
@@ -94,5 +96,8 @@ class update extends Package
 
         # Update WordPress TimeZone
         Timezone::update_timezone((isset($pkg_array['config']['timezone']) ? $pkg_array['config']['timezone'] : Timezone::$default_timezone));
+
+        # Switch Theme
+        Themes::updateTheme((isset($pkg_array['config']['theme']) ? $pkg_array['config']['theme'] : 'default'));
     }
 }
