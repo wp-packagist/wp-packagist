@@ -546,4 +546,40 @@ class Core
         return $path;
     }
 
+    /**
+     * Update Command WordPress Site Title
+     *
+     * @param $title
+     */
+    public static function updateTitle($title)
+    {
+        global $wpdb;
+
+        // Check title
+        if ($title == "default") {
+            $title = get_option('blogname');
+        }
+
+        // get Temp Package
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+
+        // Get Current REST-API Status
+        $tmp_title = (isset($tmp['config']['title']) ? $tmp['config']['title'] : $title);
+
+        // If Not any change
+        if ($tmp_title == $title) {
+            return;
+        }
+
+        // Update blogname
+        //update_option('blogname', $title);
+        $wpdb->query($wpdb->prepare("UPDATE `{$wpdb->options}` SET option_value = %s WHERE option_name = %s LIMIT 1;",
+            $title,
+            'blogname'
+        ));
+
+        // Return data
+        install::add_detail_log("Updated WordPress site title");
+    }
+
 }
