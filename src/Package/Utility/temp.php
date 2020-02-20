@@ -71,25 +71,6 @@ class temp
     }
 
     /**
-     * Remove LocalTemp
-     *
-     * @param bool $force
-     */
-    public static function clear_temp($force = false)
-    {
-        $localPath = Package::get_config('package', 'localTemp', 'path');
-        if (realpath($localPath)) {
-            $list_file = \WP_CLI_FileSystem::get_dir_contents($localPath);
-            foreach ($list_file as $file) {
-                $file = $file . Package::get_config('package', 'localTemp', 'name');
-                if ($force === true || \WP_CLI_FileSystem::check_file_age($file, Package::get_config('package', 'localTemp', 'age'))) {
-                    \WP_CLI_FileSystem::remove_file($file);
-                }
-            }
-        }
-    }
-
-    /**
      * Get Last LocalTemp
      *
      * @param $cwd

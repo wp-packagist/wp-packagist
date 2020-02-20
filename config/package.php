@@ -107,7 +107,6 @@ return array(
         # Package LocalTemp
         'localTemp'                => array(
             'path' => WP_CLI_PACKAGIST_HOME_PATH,
-            'age'  => 8765, //1 year
             'type' => '.json'
         ),
 
