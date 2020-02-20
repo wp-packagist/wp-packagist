@@ -101,25 +101,28 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
     $create_pkg = new create();
     $return     = $create_pkg->create($assoc_args);
 
-    //Show Alert
-    if ($return['status'] === true) {
-        //Check Warning
-        $warnings = $return['data'];
-
-        //Show Warning
-        if (count($warnings) > 0) {
-            \WP_CLI_Helper::br();
-            \WP_CLI_Helper::warning();
-            foreach ($warnings as $text_warning) {
-                \WP_CLI_Helper::line("  - " . $text_warning);
-            }
-            \WP_CLI_Helper::br();
-        }
-
-        //Remove Package LocalTemp
-        temp::remove_temp_file(\WP_CLI_Util::getcwd());
-
-        //Show Success
-        \WP_CLI_Helper::success(Package::_e('package', 'created'));
+    //Not Writable Error
+    if ($return['status'] === false) {
+        \WP_CLI_Helper::error($return['data']);
+        return;
     }
+
+    //Check Warning
+    $warnings = $return['data'];
+
+    //Show Warning
+    if (count($warnings) > 0) {
+        \WP_CLI_Helper::br();
+        \WP_CLI_Helper::warning();
+        foreach ($warnings as $text_warning) {
+            \WP_CLI_Helper::line("  - " . $text_warning);
+        }
+        \WP_CLI_Helper::br();
+    }
+
+    //Remove Package LocalTemp
+    temp::remove_temp_file(\WP_CLI_Util::getcwd());
+
+    //Show Success
+    \WP_CLI_Helper::success(Package::_e('package', 'created'));
 });

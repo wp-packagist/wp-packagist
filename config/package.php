@@ -90,32 +90,32 @@ return array(
     'package'       => array(
 
         # Default Package File name
-        'file'                    => 'wordpress.json',
+        'file'                     => 'wordpress.json',
 
         # Save List of Wordpress Version in cache
-        'version'                 => array(
+        'version'                  => array(
             'file' => WP_CLI_PACKAGIST_CACHE_PATH . '/version.json',
             'age'  => 1, //Hour
         ),
 
         # Save List Of Wordpress Locale in cache
-        'locale'                  => array(
+        'locale'                   => array(
             'file' => WP_CLI_PACKAGIST_CACHE_PATH . '/locale.json',
             'age'  => 168, //168 Hour = One Week
         ),
 
         # Package LocalTemp
-        'localTemp'               => array(
+        'localTemp'                => array(
             'path' => WP_CLI_PACKAGIST_HOME_PATH . '/tmp',
             'age'  => 8765, //1 year
             'type' => '.json'
         ),
 
         # Save WordPress Download Url List
-        'wordpress_core_url_file' => WP_CLI_PACKAGIST_CACHE_PATH . '/core-url.json',
+        'wordpress_core_url_file'  => WP_CLI_PACKAGIST_CACHE_PATH . '/core-url.json',
 
         # List of all WordPress Package Parameter
-        'params'                  => array(
+        'params'                   => array(
             /*'name', 'description', 'keywords',*/
             'core',
             'config',
@@ -127,7 +127,7 @@ return array(
         ),
 
         # List of Default Value in WordPress Package System
-        'default'                 => array(
+        'default'                  => array(
             'version'      => 'latest',
             'title'        => 'blog',
             'admin_user'   => 'admin',
@@ -144,13 +144,13 @@ return array(
         ),
 
         # Latest version keyword
-        'latest'                  => array('master', 'last', 'latest', '*'),
+        'latest'                   => array('master', 'last', 'latest', '*'),
 
         # Preg Username and Package name
-        'preg_username'           => '/[^a-zA-Z0-9-]/',
+        'preg_username'            => '/[^a-zA-Z0-9-]/',
 
         # Preg cookie or rest-api Prefix
-        'preg_prefix'             => '/[^a-zA-Z0-9-_]/',
+        'preg_prefix'              => '/[^a-zA-Z0-9-_]/',
 
         # Default WordPress Cookie Prefix
         # @see https://developer.wordpress.org/reference/functions/wp_cookie_constants/
@@ -427,6 +427,7 @@ return array(
             'convert_single_multi'  => "Convert WordPress single-site to multi-site.",
             'change_subdomain_type' => "[work] WordPress multi-site subdomain.",
             'mu_er_slug'            => \WP_CLI_Helper::color("[slug]", "B") . " words is reserved by WordPress core and cannot be used as blog slug.",
+            'not_writable'          => \WP_CLI_Helper::color("[key]", "Y") . " is not writable by current user."
         )
     ),
 

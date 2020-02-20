@@ -75,7 +75,7 @@ class create extends Package
             return array('status' => true, 'data' => $validate);
         }
 
-        return array('status' => false);
+        return array('status' => false, 'data' => Package::_e('package', 'not_writable', array("[key]" => $this->package_path)));
     }
 
 }
