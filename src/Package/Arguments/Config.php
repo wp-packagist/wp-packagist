@@ -4,6 +4,7 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
 
 /**
  * Class Config
@@ -96,7 +97,6 @@ class Config
             $x++;
         }
 
-        //TODO add status false if not found for update
         return $line;
     }
 
@@ -170,7 +170,6 @@ class Config
 
         //Default Params
         $defaults = array(
-            'force'  => false,
             'log'    => true,
             'remove' => true
         );
@@ -182,7 +181,9 @@ class Config
                 //if not exist in Package const list then be Removed
                 $exist = false;
                 foreach ($pkg_constant as $pk_key => $pk_value) {
-                    $exist = ($key == $pk_key ? true : false);
+                    if ($key == $pk_key) {
+                        $exist = true;
+                    }
                 }
 
                 if ($exist === false) {
@@ -203,9 +204,13 @@ class Config
         //Check Add or Update Const
         foreach ($pkg_constant as $pk_key => $pk_value) {
             //Check Exist Const
-            $wp_exist = false;
+            $wp_exist = $val_in_pkg = $val_in_current = false;
             foreach ($current_const_list as $key => $value) {
-                $wp_exist = ($key == $pk_key ? true : false);
+                if ($key == $pk_key) {
+                    $wp_exist       = true;
+                    $val_in_pkg     = $pk_value;
+                    $val_in_current = $value;
+                }
             }
 
             # add const
@@ -214,14 +219,49 @@ class Config
                 if (isset($args['log']) and $args['log'] === true) {
                     install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Added")));
                 }
-                # Updated constant
             } else {
-                $config_transformer->update('constant', $pk_key, $pk_value, $constant_arg);
-                if (isset($args['log']) and $args['log'] === true) {
-                    install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Updated")));
+                # Updated constant
+                if ($val_in_pkg != $val_in_current) {
+                    $config_transformer->update('constant', $pk_key, $pk_value, $constant_arg);
+                    if (isset($args['log']) and $args['log'] === true) {
+                        install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Updated")));
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Update Constant
+     *
+     * @param $pkg_constant
+     */
+    public static function update($pkg_constant)
+    {
+        // Default
+        if ($pkg_constant == "default") {
+            $pkg_constant = array();
+        }
+
+        // get Temp Package
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+
+        // Get Current From Tmp
+        $tmp_constant = (isset($tmp['config']['constant']) ? $tmp['config']['constant'] : self::get_list_package_constant());
+
+        // If Not any change
+        if ($tmp_constant == $pkg_constant) {
+            return;
+        }
+
+        // Add Anchor if Not Exit
+        $anchor_line = self::get_line_of_package_anchor();
+        if (empty($anchor_line)) {
+            self::add_wordpress_package_anchor();
+        }
+
+        // Update Constant
+        self::update_constant($pkg_constant, $tmp_constant);
     }
 
 }

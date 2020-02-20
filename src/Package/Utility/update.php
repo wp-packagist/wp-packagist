@@ -3,6 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
 use WP_CLI_PACKAGIST\Package\Arguments\Admin;
+use WP_CLI_PACKAGIST\Package\Arguments\Config;
 use WP_CLI_PACKAGIST\Package\Arguments\Cookie;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
@@ -84,6 +85,9 @@ class update extends Package
 
         # Cookie Prefix
         Cookie::update((isset($pkg_array['config']['cookie']) ? $pkg_array['config']['cookie'] : 'default'));
+
+        # Constant
+        Config::update((isset($pkg_array['config']['constant']) ? $pkg_array['config']['constant'] : 'default'));
 
         # Update Title
         Core::updateTitle((isset($pkg_array['config']['title']) ? $pkg_array['config']['title'] : 'default'));

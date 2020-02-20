@@ -608,11 +608,19 @@ class config
             ),
             'core'    => array(
                 'list' => array('ABSPATH'),
-                'help' => "This key is used in the WordPress core."
+                'help' => "This key is used in the WordPress Core."
             ),
             'network' => array(
                 'list' => array('WP_ALLOW_MULTISITE', 'MULTISITE', 'SUBDOMAIN_INSTALL', 'DOMAIN_CURRENT_SITE', 'PATH_CURRENT_SITE'),
                 'help' => "This key is used in the 'core: { network: { ..' parameter."
+            ),
+            'cookie'  => array(
+                'list' => Cookie::getDefaultCookieConstant(),
+                'help' => "This key is used in the 'core: { cookie: { ..' parameter."
+            ),
+            'dir'     => array(
+                'list' => Dir::getDefaultDirConstant(),
+                'help' => "This key is used in the 'dir: { ..' parameter."
             )
         );
 
@@ -636,7 +644,7 @@ class config
                         foreach ($p_val['list'] as $l) {
                             foreach ($array as $key => $val) {
                                 if (trim(strtoupper($key)) == $l) {
-                                    $valid->add_error(Package::_e('package', 'er_forbidden', array("[key]" => "config: { constant: { ['" . trim(strtoupper($key)) . "']")) . '' . $p_val['help']);
+                                    $valid->add_error(Package::_e('package', 'er_forbidden', array("[key]" => "config: { constant: { " . trim(strtoupper($key)) . "")) . '' . $p_val['help']);
                                     break;
                                 }
                             }
@@ -646,7 +654,7 @@ class config
                     //Check is not Array or object value
                     foreach ($array as $key => $val) {
                         if (is_array($val) || is_object($val)) {
-                            $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { constant: { ['" . $key . "']")));
+                            $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { constant: { " . $key . "")));
                         }
                     }
 

@@ -19,6 +19,24 @@ class Cookie
     }
 
     /**
+     * Default Constant
+     *
+     * @see https://developer.wordpress.org/reference/functions/wp_cookie_constants/
+     */
+    public static function getDefaultCookieConstant()
+    {
+        return array(
+            "COOKIEHASH",
+            "USER_COOKIE",
+            "PASS_COOKIE",
+            "AUTH_COOKIE",
+            "SECURE_AUTH_COOKIE",
+            "LOGGED_IN_COOKIE",
+            "TEST_COOKIE"
+        );
+    }
+
+    /**
      * Change WordPress Cookie Constant
      *
      * @param $cookie_prefix
@@ -28,20 +46,8 @@ class Cookie
      */
     public static function set_cookie_prefix($cookie_prefix, $site_url, $hash_test_cookie = true)
     {
-        /**
-         * Default constant
-         *
-         * @see https://developer.wordpress.org/reference/functions/wp_cookie_constants/
-         */
-        $list = array(
-            "COOKIEHASH",
-            "USER_COOKIE",
-            "PASS_COOKIE",
-            "AUTH_COOKIE",
-            "SECURE_AUTH_COOKIE",
-            "LOGGED_IN_COOKIE",
-            "TEST_COOKIE"
-        );
+        // Default constant
+        $list = self::getDefaultCookieConstant();
 
         //Load WP-config Transform
         $config_transformer = Config::get_config_transformer();
@@ -57,12 +63,6 @@ class Cookie
         } else {
             $hash_url = sha1($site_url);
         }
-
-        //Sanitize Cookie prefix
-        //$last_character = substr($cookie_prefix, -1);
-       // if ($last_character != "_" || $last_character != "-") {
-        //    $cookie_prefix = $cookie_prefix . '_';
-        //}
 
         //Added constant
         if (trim($cookie_prefix) != self::getDefaultCookie()) {
@@ -128,7 +128,7 @@ class Cookie
         $cookie_run = self::set_cookie_prefix($cookie_prefix, Core::get_site_url());
 
         // Add Update Log
-        if($cookie_run) {
+        if ($cookie_run) {
             install::add_detail_log("Updated WordPress Cookie prefix");
         }
     }

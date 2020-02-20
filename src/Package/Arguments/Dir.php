@@ -16,6 +16,24 @@ class Dir
     public static $dirs = array('uploads', 'mu-plugins', 'languages');
 
     /**
+     * Default Dir Constant
+     */
+    public static function getDefaultDirConstant()
+    {
+        return array(
+            'WP_HOME',
+            'WP_SITEURL',
+            'WP_CONTENT_FOLDER',
+            'WP_CONTENT_DIR',
+            'WP_CONTENT_URL',
+            'WP_PLUGIN_DIR',
+            'PLUGINDIR',
+            'WP_PLUGIN_URL',
+            'UPLOADS'
+        );
+    }
+
+    /**
      * Create Directory in wp-content
      */
     public static function create_require_folder()
