@@ -244,7 +244,7 @@ class Config
         }
 
         // get Temp Package
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Current From Tmp
         $tmp_constant = (isset($tmp['config']['constant']) ? $tmp['config']['constant'] : self::get_list_package_constant());

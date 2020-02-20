@@ -428,7 +428,8 @@ return array(
             'mu_er_slug'            => \WP_CLI_Helper::color("[slug]", "B") . " words is reserved by WordPress core and cannot be used as blog slug.",
             'not_writable'          => \WP_CLI_Helper::color("[key]", "Y") . " is not writable by current user.",
             'not_per_create_dir_in' => "Insufficient permission to create directory in '" . \WP_CLI_Helper::color("[key]", "Y") . "'.",
-            'create_dir'            => "Failed to create directory '" . \WP_CLI_Helper::color("[key]", "Y") . "': " . \WP_CLI_Helper::color("[error]", "R")
+            'create_dir'            => "Failed to create directory '" . \WP_CLI_Helper::color("[key]", "Y") . "': " . \WP_CLI_Helper::color("[error]", "R"),
+            'not_find_temporary'    => "The WordPress Package Temporary file is not found for this path. please check files in '" . \WP_CLI_Helper::color("[path]", "Y") . "' dir."
         )
     ),
 

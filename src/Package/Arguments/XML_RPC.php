@@ -34,7 +34,7 @@ class XML_RPC
         // Show Loading only in Update Process
         if (Package_Update::isUpdateProcess()) {
             // get Temp Package
-            $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+            $tmp = Package_Temporary::getTemporaryFile();
 
             // Get Current xm_rpc status
             $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : self::isEnableXML_RPC());

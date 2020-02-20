@@ -6,6 +6,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Help;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Validation;
 use WP_CLI_PACKAGIST\Package\Utility\Package_View;
@@ -175,7 +176,13 @@ class Pack extends \WP_CLI_Command
     {
         # Exist wordpress package file
         if ($this->package->exist_package_file() === false) {
-            \WP_CLI_Helper::error(Package::_e('package', 'no_exist_pkg'));
+            \WP_CLI_Helper::error(Package::_e('package', 'no_exist_pkg'), true);
+        }
+
+        # Check Temporary Package File
+        $TemporaryPath = Package_Temporary::getTemporaryFilePath();
+        if ( ! file_exists($TemporaryPath)) {
+            \WP_CLI_Helper::error(Package::_e('package', 'not_find_temporary', array("[path]" => WP_CLI_PACKAGIST_HOME_PATH)), true);
         }
 
         # Set global run check

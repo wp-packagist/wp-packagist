@@ -114,7 +114,7 @@ class Cookie
         }
 
         // get Temp Package
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Current From Tmp
         $tmp_cookie = (isset($tmp['config']['cookie']) ? $tmp['config']['cookie'] : self::getDefaultCookie());

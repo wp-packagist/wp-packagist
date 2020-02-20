@@ -56,7 +56,7 @@ class Package_Install extends Package
         }
 
         //Add Package LocalTemp
-        Package_Temporary::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
+        Package_Temporary::saveTemporary($pkg_array);
 
         //Success Process
         \WP_CLI_Helper::br();

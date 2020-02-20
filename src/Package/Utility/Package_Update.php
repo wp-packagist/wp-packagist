@@ -43,7 +43,7 @@ class Package_Update extends Package
         self::runUpdatePackage($pkg_array);
 
         # Save Package LocalTemp
-        Package_Temporary::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
+        Package_Temporary::saveTemporary($pkg_array);
 
         # Success Process
         if (defined('WP_CLI_PACKAGIST_UPDATE_LOG')) {

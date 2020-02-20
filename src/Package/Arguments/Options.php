@@ -142,7 +142,7 @@ class Options
         global $wpdb;
 
         //Get Local Temp
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         //Get Options List
         $tmp_options = (isset($tmp['config']['options']) ? $tmp['config']['options'] : array());

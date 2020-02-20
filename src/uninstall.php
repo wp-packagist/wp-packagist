@@ -89,7 +89,7 @@ use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
     \WP_CLI_Helper::line(\WP_CLI_Helper::color("Step {$step}/{$num_step}:", "Y") . " Removed WordPress files.");
 
     //Remove Package LocalTemp
-    Package_Temporary::remove_temp_file(\WP_CLI_Util::getcwd());
+    Package_Temporary::removeTemporaryFile(\WP_CLI_Util::getcwd());
 
     // Show success
     \WP_CLI_Helper::success("Completed uninstall WordPress.");

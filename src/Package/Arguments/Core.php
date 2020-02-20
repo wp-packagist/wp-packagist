@@ -350,7 +350,7 @@ class Core
     public static function update_network($pkg)
     {
         //Get Local Temp
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         // Check site Status in Tmp
         $before_status_network = is_multisite();
@@ -561,7 +561,7 @@ class Core
         }
 
         // get Temp Package
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Current REST-API Status
         $tmp_title = (isset($tmp['config']['title']) ? $tmp['config']['title'] : $title);

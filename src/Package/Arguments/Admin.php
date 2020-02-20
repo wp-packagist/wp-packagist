@@ -92,7 +92,7 @@ class Admin
     public static function update_admin($pkg)
     {
         // Get Local Temp
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         //Get Admin User ID
         $admin_ID = self::get_admin_id();

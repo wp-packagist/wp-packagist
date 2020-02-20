@@ -345,7 +345,7 @@ class Themes
         }
 
         // get Temp Package
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Current theme status
         $tmp_theme = (isset($tmp['config']['theme']) ? $tmp['config']['theme'] : $active_theme);

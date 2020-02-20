@@ -13,7 +13,7 @@ class Package_Temporary
      * @param $path
      * @return mixed|string
      */
-    private static function convert_path_to_file($path)
+    private static function convertPathToFileName($path)
     {
         $path = \WP_CLI_Util::to_lower_string(\WP_CLI_Util::backslash_to_slash($path));
         $path = str_ireplace("/", "--", $path);
@@ -24,28 +24,30 @@ class Package_Temporary
     }
 
     /**
-     * Get Temp file
+     * Get Temporary file path
      *
      * @param $cwd
      * @return string
      */
-    public static function get_temp_file_name($cwd)
+    public static function getTemporaryFilePath($cwd = false)
     {
-        return \WP_CLI_FileSystem::path_join(Package::get_config('package', 'localTemp', 'path'), self::convert_path_to_file($cwd) . Package::get_config('package', 'localTemp', 'type'));
+        if ( ! $cwd) {
+            $cwd = \WP_CLI_Util::getcwd();
+        }
+        return \WP_CLI_FileSystem::path_join(Package::get_config('package', 'localTemp', 'path'), self::convertPathToFileName($cwd) . Package::get_config('package', 'localTemp', 'type'));
     }
 
     /**
-     * Save Package Temp
+     * Save Package Temporary
      *
      * @param $cwd
      * @param $pkg_array
      * @return bool
      */
-    public static function save_temp($cwd, $pkg_array)
+    public static function saveTemporary($pkg_array, $cwd = false)
     {
-        $file      = self::get_temp_file_name($cwd);
-        $pkg_array = self::do_hook_package($pkg_array);
-        if (\WP_CLI_FileSystem::create_json_file($file, $pkg_array)) {
+        $file = self::getTemporaryFilePath($cwd);
+        if (\WP_CLI_FileSystem::create_json_file($file, (array)$pkg_array)) {
             return true;
         }
 
@@ -53,14 +55,14 @@ class Package_Temporary
     }
 
     /**
-     * Remove Custom Temp File
+     * Remove Custom Temporary File
      *
      * @param $cwd
      * @return bool
      */
-    public static function remove_temp_file($cwd)
+    public static function removeTemporaryFile($cwd = false)
     {
-        $file = self::get_temp_file_name($cwd);
+        $file = self::getTemporaryFilePath($cwd);
         if (file_exists($file)) {
             if (\WP_CLI_FileSystem::remove_file($file)) {
                 return true;
@@ -71,36 +73,21 @@ class Package_Temporary
     }
 
     /**
-     * Get Last LocalTemp
+     * Get Last Local Temporary
      *
      * @param $cwd
      * @return array|bool
      */
-    public static function get_temp($cwd)
+    public static function getTemporaryFile($cwd = false)
     {
-        $base_file = self::get_temp_file_name($cwd);
-        $list      = \WP_CLI_FileSystem::get_dir_contents(Package::get_config('package', 'localTemp', 'path'));
-        foreach ($list as $file_path) {
-            $file_path = $file_path . Package::get_config('package', 'localTemp', 'name');
-            if (\WP_CLI_FileSystem::normalize_path($file_path) == \WP_CLI_FileSystem::normalize_path($base_file)) {
-                $get_data = \WP_CLI_FileSystem::read_json_file($file_path);
-                if ($get_data != false) {
-                    return $get_data;
-                }
+        $file = self::getTemporaryFilePath($cwd);
+        if (file_exists($file)) {
+            $get_data = \WP_CLI_FileSystem::read_json_file($file);
+            if ($get_data != false) {
+                return $get_data;
             }
         }
 
         return array();
-    }
-
-    /**
-     * Add/Remove Data From WordPress Package
-     *
-     * @param $pkg_array
-     * @return mixed
-     */
-    public static function do_hook_package($pkg_array)
-    {
-        return $pkg_array;
     }
 }

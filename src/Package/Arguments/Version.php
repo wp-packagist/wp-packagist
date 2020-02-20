@@ -296,7 +296,7 @@ class Version
     public static function update_version($pkg)
     {
         //Get Local Temp
-        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Latest Version of WordPress
         $latest_wp_version = self::get_latest_version_num_wordpress();
