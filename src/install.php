@@ -62,9 +62,8 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
 
     //Run Package Validation
     $valid_pkg = new validation();
-    $json_pkg  = $valid_pkg->validation($log = true);
+    $json_pkg  = $valid_pkg->validation(true);
     if ($json_pkg['status'] === true) {
-        //Run install
         $pkg_install = new install();
         $pkg_install->install($json_pkg['data']);
     }
