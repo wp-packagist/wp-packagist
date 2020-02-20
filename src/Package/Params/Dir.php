@@ -3,9 +3,9 @@
 namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
-class dir
+class Dir
 {
     /**
      * Default Parameter
@@ -264,7 +264,7 @@ class dir
 
         //Check exist DIR
         if (isset($pkg_array['dir']) and count($pkg_array['dir']) > 0) {
-            install::install_log($step, $all_step, Package::_e('package', 'change_dir'));
+            Package_Install::install_log($step, $all_step, Package::_e('package', 'change_dir'));
             \WP_CLI_PACKAGIST\Package\Arguments\Dir::update_dir($this->params_keys, $pkg_array['dir'], $pkg_array);
             $step++;
         }

@@ -2,9 +2,9 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Package\Utility\update;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class XML_RPC
 {
@@ -32,9 +32,9 @@ class XML_RPC
         $_plugin_path = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'disable-xmlrpc.php');
 
         // Show Loading only in Update Process
-        if (update::isUpdateProcess()) {
+        if (Package_Update::isUpdateProcess()) {
             // get Temp Package
-            $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current xm_rpc status
             $tmp_xml_rpc = (isset($tmp['config']['xml-rpc']) ? $tmp['config']['xml-rpc'] : self::isEnableXML_RPC());
@@ -60,12 +60,12 @@ class XML_RPC
         }
 
         // Only in Update Process
-        if (update::isUpdateProcess()) {
+        if (Package_Update::isUpdateProcess()) {
             //Flush ReWrite
             Permalink::runFlushRewriteCLI();
 
             // Add Update Log
-            install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress XML-RPC");
+            Package_Install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress XML-RPC");
         }
     }
 

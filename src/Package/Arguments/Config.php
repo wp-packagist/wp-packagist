@@ -3,8 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 /**
  * Class Config
@@ -195,7 +195,7 @@ class Config
 
                     //Log
                     if (isset($args['log']) and $args['log'] === true) {
-                        install::add_detail_log("Removed " . \WP_CLI_Helper::color($key, "R") . " Constant.");
+                        Package_Install::add_detail_log("Removed " . \WP_CLI_Helper::color($key, "R") . " Constant.");
                     }
                 }
             }
@@ -217,14 +217,14 @@ class Config
             if ($wp_exist === false) {
                 $config_transformer->add('constant', $pk_key, $pk_value, $constant_arg);
                 if (isset($args['log']) and $args['log'] === true) {
-                    install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Added")));
+                    Package_Install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Added")));
                 }
             } else {
                 # Updated constant
                 if ($val_in_pkg != $val_in_current) {
                     $config_transformer->update('constant', $pk_key, $pk_value, $constant_arg);
                     if (isset($args['log']) and $args['log'] === true) {
-                        install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Updated")));
+                        Package_Install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "Constant", "[key]" => $pk_key, "[run]" => "Updated")));
                     }
                 }
             }
@@ -244,7 +244,7 @@ class Config
         }
 
         // get Temp Package
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         // Get Current From Tmp
         $tmp_constant = (isset($tmp['config']['constant']) ? $tmp['config']['constant'] : self::get_list_package_constant());

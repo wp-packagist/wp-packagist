@@ -6,7 +6,7 @@ use WP_CLI_PACKAGIST\API\WP_Plugins_Api;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
 
-class plugins
+class Plugins
 {
     /**
      * Get Wordpress Package options

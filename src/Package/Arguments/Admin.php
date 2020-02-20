@@ -3,8 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Admin
 {
@@ -35,14 +35,14 @@ class Admin
         //Change display_name for Admin User if Exist
         if (isset($pkg_array['config']['admin']['display_name'])) {
             \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'users` SET `display_name` = \'' . $pkg_array['config']['admin']['display_name'] . '\' WHERE `ID` = 1;');
-            install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => "display_name")));
+            Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => "display_name")));
         }
 
         //Check First name Or Last name for Admin User if Exist
         foreach (array('first_name', 'last_name') as $admin_key) {
             if (isset($pkg_array['config']['admin'][$admin_key])) {
                 \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'usermeta` SET `meta_value` = \'' . $pkg_array['config']['admin'][$admin_key] . '\' WHERE `user_id` = 1 AND `meta_key` = \'' . $admin_key . '\';');
-                install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => $admin_key)));
+                Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => $admin_key)));
             }
         }
 
@@ -51,7 +51,7 @@ class Admin
             foreach ($pkg_array['config']['admin']['meta'] as $meta_key => $meta_val) {
                 $exist = Users::update_user_meta(self::get_admin_id(), $meta_key, $meta_val);
                 $type  = ($exist === false ? 'Added' : 'Updated');
-                install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "admin meta", "[key]" => $meta_key, "[run]" => $type)));
+                Package_Install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "admin meta", "[key]" => $meta_key, "[run]" => $type)));
             }
         }
     }
@@ -92,7 +92,7 @@ class Admin
     public static function update_admin($pkg)
     {
         // Get Local Temp
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         //Get Admin User ID
         $admin_ID = self::get_admin_id();

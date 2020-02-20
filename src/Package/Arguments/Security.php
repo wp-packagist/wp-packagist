@@ -3,7 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
 class Security
 {
@@ -57,7 +57,7 @@ class Security
 
             //log
             if ($log) {
-                install::add_detail_log(Package::_e('package', 'sec_mu_plugins', array("[file]" => Package::get_config('package', 'file'))));
+                Package_Install::add_detail_log(Package::_e('package', 'sec_mu_plugins', array("[file]" => Package::get_config('package', 'file'))));
                 \WP_CLI_Helper::pl_wait_end();
             }
         }
@@ -80,7 +80,7 @@ class Security
 
                 //Add Log
                 if ($log) {
-                    install::add_detail_log(Package::_e('package', 'removed_file', array("[file]" => $file)));
+                    Package_Install::add_detail_log(Package::_e('package', 'removed_file', array("[file]" => $file)));
                 }
             }
         }

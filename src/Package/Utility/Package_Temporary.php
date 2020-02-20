@@ -5,7 +5,7 @@ namespace WP_CLI_PACKAGIST\Package\Utility;
 use WP_CLI_PACKAGIST\Package\Package;
 
 
-class temp
+class Package_Temporary
 {
     /**
      * Convert Link To file Name

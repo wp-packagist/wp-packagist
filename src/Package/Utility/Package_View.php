@@ -7,7 +7,7 @@ use WP_CLI_PACKAGIST\Package\Package;
 /**
  * View Package Detail
  */
-class view extends Package
+class Package_View extends Package
 {
     /**
      * Show current Package Detail

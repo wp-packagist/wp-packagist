@@ -18,9 +18,9 @@ use WP_CLI_PACKAGIST\Package\Arguments\Security;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
 use WP_CLI_PACKAGIST\Package\Arguments\Users;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
-class mysql
+class Mysql
 {
     /**
      * Default Parameter
@@ -343,7 +343,7 @@ class mysql
             $exist_db = self::exist_db_name($pkg_array['mysql']);
             if ($exist_db === false) {
                 \WP_CLI_Helper::run_command("db create");
-                install::install_log($step, $all_step, Package::_e('package', 'create_db', array("[db_name]" => $pkg_array['mysql']['DB_NAME'])));
+                Package_Install::install_log($step, $all_step, Package::_e('package', 'create_db', array("[db_name]" => $pkg_array['mysql']['DB_NAME'])));
                 $step++;
             }
         }
@@ -355,7 +355,7 @@ class mysql
         }
 
         //install WordPress
-        install::install_log($step, $all_step, Package::_e('package', ($network === false ? "install_wp" : "install_wp_network")));
+        Package_Install::install_log($step, $all_step, Package::_e('package', ($network === false ? "install_wp" : "install_wp_network")));
         \WP_CLI_Helper::pl_wait_start();
         Core::install_wordpress($pkg_array, $network);
         \WP_CLI_Helper::pl_wait_end();
@@ -367,7 +367,7 @@ class mysql
         //Create Mod_Rewrite for Multi Site
         if ($network === true) {
             Permalink::run_permalink_file($pkg_array);
-            install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_rewrite['mod_rewrite_file'])));
+            Package_Install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_rewrite['mod_rewrite_file'])));
         }
 
         //Get Table Prefix
@@ -381,46 +381,46 @@ class mysql
         //Check Language Setup
         if (isset($pkg_array['core']['locale']) and $pkg_array['core']['locale'] != $this->package_config['default']['locale']) {
             $lang = Locale::get_locale_detail($pkg_array['core']['locale']);
-            install::install_log($step, $all_step, Package::_e('package', "install_language", array("[key]" => $pkg_array['core']['locale'] . ($lang == "" ? '' : \WP_CLI_Helper::color(" [" . $lang . "]", "P")))));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "install_language", array("[key]" => $pkg_array['core']['locale'] . ($lang == "" ? '' : \WP_CLI_Helper::color(" [" . $lang . "]", "P")))));
             Locale::install_lang($pkg_array);
             $step++;
         }
 
         //Check Permalink structure
         if (isset($pkg_array['config']['permalink']) and is_array($pkg_array['config']['permalink']) and $network === false) {
-            install::install_log($step, $all_step, Package::_e('package', "change_permalink"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "change_permalink"));
             \WP_CLI_Helper::pl_wait_start();
             Permalink::change_permalink_structure($pkg_array);
             Permalink::run_permalink_file();
             \WP_CLI_Helper::pl_wait_end();
-            install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_rewrite['mod_rewrite_file'])));
+            Package_Install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_rewrite['mod_rewrite_file'])));
             $step++;
         }
 
         //Check install Sites in Network
         if ($network === true and isset($pkg_array['core']['network']['sites']) and count($pkg_array['core']['network']['sites']) > 0) {
-            install::install_log($step, $all_step, Package::_e('package', "add_sites_network"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "add_sites_network"));
             Core::install_network_sites($pkg_array['core']['network']['sites']);
             $step++;
         }
 
         //Change TimeZone Wordpress
         if (isset($pkg_array['config']['timezone']) and ! empty($pkg_array['config']['timezone'])) {
-            install::install_log($step, $all_step, Package::_e('package', "change_timezone"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "change_timezone"));
             Timezone::update_timezone($pkg_array['config']['timezone']);
             $step++;
         }
 
         //Update WordPress Option
         if (isset($pkg_array['config']['options']) and count($pkg_array['config']['options']) > 0) {
-            install::install_log($step, $all_step, Package::_e('package', "update_options"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "update_options"));
             Options::install_options($pkg_array['config']['options'], $table_prefix);
             $step++;
         }
 
         //Create WordPress Users
         if (isset($pkg_array['config']['users']) and count($pkg_array['config']['users']) > 0) {
-            install::install_log($step, $all_step, Package::_e('package', "create_users"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "create_users"));
             foreach ($pkg_array['config']['users'] as $users) {
                 Users::add_new_user($users);
             }
@@ -430,7 +430,7 @@ class mysql
         //Check Update REST API
         $mu_plugins_path = Dir::eval_get_mu_plugins_path();
         if (isset($pkg_array['config']['rest-api'])) {
-            install::install_log($step, $all_step, Package::_e('package', "update_rest_api"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "update_rest_api"));
             \WP_CLI_Helper::pl_wait_start();
             Rest_API::update_rest_api($mu_plugins_path, $pkg_array['config']['rest-api']);
             \WP_CLI_Helper::pl_wait_end();
@@ -439,7 +439,7 @@ class mysql
 
         //Check WordPress XML-RPC
         if (isset($pkg_array['config']['xml-rpc']) and $pkg_array['config']['xml-rpc'] != XML_RPC::$default_active_xml_rpc) {
-            install::install_log($step, $all_step, Package::_e('package', "disable_xml_rpc"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "disable_xml_rpc"));
             \WP_CLI_Helper::pl_wait_start();
             XML_RPC::update_xml_rpc($mu_plugins_path, $pkg_array['config']['xml-rpc']);
             \WP_CLI_Helper::pl_wait_end();
@@ -448,7 +448,7 @@ class mysql
 
         //Check WordPress Emoji
         if (isset($pkg_array['config']['emoji']) and $pkg_array['config']['emoji'] != Emoji::$default_active_emoji) {
-            install::install_log($step, $all_step, Package::_e('package', "disable_emoji"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "disable_emoji"));
             \WP_CLI_Helper::pl_wait_start();
             Emoji::update_emoji($mu_plugins_path, $pkg_array['config']['emoji']);
             \WP_CLI_Helper::pl_wait_end();
@@ -457,7 +457,7 @@ class mysql
 
         //Check WordPress Plugins
         if (isset($pkg_array['plugins'])) {
-            install::install_log($step, $all_step, Package::_e('package', "install_wp_plugins"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "install_wp_plugins"));
             \WP_CLI_Helper::pl_wait_start();
             Plugins::update_plugins($pkg_array['plugins'], $current_plugin_list = array(), $options = array('force' => true, 'remove' => false));
             $step++;
@@ -465,7 +465,7 @@ class mysql
 
         //Check WordPress Theme
         if (isset($pkg_array['themes'])) {
-            install::install_log($step, $all_step, Package::_e('package', "install_wp_themes"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "install_wp_themes"));
             \WP_CLI_Helper::pl_wait_start();
             Themes::update_themes($pkg_array['themes'], $current_theme_list = array(), $options = array('force' => true, 'remove' => false));
             $step++;
@@ -474,20 +474,20 @@ class mysql
         //Check Active WordPress Theme
         if (isset($pkg_array['config']['theme'])) {
             $run = Themes::switch_theme($pkg_array['config']['theme']);
-            install::install_log($step, $all_step, $run['data']);
+            Package_Install::install_log($step, $all_step, $run['data']);
             $step++;
         }
 
         //Run Custom Commands
         if (isset($pkg_array['commands'])) {
-            install::install_log($step, $all_step, Package::_e('package', "run_pkg_commands"));
+            Package_Install::install_log($step, $all_step, Package::_e('package', "run_pkg_commands"));
             Commands::run_commands($pkg_array['commands']);
             $step++;
         }
 
         //WordPress Security
         if (defined('WP_CLI_PACKAGIST_ENABLE_WORDPRESS_SECURITY')) {
-            install::install_log($step, $all_step, Package::_e('package', 'wp_sec_file'));
+            Package_Install::install_log($step, $all_step, Package::_e('package', 'wp_sec_file'));
             Security::remove_security_file(true);
             Security::wordpress_package_security_plugin($pkg_array, true);
             $step++;

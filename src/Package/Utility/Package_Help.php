@@ -8,7 +8,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
 
-class help
+class Package_Help
 {
     /**
      * List Of WordPress Package Help List
@@ -339,7 +339,7 @@ class help
                     case "locale":
                     case "timezone":
                         \WP_CLI_Helper::pl_wait_start();
-                        help::{$method}();
+                        Package_Help::{$method}();
                         break;
 
                     case "plugin":

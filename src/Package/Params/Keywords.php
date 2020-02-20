@@ -4,7 +4,7 @@ namespace WP_CLI_PACKAGIST\Package\Params;
 
 use WP_CLI_PACKAGIST\Package\Package;
 
-class keywords
+class Keywords
 {
 
     /**

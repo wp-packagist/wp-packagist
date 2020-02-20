@@ -3,9 +3,9 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Package\Utility\update;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class Options
 {
@@ -30,7 +30,7 @@ class Options
     public static function exist_option_name($option_name)
     {
         global $wpdb;
-        if (update::isUpdateProcess()) {
+        if (Package_Update::isUpdateProcess()) {
             $_count = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->options}` WHERE option_name = '{$option_name}'");
             return $_count > 0;
         }
@@ -117,7 +117,7 @@ class Options
     public static function runCurdOption($table_prefix, $option)
     {
         $exist = self::update_option($table_prefix, $option['option_name'], $option['option_value'], $option['autoload']);
-        install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "option", "[key]" => self::sanitize_option_name($option['option_name']), "[run]" => ($exist === true ? "Updated" : "Added"))));
+        Package_Install::add_detail_log(Package::_e('package', 'item_log', array("[what]" => "option", "[key]" => self::sanitize_option_name($option['option_name']), "[run]" => ($exist === true ? "Updated" : "Added"))));
     }
 
     /**
@@ -142,7 +142,7 @@ class Options
         global $wpdb;
 
         //Get Local Temp
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         //Get Options List
         $tmp_options = (isset($tmp['config']['options']) ? $tmp['config']['options'] : array());
@@ -241,7 +241,7 @@ class Options
                     $wpdb->query("DELETE FROM `{$wpdb->options}` WHERE option_name = '{$_sanitize_name}'");
 
                     // Log
-                    install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $_sanitize_name, "[type]" => "option")));
+                    Package_Install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $_sanitize_name, "[type]" => "option")));
                 }
             }
         }

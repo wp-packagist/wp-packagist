@@ -18,7 +18,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\XML_RPC;
 use \WP_CLI_PACKAGIST\Package\Arguments\Core as Network;
 use WP_CLI_PACKAGIST\Package\Package;
 
-class update extends Package
+class Package_Update extends Package
 {
     /**
      * Update WordPress Package
@@ -43,7 +43,7 @@ class update extends Package
         self::runUpdatePackage($pkg_array);
 
         # Save Package LocalTemp
-        temp::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
+        Package_Temporary::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
 
         # Success Process
         if (defined('WP_CLI_PACKAGIST_UPDATE_LOG')) {

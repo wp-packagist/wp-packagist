@@ -3,8 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Version
 {
@@ -296,7 +296,7 @@ class Version
     public static function update_version($pkg)
     {
         //Get Local Temp
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         // Get Latest Version of WordPress
         $latest_wp_version = self::get_latest_version_num_wordpress();
@@ -324,7 +324,7 @@ class Version
             \WP_CLI_Helper::pl_wait_end();
 
             // Add log
-            install::add_detail_log(rtrim(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => "WordPress Version", "[type]" => "to " . $pkg_version . "")), "."));
+            Package_Install::add_detail_log(rtrim(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => "WordPress Version", "[type]" => "to " . $pkg_version . "")), "."));
         }
     }
 

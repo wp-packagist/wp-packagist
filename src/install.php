@@ -2,8 +2,8 @@
 
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\validation;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Validation;
 
 /**
  * install WordPress Package.
@@ -61,10 +61,10 @@ use WP_CLI_PACKAGIST\Package\Utility\validation;
     \WP_CLI_Helper::pl_wait_start(false);
 
     //Run Package Validation
-    $valid_pkg = new validation();
+    $valid_pkg = new Package_Validation();
     $json_pkg  = $valid_pkg->validation(true);
     if ($json_pkg['status'] === true) {
-        $pkg_install = new install();
+        $pkg_install = new Package_Install();
         $pkg_install->install($json_pkg['data']);
     }
 });

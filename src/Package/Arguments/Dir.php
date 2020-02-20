@@ -3,7 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
 class Dir
 {
@@ -195,7 +195,7 @@ class Dir
 
         //Add Log
         if ($log and $is_change) {
-            install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "wp-content")));
+            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "wp-content")));
         }
     }
 
@@ -298,7 +298,7 @@ class Dir
 
         //Add Log
         if ($log and $is_change) {
-            install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "plugins")));
+            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "plugins")));
         }
     }
 
@@ -404,7 +404,7 @@ class Dir
 
         //Add Log
         if ($log and $is_change) {
-            install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "themes")));
+            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "themes")));
         }
     }
 
@@ -522,7 +522,7 @@ class Dir
         //Add Log
         if ($log and $is_change) {
             // change folder Log
-            install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "uploads")));
+            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "uploads")));
 
             // fix Attachment Link in DB
             if ($step == "update" and isset($before_uploads_url)) {
@@ -536,7 +536,7 @@ class Dir
 
                 # Show Log
                 \WP_CLI_Helper::pl_wait_end();
-                install::add_detail_log(Package::_e('package', 'srdb_uploads'));
+                Package_Install::add_detail_log(Package::_e('package', 'srdb_uploads'));
             }
         }
     }

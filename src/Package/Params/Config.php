@@ -10,9 +10,9 @@ use WP_CLI_PACKAGIST\Package\Arguments\Config as Config_Arg;
 use WP_CLI_PACKAGIST\Package\Arguments\Cookie;
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
-class config
+class Config
 {
     /**
      * Default Parameter
@@ -1284,12 +1284,12 @@ class config
         $all_step = $args['all_step'];
 
         //Create Config File
-        install::install_log($step, $all_step, Package::_e('package', 'create_config'));
+        Package_Install::install_log($step, $all_step, Package::_e('package', 'create_config'));
         \WP_CLI_Helper::pl_wait_start();
         Config_Arg::create_config($pkg_array['mysql']);
         \WP_CLI_Helper::pl_wait_end();
-        install::add_detail_log(Package::_e('package', 'salt_generate'));
-        install::add_detail_log(Package::_e('package', 'added_db_const'));
+        Package_Install::add_detail_log(Package::_e('package', 'salt_generate'));
+        Package_Install::add_detail_log(Package::_e('package', 'added_db_const'));
 
         //Check Extra Constant
         if (isset($pkg_array['config']['constant']) and count($pkg_array['config']['constant']) > 0) {
@@ -1300,7 +1300,7 @@ class config
         //Cookie Constant
         if (isset($pkg_array['config']['cookie']) and ! empty($pkg_array['config']['cookie']) and isset($pkg_array['config']['url'])) {
             Cookie::set_cookie_prefix($pkg_array['config']['cookie'], $pkg_array['config']['url']);
-            install::add_detail_log(Package::_e('package', 'change_cookie_prefix'));
+            Package_Install::add_detail_log(Package::_e('package', 'change_cookie_prefix'));
         }
 
         //Create require Dir in wp-content

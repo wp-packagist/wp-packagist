@@ -5,10 +5,10 @@ namespace WP_CLI_PACKAGIST;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\help;
-use WP_CLI_PACKAGIST\Package\Utility\update;
-use WP_CLI_PACKAGIST\Package\Utility\validation;
-use WP_CLI_PACKAGIST\Package\Utility\view;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Help;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Validation;
+use WP_CLI_PACKAGIST\Package\Utility\Package_View;
 
 /**
  * Management WordPress Package.
@@ -124,7 +124,7 @@ class Pack extends \WP_CLI_Command
         \WP_CLI_Helper::pl_wait_start(false);
 
         # Run Package Validation
-        $validation_pkg = new validation();
+        $validation_pkg = new Package_Validation();
         $get_pkg        = $validation_pkg->validation($log = true);
         if ($get_pkg['status'] === true) {
             \WP_CLI_Helper::success(Package::_e('package', 'pkg_is_valid'));
@@ -152,11 +152,11 @@ class Pack extends \WP_CLI_Command
         \WP_CLI_Helper::pl_wait_start(false);
 
         # Run Package Validation
-        $validation_pkg = new validation();
+        $validation_pkg = new Package_Validation();
         $get_pkg        = $validation_pkg->validation($log = true);
         if ($get_pkg['status'] === true) {
             # View WordPress Package
-            $view_pkg = new view();
+            $view_pkg = new Package_View();
             $view_pkg->view($get_pkg['data'], false);
         }
     }
@@ -185,11 +185,11 @@ class Pack extends \WP_CLI_Command
         \WP_CLI_Helper::pl_wait_start(false);
 
         # Run Package Validation
-        $validation_pkg = new validation();
+        $validation_pkg = new Package_Validation();
         $get_pkg        = $validation_pkg->validation(true);
         if ($get_pkg['status'] === true) {
             # Run Update
-            $run = new update();
+            $run = new Package_Update();
             $run->run($get_pkg['data']);
         }
     }
@@ -233,7 +233,7 @@ class Pack extends \WP_CLI_Command
      */
     function help($_, $assoc)
     {
-        help::run();
+        Package_Help::run();
     }
 
     /**

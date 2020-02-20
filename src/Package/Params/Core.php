@@ -5,9 +5,9 @@ namespace WP_CLI_PACKAGIST\Package\Params;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
-class core
+class Core
 {
     /**
      * Default Parameter
@@ -464,7 +464,7 @@ class core
 
         //Download WordPress
         $version = $pkg_array['core']['version'];
-        install::install_log($step, $all_step, Version::get_log_download_wordpress($version));
+        Package_Install::install_log($step, $all_step, Version::get_log_download_wordpress($version));
         \WP_CLI_Helper::pl_wait_start();
         Version::download_wordpress($version);
         \WP_CLI_Helper::pl_wait_end();

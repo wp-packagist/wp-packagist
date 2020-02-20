@@ -3,9 +3,9 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Package\Utility\update;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class Timezone
 {
@@ -120,9 +120,9 @@ class Timezone
          */
 
         // Only in Update Process
-        if (update::isUpdateProcess()) {
+        if (Package_Update::isUpdateProcess()) {
             // get Temp Package
-            $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current Timezone status
             $tmp_timezone = (isset($tmp['config']['timezone']) ? $tmp['config']['timezone'] : self::getTimezone());
@@ -162,8 +162,8 @@ class Timezone
         }
 
         // Only in Update Process
-        if (update::isUpdateProcess()) {
-            install::add_detail_log("Changed WordPress Timezone");
+        if (Package_Update::isUpdateProcess()) {
+            Package_Install::add_detail_log("Changed WordPress Timezone");
         }
     }
 

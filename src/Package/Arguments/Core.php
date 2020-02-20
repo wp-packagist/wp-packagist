@@ -3,8 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Core
 {
@@ -63,7 +63,7 @@ class Core
     {
         foreach ($sites as $site) {
             self::add_new_blog($site);
-            install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $site['slug'])), ($when == "update" ? 5 : 1));
+            Package_Install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $site['slug'])), ($when == "update" ? 5 : 1));
         }
     }
 
@@ -253,7 +253,7 @@ class Core
 
                     // Add log
                     if ($log) {
-                        install::add_detail_log("Changed '{$before_log_url}' url to '{$after_log_url}'." . \WP_CLI_Helper::color("[blog_id: {$blog_id}]", "B") . "", 5);
+                        Package_Install::add_detail_log("Changed '{$before_log_url}' url to '{$after_log_url}'." . \WP_CLI_Helper::color("[blog_id: {$blog_id}]", "B") . "", 5);
                     }
                 }
             }
@@ -350,7 +350,7 @@ class Core
     public static function update_network($pkg)
     {
         //Get Local Temp
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         // Check site Status in Tmp
         $before_status_network = is_multisite();
@@ -375,7 +375,7 @@ class Core
         // Convert Single to Multi-Site
         if ($before_status_network === false and $now_status_network === true) {
             //log
-            install::add_detail_log(Package::_e('package', 'convert_single_multi'));
+            Package_Install::add_detail_log(Package::_e('package', 'convert_single_multi'));
             \WP_CLI_Helper::pl_wait_start();
 
             // Check sub-domain for network
@@ -398,7 +398,7 @@ class Core
             // Create Htaccess multi-site
             $mod_network = Core::is_multisite();
             Permalink::run_permalink_file();
-            install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_network['mod_rewrite_file'])), 5);
+            Package_Install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_network['mod_rewrite_file'])), 5);
 
             // Create Multi-Site blog List
             if (isset($pkg_network) and isset($pkg_network['sites']) and count($pkg_network['sites']) > 0) {
@@ -417,7 +417,7 @@ class Core
             $pkg_subdomain = (isset($pkg_network['subdomain']) ? $pkg_network['subdomain'] : false);
             if ($tmp_subdomain != $pkg_subdomain) {
                 // Add log
-                install::add_detail_log(Package::_e('package', 'change_subdomain_type', array("[work]" => ($pkg_subdomain === true ? "Enabled" : "Disabled"))));
+                Package_Install::add_detail_log(Package::_e('package', 'change_subdomain_type', array("[work]" => ($pkg_subdomain === true ? "Enabled" : "Disabled"))));
 
                 // Change SUBDOMAIN_INSTALL constant
                 $wp_config = Config::get_config_transformer();
@@ -455,7 +455,7 @@ class Core
                         $_exist_DB = self::exist_blog($tmp_blog['slug']);
                         if ($_exist_DB != false) {
                             wpmu_delete_blog($_exist_DB['blog_id'], true);
-                            install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $tmp_blog['slug'], "[type]" => "site")));
+                            Package_Install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $tmp_blog['slug'], "[type]" => "site")));
                         }
                     }
                 }
@@ -477,7 +477,7 @@ class Core
                         $_exist_DB = self::exist_blog($pkg_blog['slug']);
                         if ($_exist_DB === false) {
                             self::add_new_blog($pkg_blog);
-                            install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $pkg_blog['slug'])));
+                            Package_Install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $pkg_blog['slug'])));
                         }
                     }
                 }
@@ -561,7 +561,7 @@ class Core
         }
 
         // get Temp Package
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         // Get Current REST-API Status
         $tmp_title = (isset($tmp['config']['title']) ? $tmp['config']['title'] : $title);
@@ -579,7 +579,7 @@ class Core
         ));
 
         // Return data
-        install::add_detail_log("Updated WordPress site title");
+        Package_Install::add_detail_log("Updated WordPress site title");
     }
 
 }

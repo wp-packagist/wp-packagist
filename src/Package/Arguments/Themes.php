@@ -4,8 +4,8 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\API\WP_Themes_Api;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Themes
 {
@@ -188,7 +188,7 @@ class Themes
                     if (self::eval_get_current_theme() == $wp_theme_stylesheet) {
                         if (isset($args['log']) and $args['log'] === true) {
                             \WP_CLI_Helper::pl_wait_end();
-                            install::add_detail_log(Package::_e('package', 'er_delete_no_theme', array("[theme]" => $wp_theme_stylesheet)));
+                            Package_Install::add_detail_log(Package::_e('package', 'er_delete_no_theme', array("[theme]" => $wp_theme_stylesheet)));
                             \WP_CLI_Helper::pl_wait_start();
                         }
                     } else {
@@ -202,7 +202,7 @@ class Themes
                         //Add Log
                         if (isset($args['log']) and $args['log'] === true) {
                             \WP_CLI_Helper::pl_wait_end();
-                            install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Removed", "[slug]" => $wp_theme_stylesheet, "[type]" => "theme", "[more]" => "")));
+                            Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Removed", "[slug]" => $wp_theme_stylesheet, "[type]" => "theme", "[more]" => "")));
                             \WP_CLI_Helper::pl_wait_start();
                         }
                     }
@@ -242,7 +242,7 @@ class Themes
                 //Add Log
                 if (isset($args['log']) and $args['log'] === true) {
                     \WP_CLI_Helper::pl_wait_end();
-                    install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Added", "[slug]" => $stylesheet . (($version != "latest" and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "theme", "[more]" => "")));
+                    Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Added", "[slug]" => $stylesheet . (($version != "latest" and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "theme", "[more]" => "")));
                     \WP_CLI_Helper::pl_wait_start();
                 }
 
@@ -285,7 +285,7 @@ class Themes
                     //Add Log
                     if (isset($args['log']) and $args['log'] === true) {
                         \WP_CLI_Helper::pl_wait_end();
-                        install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $stylesheet . (($version != "latest" and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "theme")));
+                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $stylesheet . (($version != "latest" and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "theme")));
                         \WP_CLI_Helper::pl_wait_start();
                     }
                 }
@@ -345,7 +345,7 @@ class Themes
         }
 
         // get Temp Package
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         // Get Current theme status
         $tmp_theme = (isset($tmp['config']['theme']) ? $tmp['config']['theme'] : $active_theme);
@@ -365,7 +365,7 @@ class Themes
         Permalink::runFlushRewriteCLI();
 
         // Return Data
-        install::add_detail_log($switch['data']);
+        Package_Install::add_detail_log($switch['data']);
     }
 
 }

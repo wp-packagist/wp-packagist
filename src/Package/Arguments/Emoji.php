@@ -2,9 +2,9 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
-use WP_CLI_PACKAGIST\Package\Utility\update;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class Emoji
 {
@@ -31,9 +31,9 @@ class Emoji
         $_plugin_path = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'disable-emoji.php');
 
         // Only in Update Process
-        if (update::isUpdateProcess()) {
+        if (Package_Update::isUpdateProcess()) {
             // get Temp Package
-            $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+            $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
             // Get Current emoji status
             $tmp_emoji = (isset($tmp['config']['emoji']) ? $tmp['config']['emoji'] : self::isEnableEmoji());
@@ -59,9 +59,9 @@ class Emoji
         }
 
         // Show Log only in Update Process
-        if (update::isUpdateProcess()) {
+        if (Package_Update::isUpdateProcess()) {
             // Add Update Log
-            install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress Emoji");
+            Package_Install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress Emoji");
         }
     }
 

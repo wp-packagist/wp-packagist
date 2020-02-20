@@ -3,8 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Cookie
 {
@@ -114,7 +114,7 @@ class Cookie
         }
 
         // get Temp Package
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         // Get Current From Tmp
         $tmp_cookie = (isset($tmp['config']['cookie']) ? $tmp['config']['cookie'] : self::getDefaultCookie());
@@ -129,7 +129,7 @@ class Cookie
 
         // Add Update Log
         if ($cookie_run) {
-            install::add_detail_log("Updated WordPress Cookie prefix");
+            Package_Install::add_detail_log("Updated WordPress Cookie prefix");
         }
     }
 }

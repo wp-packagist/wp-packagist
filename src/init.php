@@ -1,9 +1,9 @@
 <?php
 
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\create;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Create;
 
 /**
  * Create a new WordPress package (wordpress.json) file.
@@ -98,7 +98,7 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
     Package::remove_command_log();
 
     //Create new package file
-    $create_pkg = new create();
+    $create_pkg = new Package_Create();
     $return     = $create_pkg->create($assoc_args);
 
     //Not Writable Error
@@ -121,7 +121,7 @@ use WP_CLI_PACKAGIST\Package\Utility\create;
     }
 
     //Remove Package LocalTemp
-    temp::remove_temp_file(\WP_CLI_Util::getcwd());
+    Package_Temporary::remove_temp_file(\WP_CLI_Util::getcwd());
 
     //Show Success
     \WP_CLI_Helper::success(Package::_e('package', 'created'));

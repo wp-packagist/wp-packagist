@@ -6,7 +6,7 @@ use WP_CLI_PACKAGIST\API\WP_Themes_Api;
 use WP_CLI_PACKAGIST\Package\Arguments\Version;
 use WP_CLI_PACKAGIST\Package\Package;
 
-class themes
+class Themes
 {
     /**
      * Get Wordpress Package options

@@ -7,7 +7,7 @@ use WP_CLI_PACKAGIST\Package\Package;
 /**
  * WordPress Package Validation
  */
-class validation extends Package
+class Package_Validation extends Package
 {
     /**
      * Check WordPress Package Validation
@@ -47,7 +47,7 @@ class validation extends Package
                     //Check Exist pkg Key
                     if (array_key_exists($class_name, $pkg_array)) {
                         //get Class name
-                        $class = $this->package_config['params_namespace'] . $class_name;
+                        $class = $this->package_config['params_namespace'] . ucfirst($class_name);
 
                         //Create new Obj from class
                         $obj = new $class();

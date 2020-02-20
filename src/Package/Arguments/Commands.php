@@ -3,7 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 
 class Commands
 {
@@ -23,7 +23,7 @@ class Commands
             //Check is WP-CLI or Global Command
             if (isset($command['where']) and $command['where'] == "wp-cli") {
                 # Show Log
-                install::add_detail_log(Package::_e('package', 'run_cmd', array("[cmd]" => self::show_command_log($command['command']), "[more]" => "")));
+                Package_Install::add_detail_log(Package::_e('package', 'run_cmd', array("[cmd]" => self::show_command_log($command['command']), "[more]" => "")));
 
                 # Run WP-CLI
                 \WP_CLI_Helper::run_command($command['command'], array('exit_error' => false));
@@ -35,7 +35,7 @@ class Commands
                 $complete_path = \WP_CLI_FileSystem::path_join($cwd, $sanitize_dir);
                 if (is_dir($complete_path) and is_dir($complete_path)) {
                     # Show log
-                    install::add_detail_log(Package::_e('package', 'run_cmd', array("[cmd]" => self::show_command_log($command['command']), "[more]" => " in '" . $command['where'] . "' path")));
+                    Package_Install::add_detail_log(Package::_e('package', 'run_cmd', array("[cmd]" => self::show_command_log($command['command']), "[more]" => " in '" . $command['where'] . "' path")));
 
                     # Run global command
                     chdir($complete_path);
@@ -43,7 +43,7 @@ class Commands
                     chdir($cwd);
                 } else {
                     # Show Log Error directory
-                    install::add_detail_log(Package::_e('package', 'er_find_dir_cmd', array("[dir]" => $command['where'], "[cmd]" => self::show_command_log($command['command']))));
+                    Package_Install::add_detail_log(Package::_e('package', 'er_find_dir_cmd', array("[dir]" => $command['where'], "[cmd]" => self::show_command_log($command['command']))));
                 }
             }
         }

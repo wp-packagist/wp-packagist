@@ -7,7 +7,7 @@ use WP_CLI_PACKAGIST\Package\Package;
 /**
  * Create Wordpress Package
  */
-class create extends Package
+class Package_Create extends Package
 {
     /**
      * Create new wordpress Package File
@@ -45,7 +45,7 @@ class create extends Package
         //Get Params Data From Every Class
         foreach ($this->package_config['params'] as $class_name) {
             //get Class name
-            $class = $this->package_config['params_namespace'] . $class_name;
+            $class = $this->package_config['params_namespace'] . ucfirst($class_name);
 
             //Create new Obj from class
             $obj = new $class();

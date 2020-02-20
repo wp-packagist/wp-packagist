@@ -3,8 +3,8 @@
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Utility\install;
-use WP_CLI_PACKAGIST\Package\Utility\temp;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Users
 {
@@ -116,7 +116,7 @@ class Users
 
         //show Log
         if ($log) {
-            install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Created", "[key]" => $role, "[type]" => "user role cloned from '" . $clone_from . "'")));
+            Package_Install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Created", "[key]" => $role, "[type]" => "user role cloned from '" . $clone_from . "'")));
         }
     }
 
@@ -227,7 +227,7 @@ class Users
         }
 
         # Show Log
-        install::add_detail_log(Package::_e('package', 'create_one_user', array("[user_login]" => $user['user_login'], "[user_id]" => $user['ID'])));
+        Package_Install::add_detail_log(Package::_e('package', 'create_one_user', array("[user_login]" => $user['user_login'], "[user_id]" => $user['ID'])));
     }
 
     /**
@@ -270,11 +270,11 @@ class Users
     {
         global $wpdb;
         if (username_exists(trim($user_login))) {
-            install::add_detail_log(Package::_e('package', 'manage_item_error', array("[msg]" => "that username already exists!", "[key]" => $key)));
+            Package_Install::add_detail_log(Package::_e('package', 'manage_item_error', array("[msg]" => "that username already exists!", "[key]" => $key)));
             exit;
         } else {
             $wpdb->update($wpdb->users, array('user_login' => trim($user_login)), array('ID' => $user_ID));
-            install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => "user_login", "[type]" => $type)));
+            Package_Install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => "user_login", "[type]" => $type)));
         }
     }
 
@@ -290,7 +290,7 @@ class Users
     {
         $_exist = email_exists(trim($user_email));
         if ($_exist and $_exist != $user_ID) {
-            install::add_detail_log(Package::_e('package', 'manage_item_error', array("[msg]" => "that email already exists!", "[key]" => $key)));
+            Package_Install::add_detail_log(Package::_e('package', 'manage_item_error', array("[msg]" => "that email already exists!", "[key]" => $key)));
             exit;
         } else {
             self::wp_update_user($user_ID, 'user_email', $user_email, $key, $type);
@@ -310,10 +310,10 @@ class Users
     {
         $edit = wp_update_user(array('ID' => $user_ID, $what => trim($new_value)));
         if (is_wp_error($edit)) {
-            install::add_detail_log(Package::_e('package', 'manage_item_error', array("[msg]" => $edit->get_error_messages(), "[key]" => $key)));
+            Package_Install::add_detail_log(Package::_e('package', 'manage_item_error', array("[msg]" => $edit->get_error_messages(), "[key]" => $key)));
             exit;
         } else {
-            install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => $what, "[type]" => $type)));
+            Package_Install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Changed", "[key]" => $what, "[type]" => $type)));
         }
     }
 
@@ -326,7 +326,7 @@ class Users
     public static function update_users($pkg)
     {
         //Get Local Temp
-        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+        $tmp = Package_Temporary::get_temp(\WP_CLI_Util::getcwd());
 
         //Get Admin User ID
         $admin_ID = Admin::get_admin_id();
@@ -357,7 +357,7 @@ class Users
                     if ($_exist_DB['status'] === true) {
                         # All User Post Assign To Admin Automatic
                         wp_delete_user($_exist_DB['ID'], $admin_ID);
-                        install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $_exist_DB['data']['user_login'], "[type]" => "user")));
+                        Package_Install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $_exist_DB['data']['user_login'], "[type]" => "user")));
                     }
                 }
             }
@@ -509,7 +509,7 @@ class Users
             $sanitize_meta_key = Users::sanitize_meta_name($meta_key);
             if ( ! isset($pkg_user_meta[$meta_key]) and ! in_array($sanitize_meta_key, $default_user_meta)) {
                 delete_user_meta($user_id, $sanitize_meta_key);
-                install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $sanitize_meta_key, "[type]" => $type)));
+                Package_Install::add_detail_log(Package::_e('package', 'manage_item_red', array("[work]" => "Removed", "[key]" => $sanitize_meta_key, "[type]" => $type)));
             }
         }
 
@@ -520,14 +520,14 @@ class Users
             // Check Add Meta
             if ( ! isset($tmp_user_meta[$meta_key]) and Users::exist_user_meta($user_id, $sanitize_meta_key) === false) {
                 add_user_meta($user_id, $sanitize_meta_key, $meta_value);
-                install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Added", "[key]" => $sanitize_meta_key, "[type]" => $type)));
+                Package_Install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Added", "[key]" => $sanitize_meta_key, "[type]" => $type)));
             }
 
             // Update User Meta
             $before_value = isset($tmp_user_meta[$meta_key]) ? $tmp_user_meta[$meta_key] : get_user_meta($user_id, $sanitize_meta_key, true);
             if ($meta_value !== $before_value) {
                 update_user_meta($user_id, $sanitize_meta_key, $meta_value);
-                install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Updated", "[key]" => $sanitize_meta_key, "[type]" => $type)));
+                Package_Install::add_detail_log(Package::_e('package', 'manage_item_blue', array("[work]" => "Updated", "[key]" => $sanitize_meta_key, "[type]" => $type)));
             }
         }
     }

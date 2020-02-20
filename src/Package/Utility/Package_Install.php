@@ -3,12 +3,12 @@
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
 use WP_CLI_PACKAGIST\Package\Package;
-use WP_CLI_PACKAGIST\Package\Params\mysql;
+use WP_CLI_PACKAGIST\Package\Params\Mysql;
 
 /**
  * install WordPress Package
  */
-class install extends Package
+class Package_Install extends Package
 {
     /**
      * install WordPress Package
@@ -37,7 +37,7 @@ class install extends Package
             //Check Exist pkg Key
             if (array_key_exists($class_name, $pkg_array)) {
                 //get Class name
-                $class = $this->package_config['params_namespace'] . $class_name;
+                $class = $this->package_config['params_namespace'] . ucfirst($class_name);
 
                 //Create new Obj from class
                 $obj = new $class();
@@ -56,7 +56,7 @@ class install extends Package
         }
 
         //Add Package LocalTemp
-        temp::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
+        Package_Temporary::save_temp(\WP_CLI_Util::getcwd(), $pkg_array);
 
         //Success Process
         \WP_CLI_Helper::br();
@@ -157,7 +157,7 @@ class install extends Package
 
         //Check Created Database
         if (isset($package_data['mysql'])) {
-            if (mysql::exist_db_name($package_data['mysql']) === false) {
+            if (Mysql::exist_db_name($package_data['mysql']) === false) {
                 $step++;
             }
         }

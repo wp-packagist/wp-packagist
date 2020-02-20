@@ -171,7 +171,7 @@ return array(
         'wp-cli-command'           => array('wp-cli', 'wpcli'),
 
         # Params class namespace
-        'params_namespace'         => 'WP_CLI_PACKAGIST\Package\params\\',
+        'params_namespace'         => 'WP_CLI_PACKAGIST\Package\Params\\',
 
         # Localhost domain
         'localhost_domain'         => array('localhost', '127.0.0.1'),
