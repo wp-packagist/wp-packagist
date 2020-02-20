@@ -3,6 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package\Utility;
 
 use WP_CLI_PACKAGIST\Package\Arguments\Admin;
+use WP_CLI_PACKAGIST\Package\Arguments\Cookie;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
@@ -80,6 +81,9 @@ class update extends Package
 
         # Update WordPress Multi-Site
         Network::update_network($pkg_array);
+
+        # Cookie Prefix
+        Cookie::update((isset($pkg_array['config']['cookie']) ? $pkg_array['config']['cookie'] : 'default'));
 
         # Update Title
         Core::updateTitle((isset($pkg_array['config']['title']) ? $pkg_array['config']['title'] : 'default'));

@@ -2,8 +2,22 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
+use WP_CLI_PACKAGIST\Package\Package;
+use WP_CLI_PACKAGIST\Package\Utility\install;
+use WP_CLI_PACKAGIST\Package\Utility\temp;
+
 class Cookie
 {
+    /**
+     * Get Default WordPress Cookie
+     *
+     * @return mixed
+     */
+    public static function getDefaultCookie()
+    {
+        return Package::get_config('package', 'default_wordpress_cookie');
+    }
+
     /**
      * Change WordPress Cookie Constant
      *
@@ -45,13 +59,13 @@ class Cookie
         }
 
         //Sanitize Cookie prefix
-        $last_character = substr($cookie_prefix, -1);
-        if ($last_character != "_" || $last_character != "-") {
-            $cookie_prefix = $cookie_prefix . '_';
-        }
+        //$last_character = substr($cookie_prefix, -1);
+       // if ($last_character != "_" || $last_character != "-") {
+        //    $cookie_prefix = $cookie_prefix . '_';
+        //}
 
         //Added constant
-        if (trim($cookie_prefix) != "wordpress") { //wordpress is a default value
+        if (trim($cookie_prefix) != self::getDefaultCookie()) {
             foreach ($list as $const) {
                 switch ($const) {
                     case "COOKIEHASH":
@@ -85,5 +99,37 @@ class Cookie
         }
 
         return array('status' => true);
+    }
+
+    /**
+     * Update Cookie Prefix
+     *
+     * @param $cookie_prefix
+     */
+    public static function update($cookie_prefix)
+    {
+        // Default
+        if ($cookie_prefix == "default") {
+            $cookie_prefix = self::getDefaultCookie();
+        }
+
+        // get Temp Package
+        $tmp = temp::get_temp(\WP_CLI_Util::getcwd());
+
+        // Get Current From Tmp
+        $tmp_cookie = (isset($tmp['config']['cookie']) ? $tmp['config']['cookie'] : self::getDefaultCookie());
+
+        // If Not any change
+        if ($tmp_cookie == $cookie_prefix) {
+            return;
+        }
+
+        // Update Cookie
+        $cookie_run = self::set_cookie_prefix($cookie_prefix, Core::get_site_url());
+
+        // Add Update Log
+        if($cookie_run) {
+            install::add_detail_log("Updated WordPress Cookie prefix");
+        }
     }
 }
