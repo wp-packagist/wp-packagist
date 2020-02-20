@@ -46,7 +46,7 @@ class Rest_API
         $t = "# Remove All WordPress Default Rest API Route\n";
         $t .= "remove_action('rest_api_init', 'create_initial_rest_routes', 99);" . "\n"; // Remove WP namespace and default route
         $t .= "remove_action('rest_api_init', 'wp_oembed_register_route');" . "\n"; // Remove Oembed namespace and route
-        $t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); });' . "\n"; // Remove "/" route from Rest API
+        $t .= self::disable_custom_route(array("/")); // Remove "/" route from REST API
         return $t;
     }
 
@@ -75,7 +75,8 @@ class Rest_API
          *
          * add_filter( 'rest_authentication_errors', function( $access ){ return new WP_Error( 'rest_cannot_access', 'Bye', array( 'status' => 403 ) ); } );
          */
-        $t = self::remove_all_default_route();
+        $t = "# Disable all WordPress REST API Routes" . "\n";
+        $t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); });' . "\n";
         $t .= "# Remove Action in WordPress Theme" . "\n";
         $t .= 'remove_action( \'wp_head\', \'rest_output_link_wp_head\', \'10\' );' . "\n";
         $t .= 'remove_action( \'wp_head\', \'wp_oembed_add_discovery_links\' );' . "\n";
@@ -92,7 +93,7 @@ class Rest_API
      */
     public static function disable_custom_route($array)
     {
-        $t = "# Disable Custom Route From WordPress Rest API\n";
+        $t = "# Disable Custom Route From WordPress REST API\n";
         $t .= 'add_filter(\'rest_endpoints\', function($endpoints) {' . "\n";
         foreach ($array as $route) {
             //Sanitize Route
