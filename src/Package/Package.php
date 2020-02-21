@@ -231,9 +231,9 @@ class Package
     public function writable_package_dir()
     {
         // Check WP-CLI dir is Writable
-        $wp_cli_dir          = \WP_CLI_Helper::get_home_path();
-        $_is_writable_wp_cli = \WP_CLI_FileSystem::is_writable($wp_cli_dir);
-        if ($_is_writable_wp_cli['status'] === false) {
+        $wp_cli_dir  = \WP_CLI_Helper::get_home_path();
+        $is_writable = \WP_CLI_FileSystem::is_writable($wp_cli_dir);
+        if ($is_writable['status'] === false) {
             \WP_CLI_Helper::error(Package::_e('package', 'not_per_create_dir_in', array("[key]" => $wp_cli_dir)), true);
         }
 
@@ -248,13 +248,13 @@ class Package
         );
         foreach ($dir_list as $dir) {
             if (\WP_CLI_FileSystem::folder_exist($dir) === false) {
-                if ( ! @mkdir($dir, 0777, true /*recursive*/)) {
-                    $error = error_get_last();
-                    \WP_CLI_Helper::error(Package::_e('package', 'create_dir', array("[key]" => $dir, "[error]" => $error['message'])), true);
+                $mkdir = \WP_CLI_FileSystem::create_dir(basename($dir), dirname($dir), 0777);
+                if ($mkdir['status'] === false) {
+                    \WP_CLI_Helper::error(Package::_e('package', 'create_dir', array("[key]" => $dir, "[error]" => $mkdir['message'])), true);
                 }
             } else {
-                $_is_writable = \WP_CLI_FileSystem::is_writable($dir);
-                if ($_is_writable['status'] === false) {
+                $is_writable = \WP_CLI_FileSystem::is_writable($dir);
+                if ($is_writable['status'] === false) {
                     \WP_CLI_Helper::error(Package::_e('package', 'not_writable', array("[key]" => $wp_cli_dir)), true);
                 }
             }
