@@ -122,6 +122,13 @@ class Dir
                                 if (empty($folder)) {
                                     $valid->add_error(Package::_e('package', 'empty_val', array("[key]" => "dir: { " . $k . ": ..")));
                                     break;
+                                } else {
+                                    // Check Nested Folder
+                                    $explode = explode("/", \WP_CLI_Util::remove_double_slash(rtrim($array[$k], "/")));
+                                    if (count($explode) > 2) {
+                                        $valid->add_error(Package::_e('package', 'er_nested_dir', array("[dir]" => $k)));
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -159,7 +166,7 @@ class Dir
                     //Check Folder not empty and Folder value is not default
                     if ( ! empty($sanitize_file_name) and $k != $sanitize_file_name) {
                         //Push to list if not any wrong
-                        $list[$k] = $sanitize_file_name;
+                        $list[$k] = \WP_CLI_Util::remove_double_slash($sanitize_file_name);
 
                         //For wp-content we must check without slash
                         if ($k == "wp-content" and $k == trim($sanitize_file_name, "/")) {
@@ -169,8 +176,7 @@ class Dir
                 }
 
                 //Push sanitize Data
-                $array = $list;
-                $valid->add_success($array);
+                $valid->add_success($list);
             }
         }
 
@@ -265,7 +271,7 @@ class Dir
         //Check exist DIR
         if (isset($pkg_array['dir']) and count($pkg_array['dir']) > 0) {
             Package_Install::install_log($step, $all_step, Package::_e('package', 'change_dir'));
-            \WP_CLI_PACKAGIST\Package\Arguments\Dir::update_dir($this->params_keys, $pkg_array['dir'], $pkg_array);
+            \WP_CLI_PACKAGIST\Package\Arguments\Dir::updateDir($this->params_keys, $pkg_array['dir'], $pkg_array);
             $step++;
         }
 

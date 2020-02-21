@@ -6,6 +6,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Admin;
 use WP_CLI_PACKAGIST\Package\Arguments\Config;
 use WP_CLI_PACKAGIST\Package\Arguments\Cookie;
 use WP_CLI_PACKAGIST\Package\Arguments\Core;
+use WP_CLI_PACKAGIST\Package\Arguments\Dir;
 use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\Options;
@@ -115,5 +116,8 @@ class Package_Update extends Package
 
         # Switch Theme
         Themes::updateTheme((isset($pkg_array['config']['theme']) ? $pkg_array['config']['theme'] : 'default'));
+
+        # Dir
+        Dir::updateCommand($pkg_array);
     }
 }

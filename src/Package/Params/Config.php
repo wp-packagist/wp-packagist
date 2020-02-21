@@ -1304,7 +1304,7 @@ class Config
         }
 
         //Create require Dir in wp-content
-        Dir::create_require_folder();
+        Dir::createExtraFolderInWPContent();
 
         //added step
         $step++;

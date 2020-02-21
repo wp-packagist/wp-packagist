@@ -4,6 +4,7 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Dir
 {
@@ -36,7 +37,7 @@ class Dir
     /**
      * Create Directory in wp-content
      */
-    public static function create_require_folder()
+    public static function createExtraFolderInWPContent()
     {
         $wp_content = \WP_CLI_Util::getcwd('wp-content');
         foreach (self::$dirs as $folder) {
@@ -81,26 +82,57 @@ class Dir
      * @param $dir
      * @param $pkg_array
      * @param string $step | (install or update)
+     * @param array $temporary_dir
      */
-    public static function update_dir($params, $dir, $pkg_array, $step = 'install')
+    public static function updateDir($params, $dir, $pkg_array, $step = 'install', $temporary_dir = array())
     {
         //Load Wp-config Transform
         $config_transformer = Config::get_config_transformer();
 
-        //Add Site Constant
-        self::update_site_constant($dir, $pkg_array['config']['url'], $config_transformer);
-
-        //Change folders
+        // Set Null if Not Found
         foreach ($params as $folder) {
-            //Check exist value
             if ( ! array_key_exists($folder, $dir)) {
                 $dir[$folder] = null;
             }
-
-            //Load Method
-            $method_name = 'change_' . str_replace("-", "_", $folder) . '_folder';
-            self::{$method_name}($dir, $config_transformer, true, $step);
         }
+
+        //WP_SITE Constant
+        self::update_site_constant($dir, $pkg_array['config']['url'], $config_transformer);
+
+        //Load Methods
+        foreach ($params as $folder) {
+            $method_name = 'change_' . str_replace("-", "_", $folder) . '_folder';
+            self::{$method_name}($dir, $config_transformer, true, $step, $temporary_dir);
+        }
+    }
+
+    /**
+     * Update Command Package
+     *
+     * @param $pkg
+     * @throws \WP_CLI\ExitException
+     */
+    public static function updateCommand($pkg)
+    {
+        // Get Package Dir
+        $pkg_dir = array();
+        if (isset($pkg['dir'])) {
+            $pkg_dir = $pkg['dir'];
+        }
+
+        // get Temp Package
+        $tmp = Package_Temporary::getTemporaryFile();
+
+        // Get Current From Temporary
+        $tmp_dir = (isset($tmp['dir']) ? $tmp['dir'] : array());
+
+        // If Not any change
+        if ($tmp_dir == $pkg_dir) {
+            return;
+        }
+
+        // Run Update
+        self::updateDir(array('wp-content', 'plugins', 'themes', 'uploads'), $pkg_dir, $pkg, 'update', $tmp_dir);
     }
 
     /**
@@ -119,11 +151,15 @@ class Dir
         $list = array('WP_HOME', 'WP_SITEURL');
 
         //Check exist dir
-        if (count($dir) > 0 and ! empty($site_url) and ((isset($dir['wp-content']) and $dir['wp-content'] != "wp-content") || (isset($dir['plugins']) and $dir['plugins'] != "plugins"))) {
+        if (count($dir) > 0 and ! empty($site_url) and ((isset($dir['wp-content']) and ltrim($dir['wp-content'], "/") != "wp-content") || (isset($dir['plugins']) and ltrim($dir['plugins'], "/") != "plugins"))) {
             foreach ($list as $const) {
                 $wp_config->update('constant', $const, $site_url, array('raw' => false, 'normalize' => true));
             }
         } else {
+            // Dont Remove if Exist WP-Content
+            if ($wp_config->exists('constant', 'WP_CONTENT_FOLDER')) {
+                return;
+            }
             foreach ($list as $const) {
                 $wp_config->remove('constant', $const);
             }
@@ -148,12 +184,20 @@ class Dir
      * @param $dir
      * @param $wp_config
      * @param bool $log
-     * @param $step
+     * @param string $step
+     * @param array $temporary_dir
+     * @throws \WP_CLI\ExitException
      */
-    public static function change_wp_content_folder($dir, $wp_config, $log = false, $step = 'install')
+    public static function change_wp_content_folder($dir, $wp_config, $log = false, $step = 'install', $temporary_dir = array())
     {
         //Get base wp-content path
         $base_path = rtrim(\WP_CLI_FileSystem::path_join(getcwd(), 'wp-content'), "/");
+        if ($step == "update") {
+            $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, 'wp-content');
+            if ( ! is_null($dir['wp-content'])) {
+                $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($dir['wp-content'], "/"));
+            }
+        }
 
         //Get current wp-content path
         $current_path = rtrim(self::get_content_dir(), "/") . "/";
@@ -161,42 +205,98 @@ class Dir
         //Check changed wp-content dir
         $is_change = false;
 
-        //constant list
-        $constants_list = array('WP_CONTENT_FOLDER', 'WP_CONTENT_DIR', 'WP_CONTENT_URL');
+        // Check Added Constant For Plugins Or Uploads in install
+        $constants_list = array('WP_CONTENT_FOLDER', 'WP_CONTENT_DIR', 'WP_CONTENT_URL', 'WP_HOME', 'WP_SITEURL');
+        if ( ! is_null($dir['plugins']) || ! is_null($dir['uploads']) || ! is_null($dir['wp-content'])) {
+            self::updateWPContentConstant($wp_config, (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']));
+        } else {
+            foreach ($constants_list as $const) {
+                $wp_config->remove('constant', $const);
+            }
+        }
+
+        // Check Must Changed in Update Command
+        if ($step == "update" and rtrim($base_path, "/") == rtrim($current_path, "/")) {
+            return;
+        }
 
         //Check if null value (Reset to Default)
         if (is_null($dir['wp-content'])) {
-            if ($base_path != $current_path and $step != 'install') {
+            if (rtrim($base_path, "/") != rtrim($current_path, "/") and $step != 'install') {
                 $is_change = true;
 
-                //First Remove Constant
-                foreach ($constants_list as $const) {
-                    $wp_config->remove('constant', $const);
+                // Move or Rename Dir
+                self::moveDir($current_path, $base_path);
+
+                // First Remove Constant
+                // We Dont Remove Because Plugins or Uploads Used this Constant
+                if ( ! is_null($dir['plugins']) || ! is_null($dir['uploads'])) {
+                    self::updateWPContentConstant($wp_config, 'wp-content');
                 }
 
-                //Move Folder
-                \WP_CLI_FileSystem::move($current_path, $base_path);
+                // Set Log
+                $from_path_log = $current_path;
+                $to_path_log   = $base_path;
             }
         } else {
             //New Path
             $new_path = rtrim(\WP_CLI_FileSystem::path_join(getcwd(), trim($dir['wp-content'], "/")), "/") . "/";
-            if ($new_path != $current_path) {
+
+            // New Path in Update command
+            if ($step == "update") {
+                $new_path = $base_path;
+            }
+
+            // Set Log
+            $from_path_log = $current_path;
+            $to_path_log   = $new_path;
+
+            // run move
+            if (rtrim($new_path, "/") != rtrim($current_path, "/")) {
                 $is_change = true;
 
                 //Move Folder
-                \WP_CLI_FileSystem::move($current_path, $new_path);
+                self::moveDir($current_path, $new_path);
 
                 //Add Constant
-                $wp_config->update('constant', 'WP_CONTENT_FOLDER', trim($dir['wp-content'], "/"), array('raw' => false, 'normalize' => true));
-                $wp_config->update('constant', 'WP_CONTENT_DIR', 'ABSPATH . WP_CONTENT_FOLDER', array('raw' => true, 'normalize' => true));
-                $wp_config->update('constant', 'WP_CONTENT_URL', "WP_SITEURL . '/' . WP_CONTENT_FOLDER", array('raw' => true, 'normalize' => true));
+                self::updateWPContentConstant($wp_config, $dir['wp-content']);
             }
         }
 
         //Add Log
         if ($log and $is_change) {
-            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "wp-content")));
+            if ($step == "install") {
+                Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "wp-content")));
+            } else {
+                Package_Install::add_detail_log(Package::_e('package', 'update_dir_path', array("[dir]" => "wp-content", "[from]" => str_replace(ABSPATH, "", "/" . trim($from_path_log, "/")), "[to]" => str_replace(ABSPATH, "", "/" . trim($to_path_log, "/")))));
+
+                # Update Database Attachment Link
+                $site_url   = Core::get_site_url();
+                $before_url = rtrim(content_url(), "/") . "/";
+                $after_url  = rtrim($site_url, "/") . "/" . trim($dir['wp-content'], "/") . "/";
+                // If Uploads Folder is Changed We cancel this process and run into changed_uploads_folder method
+                $tmp_uploads = (isset($temporary_dir['uploads']) ? $temporary_dir['uploads'] : null);
+                if ($before_url != $after_url and (trim($dir['uploads'], "/") == trim($tmp_uploads, "/"))) {
+                    \WP_CLI_Helper::pl_wait_start();
+                    \WP_CLI_Helper::search_replace_db($before_url, $after_url);
+                    \WP_CLI_Helper::pl_wait_end();
+                    Package_Install::add_detail_log(Package::_e('package', 'srdb_uploads'));
+                }
+            }
         }
+    }
+
+    /**
+     * Update Wp-Content dir constant
+     * 
+     * @param $wp_config
+     * @param $dirName
+     */
+    public static function updateWPContentConstant($wp_config, $dirName)
+    {
+        $wp_config->update('constant', 'WP_CONTENT_FOLDER', trim($dirName, "/"), array('raw' => false, 'normalize' => true));
+        $wp_config->update('constant', 'WP_CONTENT_DIR', 'ABSPATH . WP_CONTENT_FOLDER', array('raw' => true, 'normalize' => true));
+        $wp_config->update('constant', 'WP_CONTENT_URL', "WP_SITEURL . '/' . WP_CONTENT_FOLDER", array('raw' => true, 'normalize' => true));
     }
 
     /**
@@ -218,43 +318,95 @@ class Dir
      * @param $wp_config
      * @param bool $log
      * @param string $step
+     * @param array $temporary_dir
+     * @throws \WP_CLI\ExitException
      */
-    public static function change_plugins_folder($dir, $wp_config, $log = false, $step = 'install')
+    public static function change_plugins_folder($dir, $wp_config, $log = false, $step = 'install', $temporary_dir = array())
     {
+        // Get WP-Content Dir pkg
+        $wp_content = $wp_content_tmp = 'wp-content';
+        $plugins    = $plugins_tmp = 'plugins';
+        if ( ! is_null($dir['wp-content'])) {
+            $wp_content = $dir['wp-content'];
+        }
+        if ( ! is_null($dir['plugins'])) {
+            $plugins = $dir['plugins'];
+        }
+        if (isset($temporary_dir['wp-content'])) {
+            $wp_content_tmp = $temporary_dir['wp-content'];
+        }
+        if (isset($temporary_dir['plugins'])) {
+            $plugins_tmp = $temporary_dir['plugins'];
+        }
+
         //Get base plugins path
         $base_path = rtrim(\WP_CLI_FileSystem::path_join(getcwd(), 'wp-content/plugins'), "/");
+        if ($step == "update") {
+            $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim('plugins', "/")));
+            if ( ! is_null($dir['plugins'])) {
+                $first_character = substr($dir['plugins'], 0, 1);
+                if ($first_character == "/") {
+                    $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($dir['plugins'], "/"));
+                } else {
+                    $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim($dir['plugins'], "/")));
+                }
+            }
+        }
 
         //Get current plugins path
         $current_path = rtrim(self::get_plugins_dir(), "/") . "/";
+        if ($step == "update" and ltrim($wp_content_tmp, "/") != ltrim($wp_content, "/")) {
+            // Changed Constant If Only Change WP-content Constant
+            if ( ! is_null($dir['plugins'])) {
+                self::updatePluginsConstant($wp_config, (is_null($dir['plugins']) ? 'plugins' : $dir['plugins']), (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']));
+            }
+
+            if (substr($dir['plugins'], 0, 1) != "/" and rtrim($plugins_tmp, "/") == rtrim($plugins, "/")) {
+                return;
+            } else {
+                if (substr($plugins_tmp, 0, 1) == "/") {
+                    $current_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($plugins_tmp, "/"));
+                } else {
+                    $current_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim($plugins_tmp, "/")));
+                }
+            }
+        }
 
         //Check changed wp-content dir
         $is_change = false;
 
+        // Check Must Changed in Update Command
+        if ($step == "update" and rtrim($base_path, "/") == rtrim($current_path, "/")) {
+            return;
+        }
+
         //constant list
         $constants_list = array('WP_PLUGIN_DIR', 'PLUGINDIR', 'WP_PLUGIN_URL');
+        if ( ! is_null($dir['plugins'])) {
+            self::updatePluginsConstant($wp_config, $dir['plugins'], (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']));
+        } else {
+            foreach ($constants_list as $const) {
+                if ($wp_config->exists('constant', $const)) {
+                    $wp_config->remove('constant', $const);
+                }
+            }
+        }
 
         //Check if null value (Reset to Default)
         if (is_null($dir['plugins'])) {
-            if ($base_path != $current_path and $step != 'install') {
+            if (rtrim($base_path, "/") != rtrim($current_path, "/") and $step != 'install') {
                 $is_change = true;
 
-                //First Remove Constant
-                foreach ($constants_list as $const) {
-                    $wp_config->remove('constant', $const);
-                }
-
                 //Move Folder
-                \WP_CLI_FileSystem::move($current_path, $base_path);
+                self::moveDir($current_path, $base_path);
+
+                // Set Log
+                $from_path_log = $current_path;
+                $to_path_log   = $base_path;
             }
         } else {
             //Get first Character (check in wp-content)
             $first_character = substr($dir['plugins'], 0, 1);
-
-            //Get wp-content path
-            $wp_content = 'wp-content';
-            if ( ! is_null($dir['wp-content'])) {
-                $wp_content = $dir['wp-content'];
-            }
 
             //Old Path
             $old_path = $current_path;
@@ -269,37 +421,64 @@ class Dir
                 $new_path = \WP_CLI_FileSystem::path_join(getcwd(), \WP_CLI_FileSystem::path_join($wp_content, ltrim($dir['plugins'], "/")));
             }
 
+            // New Path in Update command
+            if ($step == "update") {
+                $new_path = $base_path;
+            }
+
+            // Set Log
+            $from_path_log = $old_path;
+            $to_path_log   = $new_path;
+
+            // Run
             if (rtrim($new_path, "/") != rtrim($current_path, "/")) {
                 $is_change = true;
 
                 //Move Folder
-                \WP_CLI_FileSystem::move($old_path, $new_path);
+                self::moveDir($old_path, $new_path);
 
                 //Get Path and URL for Constant
-                if ($first_character == "/") {
-                    $constant_path = "ABSPATH . '" . ltrim($dir['plugins'], "/") . "'";
-                    $constant_url  = "WP_SITEURL . '/" . ltrim($dir['plugins'], "/") . "'";
-                } else {
-                    if (is_null($dir['wp-content'])) {
-                        $constant_path = "'wp-content/" . ltrim($dir['plugins'], "/") . "'";
-                        $constant_url  = "WP_SITEURL . '/wp-content/" . ltrim($dir['plugins'], "/") . "'";
-                    } else {
-                        $constant_path = "WP_CONTENT_DIR . '/" . ltrim($dir['plugins'], "/") . "'";
-                        $constant_url  = "WP_CONTENT_URL . '/" . ltrim($dir['plugins'], "/") . "'";
-                    }
-                }
-
-                //Add Constant
-                $wp_config->update('constant', 'WP_PLUGIN_DIR', $constant_path, array('raw' => true, 'normalize' => true));
-                $wp_config->update('constant', 'PLUGINDIR', $constant_path, array('raw' => true, 'normalize' => true));
-                $wp_config->update('constant', 'WP_PLUGIN_URL', $constant_url, array('raw' => true, 'normalize' => true));
+                self::updatePluginsConstant($wp_config, $dir['plugins'], $dir['wp-content']);
             }
         }
 
         //Add Log
         if ($log and $is_change) {
-            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "plugins")));
+            if ($step == "install") {
+                Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "plugins")));
+            } else {
+                Package_Install::add_detail_log(Package::_e('package', 'update_dir_path', array("[dir]" => "plugins", "[from]" => str_replace(ABSPATH, "", "/" . trim($from_path_log, "/")), "[to]" => str_replace(ABSPATH, "", "/" . trim($to_path_log, "/")))));
+            }
         }
+    }
+
+    /**
+     * Update Plugins Dir Constant
+     *
+     * @param $wp_config
+     * @param $dirName
+     * @param $wp_content
+     */
+    public static function updatePluginsConstant($wp_config, $dirName, $wp_content)
+    {
+        $first_character = substr($dirName, 0, 1);
+        if ($first_character == "/") {
+            $constant_path = "ABSPATH . '" . ltrim($dirName, "/") . "'";
+            $constant_url  = "WP_SITEURL . '/" . ltrim($dirName, "/") . "'";
+        } else {
+            if (is_null($wp_content)) {
+                $constant_path = "'wp-content/" . ltrim($dirName, "/") . "'";
+                $constant_url  = "WP_SITEURL . '/wp-content/" . ltrim($dirName, "/") . "'";
+            } else {
+                $constant_path = "WP_CONTENT_DIR . '/" . ltrim($dirName, "/") . "'";
+                $constant_url  = "WP_CONTENT_URL . '/" . ltrim($dirName, "/") . "'";
+            }
+        }
+
+        //Add Constant
+        $wp_config->update('constant', 'WP_PLUGIN_DIR', $constant_path, array('raw' => true, 'normalize' => true));
+        $wp_config->update('constant', 'PLUGINDIR', $constant_path, array('raw' => true, 'normalize' => true));
+        $wp_config->update('constant', 'WP_PLUGIN_URL', $constant_url, array('raw' => true, 'normalize' => true));
     }
 
     /**
@@ -318,26 +497,67 @@ class Dir
      * Change themes Folder
      *
      * @param $dir
-     * @param $wp_config
+     * @param array $wp_config
      * @param bool $log
      * @param string $step
+     * @param array $temporary_dir
+     * @throws \WP_CLI\ExitException
      */
-    public static function change_themes_folder($dir, $wp_config, $log = false, $step = 'install')
+    public static function change_themes_folder($dir, $wp_config = array(), $log = false, $step = 'install', $temporary_dir = array())
     {
+        // Get WP-Content Dir pkg
+        $wp_content = $wp_content_tmp = 'wp-content';
+        $themes     = $themes_tmp = 'themes';
+        if ( ! is_null($dir['wp-content'])) {
+            $wp_content = $dir['wp-content'];
+        }
+        if ( ! is_null($dir['themes'])) {
+            $themes = $dir['themes'];
+        }
+        if (isset($temporary_dir['wp-content'])) {
+            $wp_content_tmp = $temporary_dir['wp-content'];
+        }
+        if (isset($temporary_dir['themes'])) {
+            $themes_tmp = $temporary_dir['themes'];
+        }
+
         //Get base themes path
         $base_path = rtrim(\WP_CLI_FileSystem::path_join(getcwd(), 'wp-content/themes'), "/");
+        if ($step == "update") {
+            $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim('themes', "/")));
+            if ( ! is_null($dir['themes'])) {
+                $first_character = substr($dir['themes'], 0, 1);
+                if ($first_character == "/") {
+                    $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($dir['themes'], "/"));
+                } else {
+                    $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim($dir['themes'], "/")));
+                }
+            }
+        }
 
         //Get current themes path
         $current_path = rtrim(self::get_themes_dir(), "/") . "/";
+        if ($step == "update" and ltrim($wp_content_tmp, "/") != ltrim($wp_content, "/")) {
+            if (substr($dir['themes'], 0, 1) != "/" and rtrim($themes_tmp, "/") == rtrim($themes, "/")) {
+                return;
+            } else {
+                if (substr($themes_tmp, 0, 1) == "/") {
+                    $current_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($themes_tmp, "/"));
+                } else {
+                    $current_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim($themes_tmp, "/")));
+                }
+            }
+        }
 
         //Check changed themes dir
         $is_change = false;
 
-        //Get Mu Plugins Path
-        $wp_content = 'wp-content';
-        if ( ! is_null($dir['wp-content'])) {
-            $wp_content = $dir['wp-content'];
+        // Check Must Changed in Update Command
+        if ($step == "update" and rtrim($base_path, "/") == rtrim($current_path, "/")) {
+            return;
         }
+
+        //Get Mu Plugins Path
         $mu_plugins_path = \WP_CLI_FileSystem::path_join(getcwd(), \WP_CLI_FileSystem::path_join($wp_content, 'mu-plugins'));
 
         //mu-plugins theme-dir path
@@ -345,7 +565,7 @@ class Dir
 
         //Check if null value (Reset to Default)
         if (is_null($dir['themes'])) {
-            if ($base_path != $current_path and $step != 'install') {
+            if (rtrim($base_path, "/") != rtrim($current_path, "/") and $step != 'install') {
                 $is_change = true;
 
                 //Remove Mu-plugins
@@ -354,7 +574,11 @@ class Dir
                 }
 
                 //Move Folder
-                \WP_CLI_FileSystem::move($current_path, $base_path);
+                self::moveDir($current_path, $base_path);
+
+                // Set Log
+                $from_path_log = $current_path;
+                $to_path_log   = $base_path;
             }
         } else {
             //Get first Character (check in wp-content)
@@ -373,11 +597,20 @@ class Dir
                 $new_path = \WP_CLI_FileSystem::path_join(getcwd(), \WP_CLI_FileSystem::path_join($wp_content, ltrim($dir['themes'], "/")));
             }
 
+            // New Path in Update command
+            if ($step == "update") {
+                $new_path = $base_path;
+            }
+
+            // Set Log
+            $from_path_log = $old_path;
+            $to_path_log   = $new_path;
+
             if (rtrim($new_path, "/") != rtrim($current_path, "/")) {
                 $is_change = true;
 
                 //Move Folder
-                \WP_CLI_FileSystem::move($old_path, $new_path);
+                self::moveDir($old_path, $new_path);
 
                 //Get Path and URL for Constant
                 if ($first_character == "/") {
@@ -404,7 +637,11 @@ class Dir
 
         //Add Log
         if ($log and $is_change) {
-            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "themes")));
+            if ($step == "install") {
+                Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "themes")));
+            } else {
+                Package_Install::add_detail_log(Package::_e('package', 'update_dir_path', array("[dir]" => "themes", "[from]" => str_replace(ABSPATH, "", "/" . trim($from_path_log, "/")), "[to]" => str_replace(ABSPATH, "", "/" . trim($to_path_log, "/")))));
+            }
         }
     }
 
@@ -416,7 +653,7 @@ class Dir
         if ( ! function_exists('wp_upload_dir')) {
             return \WP_CLI_FileSystem::path_join(\WP_CLI_Util::getcwd(), 'wp-content/uploads');
         } else {
-            $upload_dir = wp_upload_dir();
+            $upload_dir = wp_upload_dir(null, false);
             return \WP_CLI_FileSystem::normalize_path($upload_dir['basedir']);
         }
     }
@@ -430,7 +667,7 @@ class Dir
      */
     public static function get_wp_uploads($what = 'baseurl')
     {
-        $uploads = \WP_CLI::runcommand('eval "echo json_encode( wp_upload_dir() );"', array('return' => 'stdout', 'parse' => 'json'));
+        $uploads = \WP_CLI::runcommand('eval "echo json_encode( wp_upload_dir(null, false) );"', array('return' => 'stdout', 'parse' => 'json'));
         return rtrim(\WP_CLI_Util::backslash_to_slash($uploads[$what]), "/");
     }
 
@@ -441,49 +678,95 @@ class Dir
      * @param $wp_config
      * @param bool $log
      * @param string $step
+     * @param array $temporary_dir
+     * @throws \WP_CLI\ExitException
      */
-    public static function change_uploads_folder($dir, $wp_config, $log = false, $step = 'install')
+    public static function change_uploads_folder($dir, $wp_config, $log = false, $step = 'install', $temporary_dir = array())
     {
+        // Get WP-Content Dir pkg
+        $wp_content = $wp_content_tmp = 'wp-content';
+        $uploads    = $uploads_tmp = 'uploads';
+        if ( ! is_null($dir['wp-content'])) {
+            $wp_content = $dir['wp-content'];
+        }
+        if ( ! is_null($dir['uploads'])) {
+            $uploads = $dir['uploads'];
+        }
+        if (isset($temporary_dir['wp-content'])) {
+            $wp_content_tmp = $temporary_dir['wp-content'];
+        }
+        if (isset($temporary_dir['uploads'])) {
+            $uploads_tmp = $temporary_dir['uploads'];
+        }
+
+        //Get first Character (check in wp-content)
+        $first_character = substr($dir['uploads'], 0, 1);
+
         //Get base uploads path
         $base_path = rtrim(\WP_CLI_FileSystem::path_join(getcwd(), 'wp-content/uploads'), "/");
+        if ($step == "update") {
+            $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim('uploads', "/")));
+            if ( ! is_null($dir['uploads'])) {
+                if ($first_character == "/") {
+                    $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($dir['uploads'], "/"));
+                } else {
+                    $base_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim($dir['uploads'], "/")));
+                }
+            }
+        }
 
         //Get current uploads path
         $current_path = rtrim(self::get_uploads_dir(), "/") . "/";
+        if ($step == "update" and ltrim($wp_content_tmp, "/") != ltrim($wp_content, "/")) {
+            // Changed Constant If Only Change WP-content Constant
+            if ( ! is_null($dir['uploads'])) {
+                self::updateUploadsConstant($wp_config, (is_null($dir['uploads']) ? 'uploads' : $dir['uploads']), (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']));
+            }
+
+            if (substr($dir['uploads'], 0, 1) != "/" and rtrim($uploads_tmp, "/") == rtrim($uploads, "/")) {
+                return;
+            } else {
+                if (substr($uploads_tmp, 0, 1) == "/") {
+                    $current_path = \WP_CLI_FileSystem::path_join(ABSPATH, ltrim($uploads_tmp, "/"));
+                } else {
+                    $current_path = \WP_CLI_FileSystem::path_join(ABSPATH, \WP_CLI_FileSystem::path_join($wp_content, ltrim($uploads_tmp, "/")));
+                }
+            }
+        }
 
         //Check changed wp-content dir
         $is_change = false;
 
-        // Get Current Base Uploads Url
-        if ($step == "update") {
-            $before_uploads_url = self::get_wp_uploads();
+        // Check Must Changed in Update Command
+        if ($step == "update" and rtrim($base_path, "/") == rtrim($current_path, "/")) {
+            return;
         }
 
         //constant list
         $constants_list = array('UPLOADS');
+        if ( ! is_null($dir['uploads'])) {
+            self::updateUploadsConstant($wp_config, $dir['uploads'], (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']));
+        } else {
+            foreach ($constants_list as $const) {
+                if ($wp_config->exists('constant', $const)) {
+                    $wp_config->remove('constant', $const);
+                }
+            }
+        }
 
         //Check if null value (Reset to Default)
         if (is_null($dir['uploads'])) {
-            if ($base_path != $current_path and $step != 'install') {
+            if (rtrim($base_path, "/") != rtrim($current_path, "/") and $step != 'install') {
                 $is_change = true;
 
-                //First Remove Constant
-                foreach ($constants_list as $const) {
-                    $wp_config->remove('constant', $const);
-                }
-
                 //Move Folder
-                \WP_CLI_FileSystem::move($current_path, $base_path);
+                self::moveDir($current_path, $base_path);
+
+                // Set Log
+                $from_path_log = $current_path;
+                $to_path_log   = $base_path;
             }
         } else {
-            //Get first Character (check in wp-content)
-            $first_character = substr($dir['uploads'], 0, 1);
-
-            //Get wp-content path
-            $wp_content = 'wp-content';
-            if ( ! is_null($dir['wp-content'])) {
-                $wp_content = $dir['wp-content'];
-            }
-
             //Old Path
             $old_path = $current_path;
             if ($step == "install") {
@@ -497,48 +780,102 @@ class Dir
                 $new_path = \WP_CLI_FileSystem::path_join(getcwd(), \WP_CLI_FileSystem::path_join($wp_content, ltrim($dir['uploads'], "/")));
             }
 
+            // New Path in Update command
+            if ($step == "update") {
+                $new_path = $base_path;
+            }
+
+            // Set Log
+            $from_path_log = $old_path;
+            $to_path_log   = $new_path;
+
+            // Run
             if (rtrim($new_path, "/") != rtrim($current_path, "/")) {
                 $is_change = true;
 
                 //Move Folder
-                \WP_CLI_FileSystem::move($old_path, $new_path);
+                self::moveDir($old_path, $new_path);
 
-                //Get Path and URL for Constant
-                if ($first_character == "/") {
-                    $constant_path = "''.'" . trim($dir['uploads'], "/") . "'";
-                } else {
-                    if ( ! is_null($dir['wp-content'])) {
-                        $constant_path = "WP_CONTENT_FOLDER . '/" . trim($dir['uploads'], "/") . "'";
-                    } else {
-                        $constant_path = "'wp-content/" . trim($dir['uploads'], "/") . "'";
-                    }
-                }
-
-                //Add Constant
-                $wp_config->add('constant', 'UPLOADS', $constant_path, array('raw' => true, 'normalize' => true));
+                // Update Constant
+                self::updateUploadsConstant($wp_config, $dir['uploads'], $dir['wp-content']);
             }
         }
 
         //Add Log
         if ($log and $is_change) {
-            // change folder Log
-            Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "uploads")));
+            if ($step == "install") {
+                Package_Install::add_detail_log(Package::_e('package', 'change_custom_folder', array("[folder]" => "uploads")));
+            } else {
+                Package_Install::add_detail_log(Package::_e('package', 'update_dir_path', array("[dir]" => "uploads", "[from]" => str_replace(ABSPATH, "", "/" . trim($from_path_log, "/")), "[to]" => str_replace(ABSPATH, "", "/" . trim($to_path_log, "/")))));
 
-            // fix Attachment Link in DB
-            if ($step == "update" and isset($before_uploads_url)) {
-                \WP_CLI_Helper::pl_wait_start();
-
-                # Get New Uploads dir url
-                $new_uploads_dir = self::get_wp_uploads();
-
-                # Search-replace in DB
-                \WP_CLI_Helper::search_replace_db($before_uploads_url, $new_uploads_dir);
-
-                # Show Log
-                \WP_CLI_Helper::pl_wait_end();
-                Package_Install::add_detail_log(Package::_e('package', 'srdb_uploads'));
+                # Update Database Attachment Link
+                $site_url             = Core::get_site_url();
+                $upload_dir           = wp_upload_dir(null, false);
+                $before_url           = rtrim($upload_dir['baseurl'], "/") . "/";
+                $content_dir          = (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']) . "/";
+                $new_uploads_dir_name = (is_null($dir['uploads']) ? 'uploads' : trim($dir['uploads'], "/"));
+                if ($first_character == "/") {
+                    $new_upload_dir = $new_uploads_dir_name;
+                } else {
+                    $new_upload_dir = $content_dir . $new_uploads_dir_name;
+                }
+                $after_url = rtrim($site_url, "/") . "/" . rtrim($new_upload_dir, "/") . "/";
+                if ($before_url != $after_url) {
+                    \WP_CLI_Helper::pl_wait_start();
+                    \WP_CLI_Helper::search_replace_db($before_url, $after_url);
+                    \WP_CLI_Helper::pl_wait_end();
+                    Package_Install::add_detail_log(Package::_e('package', 'srdb_uploads'));
+                }
             }
         }
     }
 
+    /**
+     * Update Uploads dir Constant
+     *
+     * @param $wp_config
+     * @param $dirName
+     * @param $wp_content
+     */
+    public static function updateUploadsConstant($wp_config, $dirName, $wp_content)
+    {
+        $first_character = substr($dirName, 0, 1);
+        if ($first_character == "/") {
+            $constant_path = "''.'" . trim($dirName, "/") . "'";
+        } else {
+            if ( ! is_null($wp_content)) {
+                $constant_path = "WP_CONTENT_FOLDER . '/" . trim($dirName, "/") . "'";
+            } else {
+                $constant_path = "'wp-content/" . trim($dirName, "/") . "'";
+            }
+        }
+
+        $wp_config->update('constant', 'UPLOADS', $constant_path, array('raw' => true, 'normalize' => true));
+    }
+
+    /**
+     * Move or Rename Directory
+     *
+     * @param $old_name
+     * @param $new_name
+     * @return bool
+     * @throws \WP_CLI\ExitException
+     */
+    public static function moveDir($old_name, $new_name)
+    {
+        $targetDir = dirname($new_name);
+        if ( ! file_exists($targetDir)) {
+            if ( ! @mkdir($targetDir, 0777, true)) {
+                $error = error_get_last();
+                \WP_CLI::error("Failed to create directory '{$targetDir}': {$error['message']}.", true);
+            }
+        }
+        $old_name = rtrim($old_name, "/");
+        $new_name = rtrim($new_name, "/");
+        if ( ! @rename($old_name, $new_name)) {
+            \WP_CLI::error("Failed to " . (dirname($new_name) == dirname($old_name) ? 'rename' : 'move') . " directory '{$old_name}' to '{$new_name}'.", true);
+        }
+        sleep(3); //Pause for multiple move between wp-content and plugins/uploads ...
+        return true;
+    }
 }
