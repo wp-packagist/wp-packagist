@@ -272,7 +272,7 @@ class Plugins
                     $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($plugins_path, "DESC");
 
                     //Sanitize
-                    self::sanitizePluginDirBySlug($plugin['slug'], \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
+                    self::sanitizeDirBySlug($plugin['slug'], \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
                 }
                 # Updated Plugin
             } else {
@@ -326,14 +326,14 @@ class Plugins
     }
 
     /**
-     * Convert Plugins dr name to plugin slug
+     * Convert Plugins/themes dir name to plugin slug
      *
      * @param $slug
      * @param $dir_path
      * @return bool
      * @throws \WP_CLI\ExitException
      */
-    public static function sanitizePluginDirBySlug($slug, $dir_path)
+    public static function sanitizeDirBySlug($slug, $dir_path)
     {
         //Sanitize path
         $path = rtrim(\WP_CLI_FileSystem::normalize_path($dir_path), "/") . "/";

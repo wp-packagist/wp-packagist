@@ -157,6 +157,7 @@ class Themes
      * @param $pkg_themes
      * @param array $current_themes_list
      * @param array $options
+     * @throws \WP_CLI\ExitException
      */
     public static function update_themes($pkg_themes, $current_themes_list = array(), $options = array())
     {
@@ -248,11 +249,14 @@ class Themes
 
                 //Sanitize Folder Theme
                 if ($from_url === true and ! empty($theme_root)) {
+                    // Wait For Downloaded
+                    sleep(2);
+
                     //Get Last Dir
                     $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($theme_root, "DESC");
 
                     //Sanitize
-                    \WP_CLI_Util::sanitize_github_dir(\WP_CLI_FileSystem::path_join($theme_root, $last_dir[0]));
+                    Plugins::sanitizeDirBySlug($stylesheet, \WP_CLI_FileSystem::path_join($theme_root, $last_dir[0]));
                 }
                 # Updated Theme
             } else {
@@ -263,7 +267,7 @@ class Themes
                     $this_version = ($version == "latest" ? $themes_api->get_last_version_theme($stylesheet) : $version);
                 }
 
-                //Check Exist in WordPress Plugin List
+                //Check Exist in WordPress Theme List
                 $update = true;
                 if ( ! empty($this_version)) {
                     # Use WordPress theme
@@ -272,7 +276,7 @@ class Themes
 
                 //Update
                 if ((isset($args['force']) and $args['force'] === true) || $update === true) {
-                    //Check From URL or WordPress Plugin
+                    //Check From URL or WordPress Theme
                     $prompt = $stylesheet;
                     if ($from_url == false) {
                         $prompt .= ' --version=' . $this_version;

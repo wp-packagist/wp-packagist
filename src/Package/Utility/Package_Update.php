@@ -73,8 +73,6 @@ class Package_Update extends Package
      */
     public static function runUpdatePackage($pkg_array)
     {
-        print_r($pkg_array['plugins']);
-        exit;
         # Get MU-Plugins
         $MU_Plugins = \WP_CLI_FileSystem::normalize_path(WPMU_PLUGIN_DIR);
 
