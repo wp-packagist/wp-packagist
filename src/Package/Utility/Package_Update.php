@@ -11,6 +11,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\MySQL;
 use WP_CLI_PACKAGIST\Package\Arguments\Options;
+use WP_CLI_PACKAGIST\Package\Arguments\Plugins;
 use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
@@ -119,6 +120,7 @@ class Package_Update extends Package
         Themes::updateTheme((isset($pkg_array['config']['theme']) ? $pkg_array['config']['theme'] : 'default'));
 
         # Update Plugins
+        Plugins::update((isset($pkg_array['plugins']) ? $pkg_array['plugins'] : 'default'));
 
         # Dir
         Dir::updateCommand($pkg_array);

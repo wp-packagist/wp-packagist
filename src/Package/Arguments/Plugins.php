@@ -6,6 +6,7 @@ use Faker\Provider\File;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\API\WP_Plugins_Api;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 
 class Plugins
 {
@@ -59,6 +60,39 @@ class Plugins
         }
 
         return $plugin_list;
+    }
+
+    /**
+     * Get Current Plugins List For WordPress Package
+     * @after_wp_loadded
+     */
+    public static function getCurrentPlugins()
+    {
+        $list       = array();
+        $wp_plugins = self::get_list_plugins();
+        foreach ($wp_plugins as $plugins) {
+            $plugin             = array();
+            $plugin['slug']     = $plugins['folder'];
+            $plugin['activate'] = $plugins['activate'];
+
+            // Check Plugin in WordPress Plugins Directory
+            $plugins_api = new WP_Plugins_Api();
+            $plugin_info = $plugins_api->get_plugin_data($plugin['slug']);
+            if ($plugin_info['status'] === false) {
+                // Custom Plugin that not in WordPress Directory
+                $plugin['url'] = ''; //@TODO Create New Proposal for get Plugin Url when not in WordPress plugin directory.(wp pack generate)
+            } else {
+                $plugin['version'] = $plugins['version'];
+                // Check Version is latest of Plugin
+                if ($plugin_info['data']['version'] == $plugins['version']) {
+                    $plugin['version'] = 'latest';
+                }
+            }
+
+            $list[] = $plugin;
+        }
+
+        return $list;
     }
 
     /**
@@ -248,7 +282,8 @@ class Plugins
                 }
 
                 //Check Activate
-                if ($plugin['activate'] === true) {
+                // We don't Custom url plugins activate because folder name is changed after downloaded
+                if ($plugin['activate'] === true and ! isset($plugin['url'])) {
                     $prompt .= ' --activate';
                 }
 
@@ -272,7 +307,14 @@ class Plugins
                     $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($plugins_path, "DESC");
 
                     //Sanitize
-                    self::sanitizeDirBySlug($plugin['slug'], \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
+                    $plugin_slug = \WP_CLI_Util::to_lower_string($plugin['slug']);
+                    self::sanitizeDirBySlug($plugin_slug, \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
+
+                    // Activate Plugin
+                    if ($plugin['activate'] === true) {
+                        $cmd = "plugin activate {$plugin_slug}";
+                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                    }
                 }
                 # Updated Plugin
             } else {
@@ -326,6 +368,34 @@ class Plugins
     }
 
     /**
+     * Update Plugins
+     *
+     * @param $pkg_plugins
+     * @throws \WP_CLI\ExitException
+     */
+    public static function update($pkg_plugins)
+    {
+        // Default
+        if ($pkg_plugins == "default") {
+            $pkg_plugins = array();
+        }
+
+        // get Temp Package
+        $tmp = Package_Temporary::getTemporaryFile();
+
+        // Get Current From Temporary
+        $tmp_plugins = (isset($tmp['plugins']) ? $tmp['plugins'] : self::getCurrentPlugins());
+
+        // If Not any change
+        if ($tmp_plugins == $pkg_plugins) {
+            return;
+        }
+
+        // Update plugins
+        self::update_plugins($pkg_plugins, $tmp_plugins);
+    }
+
+    /**
      * Convert Plugins/themes dir name to plugin slug
      *
      * @param $slug
@@ -347,7 +417,7 @@ class Plugins
 
             //Check Find equal
             if ($dir_name != $slug) {
-                $new_path     = \WP_CLI_FileSystem::path_join($first_path, $slug);
+                $new_path = \WP_CLI_FileSystem::path_join($first_path, $slug);
                 Dir::moveDir($path, $new_path);
                 return true;
             }
