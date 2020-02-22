@@ -25,7 +25,7 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  *      # Open the WordPress homepage.
  *      $ wp run
  *
- *      # Open Custom WordPress URL in browser e.g. (http://site.com/contact).
+ *      # Open Custom URL of WordPress in browser e.g. (http://site.com/contact).
  *      $ wp run contact
  *
  *      # Automatic login as the WordPress admin user and open /wp-admin in browser.
