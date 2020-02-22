@@ -459,7 +459,7 @@ class Mysql
         if (isset($pkg_array['plugins'])) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "install_wp_plugins"));
             \WP_CLI_Helper::pl_wait_start();
-            Plugins::update_plugins($pkg_array['plugins'], $current_plugin_list = array(), $options = array('force' => true, 'remove' => false));
+            Plugins::update_plugins($pkg_array['plugins'], array(), $options = array('force' => true, 'remove' => false));
             $step++;
         }
 

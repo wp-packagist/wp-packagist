@@ -193,103 +193,53 @@ class Plugins
         );
         $args     = \WP_CLI_Util::parse_args($options, $defaults);
 
-        //Check Removed Plugins
+        // Removed Plugins
         if (isset($args['remove']) and ! empty($current_plugin_list)) {
             $p = 0;
             foreach ($current_plugin_list as $wp_plugin) {
                 //if not exist in Package Plugin list then be Removed
                 $exist = false;
                 foreach ($pkg_plugins as $plugin) {
-                    if ($wp_plugin['folder'] == $plugin['slug']) {
+                    if ($wp_plugin['slug'] == $plugin['slug']) {
                         $exist = true;
-                    } else {
-                        //Removed From Current Plugin
-                        unset($current_plugin_list[$p]);
                     }
                 }
 
                 if ($exist === false) {
+                    //Removed From Current Plugin
+                    unset($current_plugin_list[$p]);
+
                     //Run Removed Plugin
-                    $cmd = "plugin uninstall {$wp_plugin['folder']} --deactivate";
-                    \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                    self::runUninstallPlugin($wp_plugin['slug']);
 
                     //Add Log
                     if (isset($args['log']) and $args['log'] === true) {
                         \WP_CLI_Helper::pl_wait_end();
-                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Removed", "[slug]" => $wp_plugin['folder'], "[type]" => "plugin", "[more]" => "")));
+                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Removed", "[slug]" => $wp_plugin['slug'], "[type]" => "plugin", "[more]" => "")));
                         \WP_CLI_Helper::pl_wait_start();
                     }
                 }
-
                 $p++;
             }
         }
 
-        //De'active or Active Plugin
-        if ( ! empty($current_plugin_list)) {
-            foreach ($pkg_plugins as $plugin) {
-                //Status of this Plugin [deactivate or activate]
-                $pkg_status = $plugin['activate'];
-
-                //WordPress Plugin status
-                $wp_status = null;
-                foreach ($current_plugin_list as $wp_plugin) {
-                    if ($wp_plugin['folder'] == $plugin['slug']) {
-                        $wp_status = $wp_plugin['activate'];
-                    }
-                }
-
-                //Check different
-                if ( ! is_null($wp_status) and isset($wp_plugin['folder']) and $pkg_status != $wp_status) {
-                    //Run Command plugin
-                    $cmd = "plugin " . ($pkg_status === true ? 'activate' : 'deactivate') . " {$plugin['slug']}";
-                    \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
-
-                    //Add Log
-                    if (isset($args['log']) and $args['log'] === true) {
-                        \WP_CLI_Helper::pl_wait_end();
-                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => ($pkg_status === true ? 'Activate' : 'Deactivate'), "[slug]" => $plugin['slug'], "[type]" => "plugin", "[more]" => "")));
-                        \WP_CLI_Helper::pl_wait_start();
-                    }
-                }
-            }
-        }
-
-        //Check install or Update Plugin
+        // Check Install Or Uninstall Plugins
+        $x = 0;
         foreach ($pkg_plugins as $plugin) {
-            //Check Exist Plugin
-            $wp_exist = false;
-            $c        = 0;
-            foreach ($current_plugin_list as $wp_plugin) {
-                if ($wp_plugin['folder'] == $plugin['slug']) {
-                    $key_list = $c;
-                    $wp_exist = true;
+            //Check Exist Const
+            $wp_exist = $key_in_pkg = $key_in_current = false;
+            foreach ($current_plugin_list as $c => $wp_plugin) {
+                if ($wp_plugin['slug'] == $plugin['slug']) {
+                    $key_in_current = $c;
+                    $key_in_pkg     = $x;
+                    $wp_exist       = true;
                 }
-
-                $c++;
             }
 
-            # install plugin
+            // Add New Plugin
             if ($wp_exist === false) {
-                //Check From URL or WordPress Plugin
-                if (isset($plugin['url'])) {
-                    $prompt = $plugin['url'];
-                } else {
-                    $prompt = $plugin['slug'];
-                    if ($plugin['version'] != "latest") {
-                        $prompt .= ' --version=' . $plugin['version'];
-                    }
-                }
-
-                //Check Activate
-                // We don't Custom url plugins activate because folder name is changed after downloaded
-                if ($plugin['activate'] === true and ! isset($plugin['url'])) {
-                    $prompt .= ' --activate';
-                }
-
-                //Run Command
-                $cmd = "plugin install {$prompt} --force";
-                \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                // Install Plugin
+                self::runInstallPlugin($plugins_path, $plugin);
 
                 //Add Log
                 if (isset($args['log']) and $args['log'] === true) {
@@ -297,69 +247,70 @@ class Plugins
                     Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Added", "[slug]" => $plugin['slug'] . ((isset($plugin['version']) and \WP_CLI_Util::is_semver_version($plugin['version']) === true) ? ' ' . \WP_CLI_Helper::color("v" . $plugin['version'], "P") : ''), "[type]" => "plugin", "[more]" => ($plugin['activate'] === true ? \WP_CLI_Helper::color(" [activate]", "B") : ""))));
                     \WP_CLI_Helper::pl_wait_start();
                 }
-
-                //Sanitize Folder Plugins
-                if (isset($plugin['url']) and ! empty($plugins_path)) {
-                    // Wait For Downloaded
-                    sleep(2);
-
-                    //Get Last Dir
-                    $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($plugins_path, "DESC");
-
-                    //Sanitize
-                    $plugin_slug = \WP_CLI_Util::to_lower_string($plugin['slug']);
-                    self::sanitizeDirBySlug($plugin_slug, \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
-
-                    // Activate Plugin
-                    if ($plugin['activate'] === true) {
-                        $cmd = "plugin activate {$plugin_slug}";
-                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
-                    }
-                }
-                # Updated Plugin
             } else {
-                //Get Version
-                $version = '';
-                if (isset($plugin['version'])) {
-                    //Check if last version
-                    $version = $plugin['version'];
-                    if ($version == "latest") {
-                        $version = $plugins_api->get_last_version_plugin($plugin['slug']);
-                    }
-                }
+                # Updated Plugin
+                if ($pkg_plugins[$key_in_pkg] != $current_plugin_list[$key_in_current]) {
+                    // 1) Check Activate Or Deactivate Plugin
+                    if ($pkg_plugins[$key_in_pkg]['activate'] != $current_plugin_list[$key_in_current]['activate']) {
+                        //Run Command plugin
+                        $cmd = "plugin " . ($pkg_plugins[$key_in_pkg]['activate'] === true ? 'activate' : 'deactivate') . " {$pkg_plugins[$key_in_pkg]['slug']}";
+                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
 
-                //Check Exist in WordPress Plugin List
-                $update = false;
-                if (isset($key_list)) {
-                    if ( ! empty($version)) {
-                        # Use WordPress Plugin
-                        $update = ($version == $current_plugin_list[$key_list]['version'] ? false : true);
-                    } else {
-                        # Use Source
-                        $update = ($plugin['url'] ? true : false);
-                    }
-                }
-
-                //Update
-                if ((isset($args['force']) and $args['force'] === true) || $update === true) {
-                    //Check From URL or WordPress Plugin
-                    $prompt = $plugin['slug'];
-                    if ( ! isset($plugin['url'])) {
-                        $prompt .= ' --version=' . $plugin['version'];
+                        //Add Log
+                        if (isset($args['log']) and $args['log'] === true) {
+                            \WP_CLI_Helper::pl_wait_end();
+                            Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => ($pkg_plugins[$key_in_pkg]['activate'] === true ? 'Activate' : 'Deactivate'), "[slug]" => $pkg_plugins[$key_in_pkg]['slug'], "[type]" => "plugin", "[more]" => "")));
+                            \WP_CLI_Helper::pl_wait_start();
+                        }
                     }
 
-                    //Run Command
-                    $cmd = "plugin update {$prompt} --force";
-                    \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                    // 2) Update IF Plugin Version is Changed
+                    if (isset($pkg_plugins[$key_in_pkg]['version']) and isset($current_plugin_list[$key_in_current]['version']) and $pkg_plugins[$key_in_pkg]['version'] != $current_plugin_list[$key_in_current]['version']) {
+                        //Check if last version
+                        $version = $pkg_plugins[$key_in_pkg]['version'];
+                        if ($version == "latest") {
+                            $version = $plugins_api->get_last_version_plugin($pkg_plugins[$key_in_pkg]['slug']);
+                        }
 
-                    //Add Log
-                    if (isset($args['log']) and $args['log'] === true) {
-                        \WP_CLI_Helper::pl_wait_end();
-                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $plugin['slug'] . ((isset($plugin['version']) and \WP_CLI_Util::is_semver_version($plugin['version']) === true) ? ' ' . \WP_CLI_Helper::color("v" . $plugin['version'], "P") : ''), "[type]" => "plugin")));
-                        \WP_CLI_Helper::pl_wait_start();
+                        //Run Command
+                        $prompt = $pkg_plugins[$key_in_pkg]['slug'] . ' --version=' . $version;
+                        $cmd    = "plugin update {$prompt} --force";
+                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+
+                        //Add Log
+                        if (isset($args['log']) and $args['log'] === true) {
+                            \WP_CLI_Helper::pl_wait_end();
+                            Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $pkg_plugins[$key_in_pkg]['slug'] . ((isset($version) and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "plugin", "[more]" => "")));
+                            \WP_CLI_Helper::pl_wait_start();
+                        }
+                    }
+
+                    // 3) Update IF Plugin URL is Changed, OR User Changed Plugin From Version to Custom URL Or Reverse
+                    if (
+                        (isset($pkg_plugins[$key_in_pkg]['url']) and isset($current_plugin_list[$key_in_current]['url']) and $pkg_plugins[$key_in_pkg]['url'] != $current_plugin_list[$key_in_current]['url'])
+                        ||
+                        (isset($pkg_plugins[$key_in_pkg]['version']) and ! isset($current_plugin_list[$key_in_current]['version']))
+                        ||
+                        (isset($pkg_plugins[$key_in_pkg]['url']) and ! isset($current_plugin_list[$key_in_current]['url']))
+                    ) {
+                        // Remove Before Plugin
+                        self::runUninstallPlugin($pkg_plugins[$key_in_pkg]['slug']);
+
+                        // Install New Plugin
+                        sleep(2); // Wait For Remove Before Dir if Exist
+                        self::runInstallPlugin($plugins_path, $pkg_plugins[$key_in_pkg]);
+
+                        //Add Log
+                        if (isset($args['log']) and $args['log'] === true) {
+                            \WP_CLI_Helper::pl_wait_end();
+                            Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $pkg_plugins[$key_in_pkg]['slug'], "[type]" => "plugin", "[more]" => "")));
+                            \WP_CLI_Helper::pl_wait_start();
+                        }
                     }
                 }
             }
+
+            $x++;
         }
 
         if (isset($args['log'])) {
@@ -384,7 +335,7 @@ class Plugins
         $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Current From Temporary
-        $tmp_plugins = (isset($tmp['plugins']) ? $tmp['plugins'] : self::getCurrentPlugins());
+        $tmp_plugins = (isset($tmp['plugins']) ? $tmp['plugins'] : array());
 
         // If Not any change
         if ($tmp_plugins == $pkg_plugins) {
@@ -392,7 +343,68 @@ class Plugins
         }
 
         // Update plugins
-        self::update_plugins($pkg_plugins, $tmp_plugins);
+        self::update_plugins($pkg_plugins, $tmp_plugins, array('force' => true));
+    }
+
+    /**
+     * Run Uninstall Plugin
+     *
+     * @param $slug
+     */
+    public static function runUninstallPlugin($slug)
+    {
+        $cmd = "plugin uninstall {$slug} --deactivate";
+        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+    }
+
+    /**
+     * Install a Plugin with WP-CLI
+     *
+     * @param $plugins_path | WordPress Plugin Directory Path (WP_PLUGINS_DIR)
+     * @param $plugin
+     * @throws \WP_CLI\ExitException
+     * @example array('slug' => '', 'version' => '', 'activate' => false)
+     */
+    public static function runInstallPlugin($plugins_path, $plugin)
+    {
+        //Check From URL or WordPress Plugin
+        if (isset($plugin['url'])) {
+            $prompt = $plugin['url'];
+        } else {
+            $prompt = $plugin['slug'];
+            if ($plugin['version'] != "latest") {
+                $prompt .= ' --version=' . $plugin['version'];
+            }
+        }
+
+        //Check Activate
+        // We don't Custom url plugins activate because folder name is changed after downloaded
+        if ($plugin['activate'] === true and ! isset($plugin['url'])) {
+            $prompt .= ' --activate';
+        }
+
+        //Run Command
+        $cmd = "plugin install {$prompt} --force";
+        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+
+        //Sanitize Folder Plugins
+        if (isset($plugin['url']) and ! empty($plugins_path)) {
+            // Wait For Complete Downloaded dir
+            sleep(1);
+
+            //Get Last Dir
+            $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($plugins_path, "DESC");
+
+            //Sanitize
+            $plugin_slug = \WP_CLI_Util::to_lower_string($plugin['slug']);
+            self::sanitizeDirBySlug($plugin_slug, \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
+
+            // Activate Plugin
+            if ($plugin['activate'] === true) {
+                $cmd = "plugin activate {$plugin_slug}";
+                \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+            }
+        }
     }
 
     /**

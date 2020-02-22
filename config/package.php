@@ -406,7 +406,7 @@ return array(
             'update_rest_api'       => "Update WordPress REST API.",
             'disable_xml_rpc'       => "Disable WordPress XML-RPC.",
             'disable_emoji'         => "Disable WordPress Emoji.",
-            'manage_item'           => "[work] '" . \WP_CLI_Helper::color("[slug]", "Y") . "' [type].[more]",
+            'manage_item'           => "[work] " . \WP_CLI_Helper::color("[slug]", "Y") . " [type].[more]",
             'manage_item_blue'      => "[work] " . \WP_CLI_Helper::color("[key]", "B") . " [type].",
             'manage_item_red'       => "[work] " . \WP_CLI_Helper::color("[key]", "R") . " [type].",
             'manage_item_error'     => \WP_CLI_Helper::color("Error:", "R") . " [msg] '[key]'.",
