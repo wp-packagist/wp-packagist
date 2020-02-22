@@ -19,6 +19,9 @@ require_once(WP_CLI_PACKAGIST_PATH . '/src/init.php');
 # Register 'install' Command
 require_once(WP_CLI_PACKAGIST_PATH . '/src/install.php');
 
+# Register 'update' Command
+require_once(WP_CLI_PACKAGIST_PATH . '/src/update.php');
+
 # Register 'uninstall' Command
 require_once(WP_CLI_PACKAGIST_PATH . '/src/uninstall.php');
 

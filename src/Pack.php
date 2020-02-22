@@ -6,8 +6,6 @@ use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Help;
-use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
-use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Validation;
 use WP_CLI_PACKAGIST\Package\Utility\Package_View;
 
@@ -18,10 +16,6 @@ use WP_CLI_PACKAGIST\Package\Utility\Package_View;
  *
  *      # Show Current WordPress Package
  *      $ wp pack show
- *
- *      # Update WordPress Package
- *      $ wp pack update
- *      Success: Updated WordPress Package.
  *
  *      # Check if your WordPress Package file is valid
  *      $ wp pack validate
@@ -159,45 +153,6 @@ class Pack extends \WP_CLI_Command
             # View WordPress Package
             $view_pkg = new Package_View();
             $view_pkg->view($get_pkg['data'], false);
-        }
-    }
-
-    /**
-     * Update WordPress Package.
-     *
-     * ## EXAMPLES
-     *
-     *      # Update WordPress Package
-     *      $ wp pack update
-     *      Success: Updated WordPress.
-     *
-     */
-    function update($_, $assoc)
-    {
-        # Exist wordpress package file
-        if ($this->package->exist_package_file() === false) {
-            \WP_CLI_Helper::error(Package::_e('package', 'no_exist_pkg'), true);
-        }
-
-        # Check Temporary Package File
-        $TemporaryPath = Package_Temporary::getTemporaryFilePath();
-        if ( ! file_exists($TemporaryPath)) {
-            \WP_CLI_Helper::error(Package::_e('package', 'not_find_temporary', array("[path]" => WP_CLI_PACKAGIST_HOME_PATH)), true);
-        }
-
-        # Set global run check
-        $this->package->set_global_package_run_check();
-
-        # Show Please Wait
-        \WP_CLI_Helper::pl_wait_start(false);
-
-        # Run Package Validation
-        $validation_pkg = new Package_Validation();
-        $get_pkg        = $validation_pkg->validation(true);
-        if ($get_pkg['status'] === true) {
-            # Run Update
-            $run = new Package_Update();
-            $run->run($get_pkg['data']);
         }
     }
 
