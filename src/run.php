@@ -10,10 +10,6 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  *
  * [<type>]
  * : Show type of WordPress page.
- * ---
- * options:
- *  - admin
- * ---
  *
  * [--user_id=<user-id>]
  * : The User ID.
@@ -28,6 +24,9 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  *
  *      # Open the WordPress homepage.
  *      $ wp run
+ *
+ *      # Open Custom WordPress URL in browser e.g. (http://site.com/contact).
+ *      $ wp run contact
  *
  *      # Automatic login as the WordPress admin user and open /wp-admin in browser.
  *      $ wp run admin
@@ -96,4 +95,10 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
         \WP_CLI_Helper::Browser($set_current_user['link']);
         return;
     }
+
+    // Open Custom WordPress Url
+    $home = rtrim( get_option( "home" ), "/" );
+    $url = trim( $args[0] );
+    \WP_CLI_Helper::Browser( $home . "/" . ltrim( $url, "/" ) );
+    return;
 });
