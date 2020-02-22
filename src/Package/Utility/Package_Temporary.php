@@ -16,11 +16,7 @@ class Package_Temporary
     private static function convertPathToFileName($path)
     {
         $path = \WP_CLI_Util::to_lower_string(\WP_CLI_Util::backslash_to_slash($path));
-        $path = str_ireplace("/", "--", $path);
-        $path = str_ireplace("?", "&&", $path);
-        $path = str_ireplace(":", "++", $path);
-
-        return $path;
+        return md5($path) . '--' . \WP_CLI_Util::remove_all_space(basename($path));
     }
 
     /**
