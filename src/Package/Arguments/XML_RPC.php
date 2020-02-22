@@ -65,7 +65,7 @@ class XML_RPC
             Permalink::runFlushRewriteCLI();
 
             // Add Update Log
-            Package_Install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress XML-RPC");
+            Package_Install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress " . \WP_CLI_Helper::color("XML-RPC", "Y") . "");
         }
     }
 

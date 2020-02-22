@@ -9,6 +9,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Core;
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
 use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
+use WP_CLI_PACKAGIST\Package\Arguments\MySQL;
 use WP_CLI_PACKAGIST\Package\Arguments\Options;
 use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
@@ -119,5 +120,8 @@ class Package_Update extends Package
 
         # Dir
         Dir::updateCommand($pkg_array);
+
+        # Update MySQL
+        MySQL::update((isset($pkg_array['mysql']) ? $pkg_array['mysql'] : 'default'));
     }
 }

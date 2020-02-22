@@ -129,7 +129,7 @@ class Cookie
 
         // Add Update Log
         if ($cookie_run) {
-            Package_Install::add_detail_log("Updated WordPress Cookie prefix");
+            Package_Install::add_detail_log("Updated WordPress " . \WP_CLI_Helper::color("Cookie prefix", "Y") . "");
         }
     }
 }

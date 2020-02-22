@@ -163,7 +163,7 @@ class Timezone
 
         // Only in Update Process
         if (Package_Update::isUpdateProcess()) {
-            Package_Install::add_detail_log("Changed WordPress Timezone");
+            Package_Install::add_detail_log("Changed WordPress " . \WP_CLI_Helper::color("Timezone", "Y") . "");
         }
     }
 

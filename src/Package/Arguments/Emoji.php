@@ -61,7 +61,7 @@ class Emoji
         // Show Log only in Update Process
         if (Package_Update::isUpdateProcess()) {
             // Add Update Log
-            Package_Install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress Emoji");
+            Package_Install::add_detail_log(($activate === true ? "Enable" : "Disable") . " WordPress " . \WP_CLI_Helper::color("Emoji", "Y") . "");
         }
     }
 

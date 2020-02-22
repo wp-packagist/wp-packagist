@@ -217,7 +217,7 @@ class Rest_API
                 Permalink::runFlushRewriteCLI();
 
                 // Add Update Log
-                Package_Install::add_detail_log("Updated WordPress REST API");
+                Package_Install::add_detail_log("Updated WordPress " . \WP_CLI_Helper::color("REST API", "Y") . "");
             }
         }
     }

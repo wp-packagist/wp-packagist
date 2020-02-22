@@ -244,7 +244,7 @@ class Mysql
 
         //Check Database in Update
         if (array_key_exists('DB_NAME', $args)) {
-            @$db_select = mysqli_select_db($conn, $args['DB_NAME']);
+            $db_select = @mysqli_select_db($conn, $args['DB_NAME']);
             if ( ! $db_select) {
                 if ($status == "update") {
                     return array('status' => false, 'data' => Package::_e('package', 'er_not_exist_db', array('[name]' => $args['DB_NAME'])));
