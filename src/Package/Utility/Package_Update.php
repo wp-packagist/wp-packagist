@@ -73,6 +73,8 @@ class Package_Update extends Package
      */
     public static function runUpdatePackage($pkg_array)
     {
+        print_r($pkg_array['plugins']);
+        exit;
         # Get MU-Plugins
         $MU_Plugins = \WP_CLI_FileSystem::normalize_path(WPMU_PLUGIN_DIR);
 
@@ -117,6 +119,8 @@ class Package_Update extends Package
 
         # Switch Theme
         Themes::updateTheme((isset($pkg_array['config']['theme']) ? $pkg_array['config']['theme'] : 'default'));
+
+        # Update Plugins
 
         # Dir
         Dir::updateCommand($pkg_array);

@@ -141,6 +141,7 @@ class Plugins
      * @param $pkg_plugins
      * @param array $current_plugin_list
      * @param array $options
+     * @throws \WP_CLI\ExitException
      */
     public static function update_plugins($pkg_plugins, $current_plugin_list = array(), $options = array())
     {
@@ -264,11 +265,14 @@ class Plugins
 
                 //Sanitize Folder Plugins
                 if (isset($plugin['url']) and ! empty($plugins_path)) {
+                    // Wait For Downloaded
+                    sleep(2);
+
                     //Get Last Dir
                     $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($plugins_path, "DESC");
 
                     //Sanitize
-                    \WP_CLI_Util::sanitize_github_dir(\WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
+                    self::sanitizePluginDirBySlug($plugin['slug'], \WP_CLI_FileSystem::path_join($plugins_path, $last_dir[0]));
                 }
                 # Updated Plugin
             } else {
@@ -318,6 +322,35 @@ class Plugins
 
         if (isset($args['log'])) {
             \WP_CLI_Helper::pl_wait_end();
+        }
+    }
+
+    /**
+     * Convert Plugins dr name to plugin slug
+     *
+     * @param $slug
+     * @param $dir_path
+     * @return bool
+     * @throws \WP_CLI\ExitException
+     */
+    public static function sanitizePluginDirBySlug($slug, $dir_path)
+    {
+        //Sanitize path
+        $path = rtrim(\WP_CLI_FileSystem::normalize_path($dir_path), "/") . "/";
+
+        //Check Real path
+        if (realpath($path) and is_dir($path)) {
+            //Get folder name
+            $dir_name   = \WP_CLI_Util::to_lower_string(basename($path));
+            $first_path = str_ireplace($dir_name, "", $path);
+            $slug       = \WP_CLI_Util::to_lower_string($slug);
+
+            //Check Find equal
+            if ($dir_name != $slug) {
+                $new_path     = \WP_CLI_FileSystem::path_join($first_path, $slug);
+                Dir::moveDir($path, $new_path);
+                return true;
+            }
         }
     }
 }
