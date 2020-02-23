@@ -736,17 +736,33 @@ class Config
     {
         //List of forbidden Keys
         $forbidden_values = array(
-            'url'      => array(
+            'url'       => array(
                 'list' => array('siteurl', 'home'),
                 'help' => "This key is used in the 'config: { site: { ..' parameter."
             ),
-            'timezone' => array(
+            'title'     => array(
+                'list' => array('blogname'),
+                'help' => "This key is used in the 'config: { title: { ..' parameter."
+            ),
+            'timezone'  => array(
                 'list' => array('timezone_string', 'gmt_offset'),
                 'help' => "This key is used in the 'config: { timezone: { ..' parameter."
             ),
-            'theme'    => array(
+            'theme'     => array(
                 'list' => array('template', 'stylesheet'),
                 'help' => "This key is used in the 'config: { theme: { ..' parameter."
+            ),
+            'locale'    => array(
+                'list' => array('WPLANG'),
+                'help' => "This key is used in the 'core: { locale: { ..' parameter."
+            ),
+            'plugins'   => array(
+                'list' => array('active_plugins'),
+                'help' => "This key is used in the 'plugins: { ..' parameter."
+            ),
+            'permalink' => array(
+                'list' => array('permalink_structure', 'rewrite_rules', 'category_base', 'tag_base'),
+                'help' => "This key is used in the 'core: { permalink: { ..' parameter."
             )
         );
 
