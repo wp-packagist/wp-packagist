@@ -137,7 +137,7 @@ class Options
      *
      * @param $pkg
      */
-    public static function updateOptions($pkg)
+    public static function update($pkg)
     {
         global $wpdb;
 

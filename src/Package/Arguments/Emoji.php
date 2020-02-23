@@ -25,7 +25,7 @@ class Emoji
      * @param $mu_plugin_path
      * @param bool $activate
      */
-    public static function update_emoji($mu_plugin_path, $activate = true)
+    public static function update($mu_plugin_path, $activate = true)
     {
         //Get MU PLUGIN Path
         $_plugin_path = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'disable-emoji.php');

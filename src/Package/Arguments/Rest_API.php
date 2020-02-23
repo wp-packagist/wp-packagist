@@ -142,7 +142,7 @@ class Rest_API
      * @param $mu_plugin_path
      * @param array|boolean $args
      */
-    public static function update_rest_api($mu_plugin_path, $args)
+    public static function update($mu_plugin_path, $args)
     {
         //Get MU PLUGIN Path
         $plugin = \WP_CLI_FileSystem::path_join($mu_plugin_path, 'rest-api.php');

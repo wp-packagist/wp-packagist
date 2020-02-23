@@ -1182,7 +1182,7 @@ class Config
             //Check theme slug
             $slug = \WP_CLI_Util::to_lower_string(preg_replace(Package::get_config('wordpress_api', 'slug'), '', $var));
             if ($slug != $var) {
-                $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { theme: { ..")));
+                $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { theme: ..")));
             } else {
                 //Return Sanitize Data
                 $valid->add_success($var);

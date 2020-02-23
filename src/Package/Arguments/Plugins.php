@@ -15,7 +15,7 @@ class Plugins
      *
      * @return mixed
      */
-    public static function eval_get_plugins_path()
+    public static function evalGetPluginsPath()
     {
         return \WP_CLI::runcommand('eval "if(defined(\'WP_PLUGIN_DIR\')) { echo WP_PLUGIN_DIR; } else { echo \'\'; }"', array('return' => 'stdout'));
     }
@@ -24,7 +24,7 @@ class Plugins
      * Get List Of WordPress Plugin (not contain mu-plugins)
      * @see https://developer.wordpress.org/reference/functions/get_plugins/
      */
-    public static function get_list_plugins()
+    public static function getListPlugins()
     {
         //Check Function Exist
         if ( ! function_exists('get_plugins')) {
@@ -69,7 +69,7 @@ class Plugins
     public static function getCurrentPlugins()
     {
         $list       = array();
-        $wp_plugins = self::get_list_plugins();
+        $wp_plugins = self::getListPlugins();
         foreach ($wp_plugins as $plugins) {
             $plugin             = array();
             $plugin['slug']     = $plugins['folder'];
@@ -101,7 +101,7 @@ class Plugins
      * @param array $args
      * @return array|bool
      */
-    public static function search_wordpress_plugins($args = array())
+    public static function searchWordPressPlugins($args = array())
     {
         $defaults = array(
             /**
@@ -124,7 +124,7 @@ class Plugins
         $args = \WP_CLI_Util::parse_args($args, $defaults);
 
         //Get List Of Plugins
-        $list = self::get_list_plugins();
+        $list = self::getListPlugins();
 
         //Get List Search Result
         $search_result = array();
@@ -183,7 +183,7 @@ class Plugins
         $plugins_api = new WP_Plugins_Api;
 
         //Get plugins path
-        $plugins_path = \WP_CLI_FileSystem::normalize_path(self::eval_get_plugins_path());
+        $plugins_path = \WP_CLI_FileSystem::normalize_path(self::evalGetPluginsPath());
 
         //Default Params
         $defaults = array(
@@ -333,8 +333,6 @@ class Plugins
 
         // get Temp Package
         $tmp = Package_Temporary::getTemporaryFile();
-
-        // Get Current From Temporary
         $tmp_plugins = (isset($tmp['plugins']) ? $tmp['plugins'] : array());
 
         // If Not any change

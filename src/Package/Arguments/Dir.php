@@ -875,7 +875,7 @@ class Dir
         if ( ! @rename($old_name, $new_name)) {
             \WP_CLI::error("Failed to " . (dirname($new_name) == dirname($old_name) ? 'rename' : 'move') . " directory '{$old_name}' to '{$new_name}'.", true);
         }
-        sleep(3); //Pause for multiple move between wp-content and plugins/uploads ...
+        sleep(2); //Pause for multiple move between wp-content and plugins/uploads ...
         return true;
     }
 }

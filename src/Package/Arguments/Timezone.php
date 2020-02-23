@@ -112,7 +112,7 @@ class Timezone
      *
      * @param $timezone
      */
-    public static function update_timezone($timezone)
+    public static function update($timezone)
     {
         /**
          * Check WordPress timezone in DB

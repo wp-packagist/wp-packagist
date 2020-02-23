@@ -407,7 +407,7 @@ class Mysql
         //Change TimeZone Wordpress
         if (isset($pkg_array['config']['timezone']) and ! empty($pkg_array['config']['timezone'])) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "change_timezone"));
-            Timezone::update_timezone($pkg_array['config']['timezone']);
+            Timezone::update($pkg_array['config']['timezone']);
             $step++;
         }
 
@@ -432,7 +432,7 @@ class Mysql
         if (isset($pkg_array['config']['rest-api'])) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "update_rest_api"));
             \WP_CLI_Helper::pl_wait_start();
-            Rest_API::update_rest_api($mu_plugins_path, $pkg_array['config']['rest-api']);
+            Rest_API::update($mu_plugins_path, $pkg_array['config']['rest-api']);
             \WP_CLI_Helper::pl_wait_end();
             $step++;
         }
@@ -441,7 +441,7 @@ class Mysql
         if (isset($pkg_array['config']['xml-rpc']) and $pkg_array['config']['xml-rpc'] != XML_RPC::$default_active_xml_rpc) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "disable_xml_rpc"));
             \WP_CLI_Helper::pl_wait_start();
-            XML_RPC::update_xml_rpc($mu_plugins_path, $pkg_array['config']['xml-rpc']);
+            XML_RPC::update($mu_plugins_path, $pkg_array['config']['xml-rpc']);
             \WP_CLI_Helper::pl_wait_end();
             $step++;
         }
@@ -450,7 +450,7 @@ class Mysql
         if (isset($pkg_array['config']['emoji']) and $pkg_array['config']['emoji'] != Emoji::$default_active_emoji) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "disable_emoji"));
             \WP_CLI_Helper::pl_wait_start();
-            Emoji::update_emoji($mu_plugins_path, $pkg_array['config']['emoji']);
+            Emoji::update($mu_plugins_path, $pkg_array['config']['emoji']);
             \WP_CLI_Helper::pl_wait_end();
             $step++;
         }

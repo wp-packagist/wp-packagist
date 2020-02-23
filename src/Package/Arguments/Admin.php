@@ -89,7 +89,7 @@ class Admin
      * @param $pkg
      * @run after_wp_load
      */
-    public static function update_admin($pkg)
+    public static function update($pkg)
     {
         // Get Local Temp
         $tmp = Package_Temporary::getTemporaryFile();

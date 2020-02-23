@@ -96,31 +96,34 @@ class Package_Update extends Package
         Core::updateTitle((isset($pkg_array['config']['title']) ? $pkg_array['config']['title'] : 'default'));
 
         # Update Options
-        Options::updateOptions($pkg_array);
+        Options::update($pkg_array);
 
         # Update XML-RPC
-        XML_RPC::update_xml_rpc($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : XML_RPC::$default_active_xml_rpc));
+        XML_RPC::update($MU_Plugins, (isset($pkg_array['config']['xml-rpc']) && $pkg_array['config']['xml-rpc'] === false ? false : XML_RPC::$default_active_xml_rpc));
 
         # Update Emoji
-        Emoji::update_emoji($MU_Plugins, (isset($pkg_array['config']['emoji']) && $pkg_array['config']['emoji'] === false ? false : Emoji::$default_active_emoji));
+        Emoji::update($MU_Plugins, (isset($pkg_array['config']['emoji']) && $pkg_array['config']['emoji'] === false ? false : Emoji::$default_active_emoji));
 
         # Update WordPress Admin
-        Admin::update_admin($pkg_array);
+        Admin::update($pkg_array);
 
         # Update WordPress Users
-        Users::update_users($pkg_array);
+        Users::update($pkg_array);
 
         # Update REST-API
-        Rest_API::update_rest_api($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
+        Rest_API::update($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
 
         # Update WordPress TimeZone
-        Timezone::update_timezone((isset($pkg_array['config']['timezone']) ? $pkg_array['config']['timezone'] : Timezone::$default_timezone));
-
-        # Switch Theme
-        Themes::updateTheme((isset($pkg_array['config']['theme']) ? $pkg_array['config']['theme'] : 'default'));
+        Timezone::update((isset($pkg_array['config']['timezone']) ? $pkg_array['config']['timezone'] : Timezone::$default_timezone));
 
         # Update Plugins
         Plugins::update((isset($pkg_array['plugins']) ? $pkg_array['plugins'] : 'default'));
+
+        # Update Themes
+        Themes::update((isset($pkg_array['themes']) ? $pkg_array['themes'] : 'default'));
+
+        # Switch Theme
+        Themes::updateSwitchTheme((isset($pkg_array['config']['theme']) ? $pkg_array['config']['theme'] : 'default'));
 
         # Dir
         Dir::updateCommand($pkg_array);

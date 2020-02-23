@@ -14,7 +14,7 @@ class Themes
      *
      * @return mixed
      */
-    public static function eval_get_current_theme()
+    public static function evalGetCurrentTheme()
     {
         return \WP_CLI::runcommand('eval "echo get_template();"', array('return' => 'stdout'));
     }
@@ -22,7 +22,7 @@ class Themes
     /**
      * Get WordPress theme list in eval cli [use in install step]
      */
-    public static function eval_themes_list()
+    public static function evalGetThemesList()
     {
         return \WP_CLI::runcommand('eval "$list = array(); foreach(wp_get_themes() as $stylesheet => $v) { $list[] = $stylesheet; } echo json_encode($list);"', array('return' => 'stdout', 'parse' => 'json'));
     }
@@ -30,7 +30,7 @@ class Themes
     /**
      * Get base WordPress theme Path
      */
-    public static function eval_get_theme_root()
+    public static function evalGetThemeRoot()
     {
         return \WP_CLI::runcommand('eval "echo get_theme_root();"', array('return' => 'stdout'));
     }
@@ -41,7 +41,7 @@ class Themes
      * @see https://developer.wordpress.org/reference/functions/wp_get_themes/
      * @when after_wp_load
      */
-    public static function get_list_themes()
+    public static function getListThemes()
     {
         //Get List Of themes
         $themes = wp_get_themes();
@@ -50,7 +50,7 @@ class Themes
         $themes_list = array();
 
         //Get Current stylesheet theme
-        $current_theme = self::eval_get_current_theme();
+        $current_theme = self::evalGetCurrentTheme();
 
         //List Of Data
         $data = array('name', 'title', 'version', 'parent_theme', 'template_dir', 'stylesheet_dir', 'template', 'stylesheet', 'screenshot', 'description', 'author', 'tags', 'theme_root', 'theme_root_uri');
@@ -83,7 +83,7 @@ class Themes
      * @param array $args
      * @return array|bool
      */
-    public static function search_wordpress_themes($args = array())
+    public static function searchWordPressThemes($args = array())
     {
         $defaults = array(
             /**
@@ -106,7 +106,7 @@ class Themes
         $args = \WP_CLI_Util::parse_args($args, $defaults);
 
         //Get List Of Plugins
-        $list = self::get_list_themes();
+        $list = self::getListThemes();
 
         //Get List Search Result
         $search_result = array();
@@ -165,7 +165,10 @@ class Themes
         $themes_api = new WP_Themes_Api();
 
         //Get theme root
-        $theme_root = self::eval_get_theme_root();
+        $theme_root = self::evalGetThemeRoot();
+
+        // Get Current Active Theme in WordPress
+        $Current_theme = self::evalGetCurrentTheme();
 
         //Default Params
         $defaults = array(
@@ -181,15 +184,17 @@ class Themes
                 //if not exist in Package themes list then be Removed
                 $exist = false;
                 foreach ($pkg_themes as $stylesheet => $version) {
-                    $exist = ($wp_theme_stylesheet == $stylesheet ? true : false);
+                    if ($wp_theme_stylesheet == $stylesheet) {
+                        $exist = true;
+                    }
                 }
 
                 if ($exist === false) {
                     //Check if is active theme
-                    if (self::eval_get_current_theme() == $wp_theme_stylesheet) {
+                    if ($Current_theme == $wp_theme_stylesheet) {
                         if (isset($args['log']) and $args['log'] === true) {
                             \WP_CLI_Helper::pl_wait_end();
-                            Package_Install::add_detail_log(Package::_e('package', 'er_delete_no_theme', array("[theme]" => $wp_theme_stylesheet)));
+                            \WP_CLI_Helper::error(Package::_e('package', 'er_delete_no_theme', array("[theme]" => $wp_theme_stylesheet)), true);
                             \WP_CLI_Helper::pl_wait_start();
                         }
                     } else {
@@ -197,8 +202,7 @@ class Themes
                         unset($current_themes_list[$wp_theme_stylesheet]);
 
                         //Run Removed Theme
-                        $cmd = "theme delete {$wp_theme_stylesheet}";
-                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                        self::runDeleteTheme($wp_theme_stylesheet);
 
                         //Add Log
                         if (isset($args['log']) and $args['log'] === true) {
@@ -211,34 +215,23 @@ class Themes
             }
         }
 
-        //Check install or Update Theme
+        // Check install or Update Theme
         foreach ($pkg_themes as $stylesheet => $version) {
-            //Check Exist Plugin
-            $wp_exist = false;
+            //Check Exist Theme
+            $wp_exist           = false;
+            $version_in_pkg     = $version;
+            $version_in_current = '';
             foreach ($current_themes_list as $wp_theme_stylesheet => $wp_theme_ver) {
-                $wp_exist = ($wp_theme_stylesheet == $stylesheet ? true : false);
+                if ($wp_theme_stylesheet == $stylesheet) {
+                    $version_in_current = $wp_theme_ver;
+                    $wp_exist           = true;
+                }
             }
 
-            //Check theme from Url or WordPress
-            $from_url = (\WP_CLI_Util::is_url($version) === false ? false : true);
-
-            # install theme
+            // Install theme
             if ($wp_exist === false) {
-                //Check From URL or WordPress theme
-                if ($from_url === true) {
-                    # Theme From WordPress
-                    $prompt = $version;
-                } else {
-                    # Theme from Source
-                    $prompt = $stylesheet;
-                    if ($version != "latest") {
-                        $prompt .= ' --version=' . $version;
-                    }
-                }
-
-                //Run Command
-                $cmd = "theme install {$prompt} --force";
-                \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                // Install Theme
+                self::runInstallTheme($theme_root, $stylesheet, $version);
 
                 //Add Log
                 if (isset($args['log']) and $args['log'] === true) {
@@ -246,50 +239,51 @@ class Themes
                     Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Added", "[slug]" => $stylesheet . (($version != "latest" and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "theme", "[more]" => "")));
                     \WP_CLI_Helper::pl_wait_start();
                 }
-
-                //Sanitize Folder Theme
-                if ($from_url === true and ! empty($theme_root)) {
-                    // Wait For Downloaded
-                    sleep(2);
-
-                    //Get Last Dir
-                    $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($theme_root, "DESC");
-
-                    //Sanitize
-                    Plugins::sanitizeDirBySlug($stylesheet, \WP_CLI_FileSystem::path_join($theme_root, $last_dir[0]));
-                }
-                # Updated Theme
             } else {
-                //Get Current Version
-                $this_version = '';
-                if ($from_url === false) {
-                    //Check if last version
-                    $this_version = ($version == "latest" ? $themes_api->get_last_version_theme($stylesheet) : $version);
-                }
+                # Update Theme Process
+                if ($version_in_current != $version_in_pkg) {
+                    //Check theme from Url or WordPress
+                    $from_url = (\WP_CLI_Util::is_url($version_in_pkg) === false ? false : true);
 
-                //Check Exist in WordPress Theme List
-                $update = true;
-                if ( ! empty($this_version)) {
-                    # Use WordPress theme
-                    $update = ($this_version == $current_themes_list[$stylesheet] ? false : true);
-                }
-
-                //Update
-                if ((isset($args['force']) and $args['force'] === true) || $update === true) {
-                    //Check From URL or WordPress Theme
-                    $prompt = $stylesheet;
-                    if ($from_url == false) {
-                        $prompt .= ' --version=' . $this_version;
+                    //Get Current Version
+                    $this_version = '';
+                    if ($from_url === false) {
+                        //Check if last version
+                        $this_version = ($version_in_pkg == "latest" ? $themes_api->get_last_version_theme($stylesheet) : $version_in_pkg);
                     }
 
-                    //Run Command
-                    $cmd = "theme update {$prompt} --force";
-                    \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                    // 1) Check Version is Changed For Theme / Or User Change Url to Version
+                    if ( ! empty($this_version) and \WP_CLI_Util::is_semver_version($version_in_current) and $from_url === false) {
+                        //Check From URL or WordPress Theme
+                        $prompt = $stylesheet;
+                        if ($from_url == false) {
+                            $prompt .= ' --version=' . $this_version;
+                        }
+
+                        //Run Command
+                        $cmd = "theme update {$prompt} --force";
+                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                    } else {
+                        // 2) Check User Changed Version to Custom URL
+                        // First Delete Theme
+                        self::runDeleteTheme($stylesheet);
+
+                        // Second Download New Theme file
+                        sleep(2); //Wait For Remove Before Dir if Exist
+                        self::runInstallTheme($theme_root, $stylesheet, ($from_url === false ? $this_version : $version_in_pkg));
+
+                        // Third Activate if in WordPress
+                        if ($Current_theme == $stylesheet) {
+                            sleep(1); //Wait For Downloaded Complete
+                            $cmd = "theme activate  {$stylesheet}";
+                            \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                        }
+                    }
 
                     //Add Log
                     if (isset($args['log']) and $args['log'] === true) {
                         \WP_CLI_Helper::pl_wait_end();
-                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $stylesheet . (($version != "latest" and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "theme")));
+                        Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $stylesheet . (($version_in_pkg != "latest" and \WP_CLI_Util::is_semver_version($version_in_pkg) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version_in_pkg, "P") : ''), "[type]" => "theme", "[more]" => "")));
                         \WP_CLI_Helper::pl_wait_start();
                     }
                 }
@@ -302,6 +296,59 @@ class Themes
     }
 
     /**
+     * Install Theme With WP-CLI
+     *
+     * @param $theme_root
+     * @param $stylesheet
+     * @param $version
+     * @throws \WP_CLI\ExitException
+     */
+    public static function runInstallTheme($theme_root, $stylesheet, $version)
+    {
+        //Check theme from Url or WordPress
+        $from_url = (\WP_CLI_Util::is_url($version) === false ? false : true);
+
+        //Check From URL or WordPress theme
+        if ($from_url === true) {
+            # Theme From WordPress
+            $prompt = $version;
+        } else {
+            # Theme from Source
+            $prompt = $stylesheet;
+            if ($version != "latest") {
+                $prompt .= ' --version=' . $version;
+            }
+        }
+
+        //Run Command
+        $cmd = "theme install {$prompt} --force";
+        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+
+        //Sanitize Folder Theme
+        if ($from_url === true and ! empty($theme_root)) {
+            // Wait For Downloaded
+            sleep(2);
+
+            //Get Last Dir
+            $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($theme_root, "DESC");
+
+            //Sanitize
+            Plugins::sanitizeDirBySlug($stylesheet, \WP_CLI_FileSystem::path_join($theme_root, $last_dir[0]));
+        }
+    }
+
+    /**
+     * Uninstall Theme With WP-CLI
+     *
+     * @param $stylesheet
+     */
+    public static function runDeleteTheme($stylesheet)
+    {
+        $cmd = "theme delete {$stylesheet} --force";
+        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+    }
+
+    /**
      * Switch theme in WordPress
      *
      * @param $stylesheet
@@ -310,10 +357,10 @@ class Themes
     public static function switch_theme($stylesheet)
     {
         //Get List exist theme
-        $exist_list = self::eval_themes_list();
+        $exist_list = self::evalGetThemesList();
 
         //Get Active theme
-        $active_theme = self::eval_get_current_theme();
+        $active_theme = self::evalGetCurrentTheme();
 
         //Check is active theme
         if ($stylesheet == $active_theme) {
@@ -333,15 +380,15 @@ class Themes
     }
 
     /**
-     * Update Command Theme
+     * Update Command config Theme
      *
      * @param $stylesheet
      * @throws \WP_CLI\ExitException
      */
-    public static function updateTheme($stylesheet)
+    public static function updateSwitchTheme($stylesheet)
     {
         //Get Active theme
-        $active_theme = self::eval_get_current_theme();
+        $active_theme = self::evalGetCurrentTheme();
 
         // Check Default
         if ($stylesheet == "default") {
@@ -370,6 +417,32 @@ class Themes
 
         // Return Data
         Package_Install::add_detail_log($switch['data']);
+    }
+
+    /**
+     * Update Themes in Update Command
+     *
+     * @param $pkg_themes
+     * @throws \WP_CLI\ExitException
+     */
+    public static function update($pkg_themes)
+    {
+        // Default
+        if ($pkg_themes == "default") {
+            $pkg_themes = array();
+        }
+
+        // get Temporary Package
+        $tmp        = Package_Temporary::getTemporaryFile();
+        $tmp_themes = (isset($tmp['themes']) ? $tmp['themes'] : array());
+
+        // If Not any change
+        if ($tmp_themes == $pkg_themes) {
+            return;
+        }
+
+        // Update Themes
+        self::update_themes($pkg_themes, $tmp_themes, array('force' => true));
     }
 
 }
