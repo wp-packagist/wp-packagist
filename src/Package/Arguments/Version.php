@@ -5,6 +5,7 @@ namespace WP_CLI_PACKAGIST\Package\Arguments;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class Version
 {
@@ -206,13 +207,14 @@ class Version
         if (file_exists($file_path)) {
             //if cache file exist we used same file
             $json_data = \WP_CLI_FileSystem::read_json_file($file_path);
-        }
 
-        // if Force Update
-        if ($force_update === false) {
-            //if require update by calculate cache time
-            if (isset($json_data) and \WP_CLI_FileSystem::check_file_age($file_path, Package::get_config('package', 'version', 'age')) === false) {
-                $list = $json_data;
+            // if Force Update
+            if ($force_update === false) {
+                //if require update by calculate cache time
+                $cacheFileAge = (time() - filemtime($file_path) >= 60 * Package::get_config('package', 'version', 'age'));
+                if (isset($json_data) and $cacheFileAge === false) {
+                    $list = $json_data;
+                }
             }
         }
 
@@ -309,8 +311,13 @@ class Version
         $pkg_version = (isset($pkg['core']['version']) ? $pkg['core']['version'] : '1.0.0');
         $pkg_version = ($pkg_version == "latest" ? $latest_wp_version : $pkg_version);
 
+        // Check Auto Update
+        if (Package_Update::isAutoUpdate() and $pkg['core']['version'] == "latest" and get_bloginfo('version') == $latest_wp_version) {
+            return;
+        }
+
         // Check if Changed
-        if ($tmp_version != $pkg_version) {
+        if (($tmp_version != $pkg_version) || Package_Update::isAutoUpdate()) {
             //Show Please wait
             \WP_CLI_Helper::pl_wait_start();
 

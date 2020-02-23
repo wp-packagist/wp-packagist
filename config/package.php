@@ -27,7 +27,7 @@ return array(
             'plugin_data' => 'https://api.wordpress.org/plugins/info/1.0/[slug].json',
             'cache_dir'   => '_plugins',
             'file_name'   => "[slug].json",
-            'age'         => 1 #Hour
+            'age'         => 15 // Minute
         ),
 
         # WordPress Themes Directory
@@ -36,7 +36,7 @@ return array(
             'themes_version_list' => 'https://themes.svn.wordpress.org/[slug]/',
             'cache_dir'           => '_themes',
             'file_name'           => "[slug].json",
-            'age'                 => 1 //Hour
+            'age'                 => 15 // Minute
         ),
 
         # plugin or theme slug preg (https://developer.wordpress.org/themes/functionality/internationalization/)
@@ -68,6 +68,7 @@ return array(
             'admin_pass',
             'admin_user',
             'user_pass',
+            'auto_update',
         ),
 
         # Hidden Options
@@ -95,13 +96,13 @@ return array(
         # Save List of Wordpress Version in cache
         'version'                  => array(
             'file' => WP_CLI_PACKAGIST_CACHE_PATH . '/version.json',
-            'age'  => 1, //Hour
+            'age'  => 15, // Minute
         ),
 
         # Save List Of Wordpress Locale in cache
         'locale'                   => array(
             'file' => WP_CLI_PACKAGIST_CACHE_PATH . '/locale.json',
-            'age'  => 168, //168 Hour = One Week
+            'age'  => 1440, // 1 Day
         ),
 
         # Package LocalTemp
@@ -178,6 +179,9 @@ return array(
 
         # Default Clone Role
         'default_clone_role'       => 'subscriber',
+
+        # Is Auto Update Core/Plugin/Theme
+        'auto_update'              => true,
 
         # Check MySQL Character and Collation
         # @see https://dev.mysql.com/doc/refman/5.5/en/charset-charsets.html

@@ -2,11 +2,11 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
-use Faker\Provider\File;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\API\WP_Plugins_Api;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class Plugins
 {
@@ -249,7 +249,7 @@ class Plugins
                 }
             } else {
                 # Updated Plugin
-                if ($pkg_plugins[$key_in_pkg] != $current_plugin_list[$key_in_current]) {
+                if (($pkg_plugins[$key_in_pkg] != $current_plugin_list[$key_in_current]) || (Package_Update::isAutoUpdate() and isset($pkg_plugins[$key_in_pkg]['version']) and $pkg_plugins[$key_in_pkg]['version'] == "latest")) {
                     // 1) Check Activate Or Deactivate Plugin
                     if ($pkg_plugins[$key_in_pkg]['activate'] != $current_plugin_list[$key_in_current]['activate']) {
                         //Run Command plugin
@@ -265,23 +265,37 @@ class Plugins
                     }
 
                     // 2) Update IF Plugin Version is Changed
-                    if (isset($pkg_plugins[$key_in_pkg]['version']) and isset($current_plugin_list[$key_in_current]['version']) and $pkg_plugins[$key_in_pkg]['version'] != $current_plugin_list[$key_in_current]['version']) {
-                        //Check if last version
+                    if (isset($pkg_plugins[$key_in_pkg]['version']) and isset($current_plugin_list[$key_in_current]['version'])) {
+                        //Get Last Version Plugin From WordPress Directory
                         $version = $pkg_plugins[$key_in_pkg]['version'];
                         if ($version == "latest") {
                             $version = $plugins_api->get_last_version_plugin($pkg_plugins[$key_in_pkg]['slug']);
                         }
 
-                        //Run Command
-                        $prompt = $pkg_plugins[$key_in_pkg]['slug'] . ' --version=' . $version;
-                        $cmd    = "plugin update {$prompt} --force";
-                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                        // Get Current Version this theme in WordPress
+                        if ($current_plugin_list[$key_in_current]['version'] == "latest" and $pkg_plugins[$key_in_pkg]['version'] == "latest") {
+                            $search_plugin = self::searchWordPressPlugins(array('search_by' => 'folder', 'search' => $pkg_plugins[$key_in_pkg]['slug'], 'first' => true));
+                            if (isset($search_plugin['version']) and ! empty($search_plugin['version'])) {
+                                $current_plugin_list[$key_in_current]['version'] = $search_plugin['version'];
+                            }
+                        }
 
-                        //Add Log
-                        if (isset($args['log']) and $args['log'] === true) {
-                            \WP_CLI_Helper::pl_wait_end();
-                            Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $pkg_plugins[$key_in_pkg]['slug'] . ((isset($version) and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "plugin", "[more]" => "")));
-                            \WP_CLI_Helper::pl_wait_start();
+                        if ($version != $current_plugin_list[$key_in_current]['version']) {
+                            //Run Command
+                            $prompt = $pkg_plugins[$key_in_pkg]['slug'];
+                            if ($version != "latest") {
+                                $prompt .= ' --version=' . $version;
+                            }
+
+                            $cmd = "plugin update {$prompt}";
+                            \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+
+                            //Add Log
+                            if (isset($args['log']) and $args['log'] === true) {
+                                \WP_CLI_Helper::pl_wait_end();
+                                Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $pkg_plugins[$key_in_pkg]['slug'] . ((isset($version) and \WP_CLI_Util::is_semver_version($version) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version, "P") : ''), "[type]" => "plugin", "[more]" => "")));
+                                \WP_CLI_Helper::pl_wait_start();
+                            }
                         }
                     }
 
@@ -332,11 +346,11 @@ class Plugins
         }
 
         // get Temp Package
-        $tmp = Package_Temporary::getTemporaryFile();
+        $tmp         = Package_Temporary::getTemporaryFile();
         $tmp_plugins = (isset($tmp['plugins']) ? $tmp['plugins'] : array());
 
         // If Not any change
-        if ($tmp_plugins == $pkg_plugins) {
+        if (($tmp_plugins == $pkg_plugins) and ! Package_Update::isAutoUpdate()) {
             return;
         }
 

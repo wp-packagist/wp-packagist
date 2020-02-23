@@ -126,13 +126,14 @@ class Locale
         if (file_exists($file_path)) {
             //if cache file exist we used same file
             $json_data = \WP_CLI_FileSystem::read_json_file($file_path);
-        }
 
-        // if Force Update
-        if ($force_update === false) {
-            //if require update by calculate cache time
-            if (isset($json_data) and \WP_CLI_FileSystem::check_file_age($file_path, Package::get_config('package', 'locale', 'age')) === false) {
-                $list = $json_data;
+            // if Force Update
+            if ($force_update === false) {
+                //if require update by calculate cache time
+                $cacheFileAge = (time() - filemtime($file_path) >= 60 * Package::get_config('package', 'locale', 'age'));
+                if (isset($json_data) and $cacheFileAge === false) {
+                    $list = $json_data;
+                }
             }
         }
 

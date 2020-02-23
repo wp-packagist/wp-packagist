@@ -131,4 +131,24 @@ class Package_Update extends Package
         # Update MySQL
         MySQL::update((isset($pkg_array['mysql']) ? $pkg_array['mysql'] : 'default'));
     }
+
+    /**
+     * Check Enable Auto Update Core/Plugins/Themes to last version
+     */
+    public static function isAutoUpdate()
+    {
+        // Default value
+        $var = Package::get_config('package', 'auto_update');
+        try {
+            $get = \WP_CLI_CONFIG::get('auto_update');
+            $get = filter_var($get, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ( ! is_null($get)) {
+                $var = $get;
+            }
+        } catch (\Exception $e) {
+            // Use same Default Of Config
+        }
+
+        return $var;
+    }
 }

@@ -39,6 +39,17 @@ class WP_Themes_Api
     }
 
     /**
+     * Generate Cache File Path
+     *
+     * @param $slug
+     * @return string
+     */
+    public function generateCacheFilePath($slug)
+    {
+        return \WP_CLI_FileSystem::path_join($this->cache_dir, str_ireplace("[slug]", $slug, $this->config['file_name']));
+    }
+
+    /**
      * Get Theme Data By Slug
      *
      * @param $slug
@@ -48,19 +59,20 @@ class WP_Themes_Api
     public function get_theme_data($slug, $force_update = false)
     {
         //Generate File Path
-        $file_path = \WP_CLI_FileSystem::path_join($this->cache_dir, str_ireplace("[slug]", $slug, $this->config['file_name']));
+        $file_path = $this->generateCacheFilePath($slug);
 
         //Check Cache File exist
         if (file_exists($file_path)) {
             //if cache file exist we used same file
             $json_data = \WP_CLI_FileSystem::read_json_file($file_path);
-        }
 
-        // if Force Update
-        if ($force_update === false) {
-            //if require update by calculate cache time
-            if (isset($json_data) and \WP_CLI_FileSystem::check_file_age($file_path, $this->config['age']) === false) {
-                return array('status' => true, 'data' => $json_data);
+            // if Force Update
+            if ($force_update === false) {
+                //if require update by calculate cache time
+                $cacheFileAge = (time() - filemtime($file_path) >= 60 * $this->config['age']);
+                if (isset($json_data) and $cacheFileAge === false) {
+                    return array('status' => true, 'data' => $json_data);
+                }
             }
         }
 
@@ -86,7 +98,7 @@ class WP_Themes_Api
     public function fetch_theme_data($slug)
     {
         //Generate File Path
-        $file_path = \WP_CLI_FileSystem::path_join($this->cache_dir, str_ireplace("[slug]", $slug, $this->config['file_name']));
+        $file_path = $this->generateCacheFilePath($slug);
 
         //Connect To Wordpress API
         $data = \WP_CLI_Helper::http_request(str_ireplace("[slug]", $slug, $this->config['themes_data']));

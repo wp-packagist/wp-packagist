@@ -6,6 +6,7 @@ use WP_CLI_PACKAGIST\API\WP_Themes_Api;
 use WP_CLI_PACKAGIST\Package\Package;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
 class Themes
 {
@@ -88,8 +89,8 @@ class Themes
         $defaults = array(
             /**
              * Search By :
-             * name   -> Theme name
-             * folder -> Folder of theme
+             * name   -> Theme Name
+             * folder -> Folder of Theme
              */
             'search_by' => 'name',
             /**
@@ -241,36 +242,57 @@ class Themes
                 }
             } else {
                 # Update Theme Process
-                if ($version_in_current != $version_in_pkg) {
+                if ($version_in_current != $version_in_pkg || (Package_Update::isAutoUpdate() and $version_in_pkg == "latest")) {
+                    $_show_update_log = false;
+
                     //Check theme from Url or WordPress
-                    $from_url = (\WP_CLI_Util::is_url($version_in_pkg) === false ? false : true);
+                    $is_pkg_url     = (\WP_CLI_Util::is_url($version_in_pkg) === false ? false : true);
+                    $is_current_url = (\WP_CLI_Util::is_url($version_in_current) === false ? false : true);
 
                     //Get Current Version
                     $this_version = '';
-                    if ($from_url === false) {
-                        //Check if last version
-                        $this_version = ($version_in_pkg == "latest" ? $themes_api->get_last_version_theme($stylesheet) : $version_in_pkg);
+                    if ( ! $is_pkg_url) {
+                        $this_version = ($version_in_pkg == "latest" ? $themes_api->get_last_version_theme($stylesheet) : $version_in_pkg); //Check if last version
                     }
 
-                    // 1) Check Version is Changed For Theme / Or User Change Url to Version
-                    if ( ! empty($this_version) and \WP_CLI_Util::is_semver_version($version_in_current) and $from_url === false) {
+                    // Get Current Version this theme in WordPress
+                    if ($version_in_current == "latest" and $version_in_pkg == "latest") {
+                        $search_theme = self::searchWordPressThemes(array('search_by' => 'folder', 'search' => $stylesheet, 'first' => true));
+                        if (isset($search_theme['version']) and ! empty($search_theme['version'])) {
+                            $version_in_current = $search_theme['version'];
+                        }
+                    }
+
+                    // 1) Check Version is Changed For Theme
+                    if ( ! $is_pkg_url and ((empty($this_version) and $version_in_current != $version_in_pkg) || ( ! empty($this_version) and $version_in_current != $this_version))) {
                         //Check From URL or WordPress Theme
                         $prompt = $stylesheet;
-                        if ($from_url == false) {
+                        if ($is_pkg_url === false and $version_in_pkg != "latest") {
                             $prompt .= ' --version=' . $this_version;
                         }
 
                         //Run Command
-                        $cmd = "theme update {$prompt} --force";
-                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
-                    } else {
-                        // 2) Check User Changed Version to Custom URL
+                        $cmd = "theme update {$prompt}";
+                        \WP_CLI_Helper::run_command($cmd, array('exit_error' => true));
+
+                        // show log
+                        $_show_update_log = true;
+                    }
+
+                    // 2) Check User Changed Version to Custom URL
+                    if (
+                        ($is_current_url and ! $is_pkg_url)
+                        ||
+                        ( ! $is_current_url and $is_pkg_url)
+                        ||
+                        ($is_current_url and $is_pkg_url and $version_in_current != $version_in_pkg)
+                    ) {
                         // First Delete Theme
                         self::runDeleteTheme($stylesheet);
 
                         // Second Download New Theme file
                         sleep(2); //Wait For Remove Before Dir if Exist
-                        self::runInstallTheme($theme_root, $stylesheet, ($from_url === false ? $this_version : $version_in_pkg));
+                        self::runInstallTheme($theme_root, $stylesheet, ($is_pkg_url === false ? $this_version : $version_in_pkg));
 
                         // Third Activate if in WordPress
                         if ($Current_theme == $stylesheet) {
@@ -278,10 +300,13 @@ class Themes
                             $cmd = "theme activate  {$stylesheet}";
                             \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
                         }
+
+                        // show log
+                        $_show_update_log = true;
                     }
 
                     //Add Log
-                    if (isset($args['log']) and $args['log'] === true) {
+                    if (isset($args['log']) and $args['log'] and $_show_update_log) {
                         \WP_CLI_Helper::pl_wait_end();
                         Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Updated", "[slug]" => $stylesheet . (($version_in_pkg != "latest" and \WP_CLI_Util::is_semver_version($version_in_pkg) === true) ? ' ' . \WP_CLI_Helper::color("v" . $version_in_pkg, "P") : ''), "[type]" => "theme", "[more]" => "")));
                         \WP_CLI_Helper::pl_wait_start();
@@ -437,7 +462,7 @@ class Themes
         $tmp_themes = (isset($tmp['themes']) ? $tmp['themes'] : array());
 
         // If Not any change
-        if ($tmp_themes == $pkg_themes) {
+        if (($tmp_themes == $pkg_themes) and ! Package_Update::isAutoUpdate()) {
             return;
         }
 
