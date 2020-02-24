@@ -93,6 +93,9 @@ return array(
         # Default Package File name
         'file'                     => 'wordpress.json',
 
+        # Default Package lock File name
+        'lock'                     => 'wordpress.lock',
+
         # Save List of Wordpress Version in cache
         'version'                  => array(
             'file' => WP_CLI_PACKAGIST_CACHE_PATH . '/version.json',
