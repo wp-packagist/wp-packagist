@@ -13,7 +13,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Commands;
 use WP_CLI_PACKAGIST\Package\Arguments\Dir;
 use WP_CLI_PACKAGIST\Package\Arguments\Options;
 use WP_CLI_PACKAGIST\Package\Arguments\Plugins;
-use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
+use WP_CLI_PACKAGIST\Package\Arguments\REST_API;
 use WP_CLI_PACKAGIST\Package\Arguments\Security;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
@@ -432,7 +432,7 @@ class Mysql
         if (isset($pkg_array['config']['rest-api'])) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "update_rest_api"));
             \WP_CLI_Helper::pl_wait_start();
-            Rest_API::update($mu_plugins_path, $pkg_array['config']['rest-api']);
+            REST_API::update($mu_plugins_path, $pkg_array['config']['rest-api']);
             \WP_CLI_Helper::pl_wait_end();
             $step++;
         }

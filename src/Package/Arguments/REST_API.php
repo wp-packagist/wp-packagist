@@ -7,7 +7,7 @@ use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
 use WP_CLI_PACKAGIST\Package\Utility\Package_Update;
 
-class Rest_API
+class REST_API
 {
     /**
      * Get List Of WordPress Rest API namespace/route
@@ -127,7 +127,7 @@ class Rest_API
     public static function getRestAPI()
     {
         $prefix   = rest_get_url_prefix();
-        $rest_api = Rest_API::get_rest_list();
+        $rest_api = REST_API::get_rest_list();
         $routes   = $rest_api['route'];
 
         return array(

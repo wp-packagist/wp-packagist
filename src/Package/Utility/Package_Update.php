@@ -11,8 +11,9 @@ use WP_CLI_PACKAGIST\Package\Arguments\Emoji;
 use WP_CLI_PACKAGIST\Package\Arguments\Locale;
 use WP_CLI_PACKAGIST\Package\Arguments\MySQL;
 use WP_CLI_PACKAGIST\Package\Arguments\Options;
+use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Arguments\Plugins;
-use WP_CLI_PACKAGIST\Package\Arguments\Rest_API;
+use WP_CLI_PACKAGIST\Package\Arguments\REST_API;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
 use WP_CLI_PACKAGIST\Package\Arguments\Users;
@@ -111,7 +112,7 @@ class Package_Update extends Package
         Users::update($pkg_array);
 
         # Update REST-API
-        Rest_API::update($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
+        REST_API::update($MU_Plugins, (isset($pkg_array['config']['rest-api']) ? $pkg_array['config']['rest-api'] : 'default'));
 
         # Update WordPress TimeZone
         Timezone::update((isset($pkg_array['config']['timezone']) ? $pkg_array['config']['timezone'] : Timezone::$default_timezone));
@@ -127,6 +128,9 @@ class Package_Update extends Package
 
         # Dir
         Dir::updateCommand($pkg_array);
+
+        # Permalink
+        Permalink::update($pkg_array);
 
         # Update MySQL
         MySQL::update((isset($pkg_array['mysql']) ? $pkg_array['mysql'] : 'default'));

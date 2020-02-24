@@ -2,6 +2,10 @@
 
 namespace WP_CLI_PACKAGIST\Package\Arguments;
 
+use phpDocumentor\Reflection\Types\Self_;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Install;
+use WP_CLI_PACKAGIST\Package\Utility\Package_Temporary;
+
 class Permalink
 {
     /**
@@ -9,7 +13,7 @@ class Permalink
      *
      * @param bool $force
      */
-    public static function flush_rewrite($force = false)
+    public static function evalFlushRewrite($force = false)
     {
         $command = 'eval "flush_rewrite_rules(' . ($force === true ? 'true' : '') . ');"';
         \WP_CLI::runcommand($command);
@@ -268,8 +272,9 @@ EOF;
      * Change Permalink Structure
      *
      * @param $pkg_array
+     * @param bool $hard_flush
      */
-    public static function change_permalink_structure($pkg_array)
+    public static function change_permalink_structure($pkg_array, $hard_flush = true)
     {
         //Run Command
         $cmd = "rewrite structure " . $pkg_array['config']['permalink']['common'] . "";
@@ -282,6 +287,11 @@ EOF;
         //Check Tag
         if (isset($pkg_array['config']['permalink']['tag'])) {
             $cmd .= " --tag-base={$pkg_array['config']['permalink']['tag']}";
+        }
+
+        //Check Hard Flush
+        if ($hard_flush) {
+            $cmd .= " --hard";
         }
 
         //Run Command
@@ -308,6 +318,46 @@ EOF;
 
         //Run Command
         \WP_CLI_Helper::run_command("pack htaccess{$custom_dir}", array('exit_error' => false));
+    }
+
+    /**
+     * Update Command Package
+     *
+     * @param $pkg
+     * @throws \WP_CLI\ExitException
+     */
+    public static function update($pkg)
+    {
+        global $wpdb;
+
+        // Get Package Dir
+        $pkg_permalink = array();
+        if (isset($pkg['config']['permalink'])) {
+            $pkg_permalink = $pkg['config']['permalink'];
+        }
+
+        // get Temp Package
+        $tmp           = Package_Temporary::getTemporaryFile();
+        $tmp_permalink = (isset($tmp['config']['permalink']) ? $tmp['config']['permalink'] : array());
+
+        // If Not any change
+        if ($tmp_permalink == $pkg_permalink) {
+            return;
+        }
+
+        // Reset Category ans Tag Base
+        foreach (array('category_base', 'tag_base', 'permalink_structure') as $opt_name) {
+            $wpdb->query("UPDATE `{$wpdb->options}` SET `option_value` = '' WHERE `option_name` = '{$opt_name}';");
+        }
+
+        // Run Update
+        self::change_permalink_structure($pkg);
+
+        // Flush Rewrite
+        self::runFlushRewriteCLI();
+
+        // Show Log
+        Package_Install::add_detail_log("Changed WordPress " . \WP_CLI_Helper::color("Permalink Structure", "Y") . "");
     }
 
 }
