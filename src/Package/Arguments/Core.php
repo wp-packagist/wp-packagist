@@ -63,7 +63,7 @@ class Core
     {
         foreach ($sites as $site) {
             self::add_new_blog($site);
-            Package_Install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $site['slug'])), ($when == "update" ? 5 : 1));
+            Package_Install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $site['slug'])), ($when == "update" ? 3 : 1));
         }
     }
 
@@ -253,7 +253,7 @@ class Core
 
                     // Add log
                     if ($log) {
-                        Package_Install::add_detail_log("Changed '{$before_log_url}' url to '{$after_log_url}'." . \WP_CLI_Helper::color("[blog_id: {$blog_id}]", "B") . "", 5);
+                        Package_Install::add_detail_log("Changed '{$before_log_url}' url to '{$after_log_url}'." . \WP_CLI_Helper::color("[blog_id: {$blog_id}]", "Y") . "", 3);
                     }
                 }
             }
@@ -346,6 +346,7 @@ class Core
      * Update Network parameter in WordPress Package
      *
      * @param $pkg
+     * @throws \WP_CLI\ExitException
      */
     public static function update_network($pkg)
     {
@@ -398,7 +399,7 @@ class Core
             // Create Htaccess multi-site
             $mod_network = Core::is_multisite();
             Permalink::run_permalink_file();
-            Package_Install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_network['mod_rewrite_file'])), 5);
+            Package_Install::add_detail_log(Package::_e('package', 'created_file', array("[file]" => $mod_network['mod_rewrite_file'])), 3);
 
             // Create Multi-Site blog List
             if (isset($pkg_network) and isset($pkg_network['sites']) and count($pkg_network['sites']) > 0) {
@@ -408,6 +409,11 @@ class Core
             // Run WordPress Security ( Use For Htaccess )
             Security::remove_security_file();
             Security::wordpress_package_security_plugin($pkg);
+        }
+
+        // Convert Multi-site to single Site
+        if ($before_status_network === true and $now_status_network === false) {
+            \WP_CLI_Helper::error("Unable to change the WordPress multi-site to single.", true);
         }
 
         // Change Multi-Site Params
@@ -426,7 +432,7 @@ class Core
                 // Create Again Htaccess
                 Permalink::run_permalink_file();
 
-                // Change Url of Multi-site Blogs
+                // Change Url of Multi-site blogs
                 self::change_network_sub_domain($pkg_subdomain, true);
 
                 // Run WordPress Security ( Use For Htaccess )
@@ -506,10 +512,51 @@ class Core
                         $blog_id          = $_exist_DB['blog_id'];
                         $current_pkg_blog = $pkg_blogs[$pkg_key];
                         $current_tmp_blog = $tmp_blogs[$tmp_key];
+
+                        // Check Public/Private Blog
+                        if ($current_pkg_blog['public'] != $current_tmp_blog['public']) {
+                            $blog_status = "public";
+                            if ($current_pkg_blog['public'] === false) {
+                                $blog_status = "private";
+                            }
+
+                            //Run
+                            \WP_CLI_Helper::run_command("site {$blog_status} {$blog_id}", array('exit_error' => false));
+                            Package_Install::add_detail_log("Site '" . \WP_CLI_Helper::color($pkg_blog['slug'], "Y") . "' marked as {$blog_status}.");
+                        }
+
+                        // Check Site Title
+                        global $wpdb;
+                        $_default_blog_title = ucfirst($pkg_blog['slug']);
+                        $_before_title       = (isset($current_tmp_blog['title']) ? $current_tmp_blog['title'] : $_default_blog_title);
+                        $_now_title          = (isset($current_pkg_blog['title']) ? $current_pkg_blog['title'] : $_default_blog_title);
+                        if ($_before_title != $_now_title) {
+                            switch_to_blog($blog_id);
+                            $wpdb->query($wpdb->prepare("UPDATE `{$wpdb->options}` SET option_value = %s WHERE option_name = %s LIMIT 1;",
+                                $_now_title,
+                                'blogname'
+                            ));
+                            restore_current_blog();
+                            Package_Install::add_detail_log("Updated '" . \WP_CLI_Helper::color($pkg_blog['slug'], "Y") . "' site title.");
+                        }
+
+                        // Change Admin Email
+                        $_default_admin_email = $wpdb->get_var("SELECT `user_email` FROM {$wpdb->users} ORDER BY `ID` ASC LIMIT 1");
+                        $_before_admin_email  = (isset($current_tmp_blog['email']) ? $current_tmp_blog['email'] : $_default_admin_email);
+                        $_now_admin_email     = (isset($current_pkg_blog['email']) ? $current_pkg_blog['email'] : $_default_admin_email);
+                        if ($_before_admin_email != $_now_admin_email) {
+                            switch_to_blog($blog_id);
+                            $wpdb->query($wpdb->prepare("UPDATE `{$wpdb->options}` SET option_value = %s WHERE option_name = %s LIMIT 1;",
+                                $_now_admin_email,
+                                'admin_email'
+                            ));
+                            restore_current_blog();
+                            Package_Install::add_detail_log("Updated '" . \WP_CLI_Helper::color($pkg_blog['slug'], "Y") . "' site admin email.");
+                        }
                     }
+                } else {
+                    \WP_CLI_Helper::error("Unable to change the '" . \WP_CLI_Helper::color($pkg_blog['slug'], "Y") . "' site slug in the WordPress multi-site.", true);
                 }
-
-
                 $x_pkg++;
             }
         }
@@ -606,7 +653,7 @@ class Core
             return;
         }
 
-        // Disable Change Foe Multi-site
+        // Disable Change For Multi-site
         if (function_exists('is_multisite') and is_multisite() === true) {
             \WP_CLI_Helper::error("Unable to change the WordPress Site URL for the network.", true);
         }

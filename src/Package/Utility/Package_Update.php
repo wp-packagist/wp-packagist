@@ -14,6 +14,7 @@ use WP_CLI_PACKAGIST\Package\Arguments\Options;
 use WP_CLI_PACKAGIST\Package\Arguments\Permalink;
 use WP_CLI_PACKAGIST\Package\Arguments\Plugins;
 use WP_CLI_PACKAGIST\Package\Arguments\REST_API;
+use WP_CLI_PACKAGIST\Package\Arguments\Security;
 use WP_CLI_PACKAGIST\Package\Arguments\Themes;
 use WP_CLI_PACKAGIST\Package\Arguments\Timezone;
 use WP_CLI_PACKAGIST\Package\Arguments\Users;

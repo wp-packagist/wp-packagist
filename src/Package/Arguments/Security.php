@@ -46,9 +46,13 @@ class Security
                 if (file_exists($htaccess)) {
                     $contents = @file($htaccess, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                     if ($contents != false) {
-                        $size                = count($contents);
-                        $contents[$size - 2] = $htaccess_code;
-                        $file_content        = implode("\n", $contents);
+                        $size = count($contents);
+                        $line = $size - 2; // We added for WordPress # END WordPress Marker in htaccess
+                        if (isset($pkg_array['core']['network']) and $pkg_array['core']['network'] != false) {
+                            $line = $size;
+                        }
+                        $contents[$line] = $htaccess_code;
+                        $file_content    = implode("\n", $contents);
                     }
 
                     \WP_CLI_FileSystem::file_put_content($htaccess, $file_content);

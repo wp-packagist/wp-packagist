@@ -133,6 +133,13 @@ class Dir
 
         // Run Update
         self::updateDir(array('wp-content', 'plugins', 'themes', 'uploads'), $pkg_dir, $pkg, 'update', $tmp_dir);
+
+        // Regenerate Htaccess for Multi-site
+        if (function_exists('is_multisite') and is_multisite() === true) {
+            Permalink::run_permalink_file();
+            Security::remove_security_file();
+            Security::wordpress_package_security_plugin($pkg);
+        }
     }
 
     /**
@@ -288,7 +295,7 @@ class Dir
 
     /**
      * Update Wp-Content dir constant
-     * 
+     *
      * @param $wp_config
      * @param $dirName
      */

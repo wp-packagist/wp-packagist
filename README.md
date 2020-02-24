@@ -1,4 +1,4 @@
-# WordPress Package Management for WP-CLI
+# WordPress Package Management For WP-CLI
 
 [![Build Status](https://travis-ci.com/wp-packagist/wp-packagist.svg?branch=master)](https://travis-ci.com/wp-packagist/wp-packagist)
 ![Packagist Version](https://img.shields.io/packagist/v/wp-packagist/wp-packagist)
