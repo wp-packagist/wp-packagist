@@ -582,4 +582,75 @@ class Core
         Package_Install::add_detail_log("Updated WordPress site title");
     }
 
+    /**
+     * Update Command WordPress Site URL
+     *
+     * @param $url
+     * @throws \WP_CLI\ExitException
+     */
+    public static function updateURL($url)
+    {
+        global $wpdb;
+
+        // Check title
+        if ($url == "default") {
+            $url = self::get_site_url();
+        }
+
+        // get Temp Package
+        $tmp     = Package_Temporary::getTemporaryFile();
+        $tmp_url = (isset($tmp['config']['url']) ? $tmp['config']['url'] : self::get_site_url());
+
+        // If Not any change
+        if ($tmp_url == $url) {
+            return;
+        }
+
+        // Disable Change Foe Multi-site
+        if (function_exists('is_multisite') and is_multisite() === true) {
+            \WP_CLI_Helper::error("Unable to change the WordPress Site URL for the network.", true);
+        }
+
+        // Check URL Current in the database
+        $site_url = rtrim($url, "/");
+        if ($site_url == self::get_site_url()) {
+            return;
+        }
+
+        // Start Change URL
+        Package_Install::add_detail_log("Changing WordPress Site URL:");
+
+        // Change WP_SITEURL and WP_HOME
+        $list               = array('WP_HOME', 'WP_SITEURL');
+        $config_transformer = Config::get_config_transformer();
+        foreach ($list as $const) {
+            if ($config_transformer->exists('constant', $const)) {
+                $config_transformer->update('constant', $const, $site_url, array('raw' => false, 'normalize' => true));
+                \WP_CLI_Helper::log("   - Updated '" . \WP_CLI_Helper::color("$const", "Y") . "' constant.");
+            }
+        }
+
+        // Change Options Site URL
+        $list = array('siteurl', 'home');
+        foreach ($list as $option) {
+            $wpdb->query($wpdb->prepare("UPDATE `{$wpdb->options}` SET option_value = %s WHERE option_name = %s LIMIT 1;",
+                $site_url,
+                $option
+            ));
+            \WP_CLI_Helper::log("   - Updated '" . \WP_CLI_Helper::color("$option", "Y") . "' option.");
+        }
+
+        // Replace IN Database and Posts
+        \WP_CLI_Helper::pl_wait_start();
+        \WP_CLI_Helper::search_replace_db(rtrim($tmp_url, "/") . "/", rtrim($url, "/") . "/");
+        \WP_CLI_Helper::pl_wait_end();
+        \WP_CLI_Helper::log("   - Updated WordPress Site URL in the all " . \WP_CLI_Helper::color("database tables", "Y") . ".");
+
+        // Flush Rewrite
+        $permalink_structure = $wpdb->get_var("SELECT `option_value` FROM `{$wpdb->options}` WHERE `option_name` = 'permalink_structure'");
+        if ( ! empty($permalink_structure)) {
+            Permalink::runFlushRewriteCLI();
+            \WP_CLI_Helper::log("   - Permalink structure updated.");
+        }
+    }
 }

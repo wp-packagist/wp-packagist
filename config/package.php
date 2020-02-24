@@ -27,7 +27,7 @@ return array(
             'plugin_data' => 'https://api.wordpress.org/plugins/info/1.0/[slug].json',
             'cache_dir'   => '_plugins',
             'file_name'   => "[slug].json",
-            'age'         => 15 // Minute
+            'age'         => 10 // Minute
         ),
 
         # WordPress Themes Directory
@@ -36,7 +36,7 @@ return array(
             'themes_version_list' => 'https://themes.svn.wordpress.org/[slug]/',
             'cache_dir'           => '_themes',
             'file_name'           => "[slug].json",
-            'age'                 => 15 // Minute
+            'age'                 => 10 // Minute
         ),
 
         # plugin or theme slug preg (https://developer.wordpress.org/themes/functionality/internationalization/)

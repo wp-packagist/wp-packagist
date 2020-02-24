@@ -129,6 +129,9 @@ class Package_Update extends Package
         # Dir
         Dir::updateCommand($pkg_array);
 
+        # URL
+        Core::updateURL((isset($pkg_array['config']['url']) ? $pkg_array['config']['url'] : 'default'));
+
         # Permalink
         Permalink::update($pkg_array);
 
