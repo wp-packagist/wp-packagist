@@ -42,7 +42,7 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
  */
 \WP_CLI::add_command('run', function ($args, $assoc_args) {
     // Get Site Url
-    $site_url = Core::get_site_url();
+    $site_url = Core::getSiteUrl();
 
     //Default show HomeUrl
     if ( ! isset($args[0])) {

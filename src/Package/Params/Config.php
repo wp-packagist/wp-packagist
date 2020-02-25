@@ -863,8 +863,8 @@ class Config
         //Create new validation
         $valid = new \WP_CLI_ERROR();
 
-        //Check if Not Rest-Api in WordPress
-        if ((is_bool($var) and $var === false) || (is_array($var) and ! empty($var))) {
+        //Check if Not REST API in WordPress
+        if (is_bool($var) || (is_array($var) and ! empty($var))) {
             //Check if is Network
             if (is_array($var)) {
                 //Check is assoc array
@@ -873,39 +873,41 @@ class Config
                     $var = array_change_key_case($var, CASE_LOWER);
 
                     //All accept Parameter
-                    $accept_params = array('prefix', 'disable');
-
-                    //Require Key
-                    $require_key = array('prefix');
+                    $accept_params = array(
+                        'prefix'  => Package::get_config('package', 'default_rest_prefix'),
+                        'disable' => array(),
+                        'link'    => true,
+                        'header'  => array(),
+                        'cros'    => array()
+                    );
 
                     //Not empty if exist
-                    $not_empty = $accept_params;
-
-                    //Check Require Key
-                    $check_require_key = \WP_CLI_Util::check_require_array($var, $require_key, true);
-                    if ($check_require_key['status'] === false) {
-                        foreach ($check_require_key['data'] as $key) {
-                            $valid->add_error(Package::_e('package', 'not_exist_key', array("[require]" => $key, "[key]" => "config: { rest-api: { ..")));
-                        }
-                    }
+                    $not_empty = array('prefix', 'disable', 'header', 'cros');
 
                     //Check Anonymous Parameter
                     foreach ($var as $k => $val) {
-                        if ( ! in_array(strtolower($k), $accept_params)) {
-                            $valid->add_error(Package::_e('package', 'er_unknown_param', array("[key]" => 'config: { rest-api: { "' . $k . '" ..')));
+                        if ( ! in_array(strtolower($k), array_keys($accept_params))) {
+                            $valid->add_error(Package::_e('package', 'er_unknown_param', array("[key]" => 'config: { rest-api: { ' . $k . ' ..')));
                         }
                     }
 
                     //Check Not Empty key
                     foreach ($not_empty as $k) {
                         if (array_key_exists($k, $var) and empty($var[$k])) {
-                            $valid->add_error(Package::_e('package', 'empty_val', array("[key]" => 'config: { rest-api: { "' . $k . '" ..')));
+                            $valid->add_error(Package::_e('package', 'empty_val', array("[key]" => 'config: { rest-api: { ' . $k . ' ..')));
+                        }
+                    }
+
+                    // Set Default Value
+                    foreach (array_keys($accept_params) as $param) {
+                        if ( ! array_key_exists($param, $var)) {
+                            $var[$param] = $accept_params[$param];
                         }
                     }
 
                     // Validate Every item
                     if ( ! $valid->is_cli_error()) {
-                        //Check if string 'prefix'
+                        // Check if string 'prefix'
                         if (is_string($var['prefix'])) {
                             //Get user raw
                             $prefix_raw = $var['prefix'];
@@ -919,6 +921,51 @@ class Config
                             }
                         } else {
                             $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { rest-api: { prefix: { ..")));
+                        }
+
+                        // Check Boolean for link parameter
+                        if ( ! is_bool($var['link'])) {
+                            $valid->add_error(Package::_e('package', 'is_boolean', array("[key]" => "config: { rest-api: { link: { ..")));
+                        }
+
+                        // Check header and cros parameter
+                        if ( ! $valid->is_cli_error()) {
+                            foreach (array('header', 'cros') as $param) {
+                                // convert String to array
+                                if (is_string($var[$param])) {
+                                    $var[$param] = array($var[$param]);
+                                }
+
+                                // Check is Array
+                                if ( ! is_array($var[$param]) || (is_array($var[$param]) and \WP_CLI_Util::is_assoc_array($var[$param]))) {
+                                    $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { rest-api: { " . $param . ": { ..")));
+                                } else {
+                                    // Remove Empty Value
+                                    $var[$param] = array_filter($var[$param], function ($value) {
+                                        return ! is_null($value) && $value !== '';
+                                    });
+
+                                    //Check Validate every item
+                                    $x = 0;
+                                    foreach ($var[$param] as $value) {
+                                        //Check only accept string
+                                        if (is_string($value)) {
+                                            //Check if contain white space
+                                            if (preg_match('/\s/', $value)) {
+                                                $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { rest-api: { " . $param . ": { [" . ($x + 1) . "]")));
+                                                break;
+                                            } else {
+                                                //Sanitize value
+                                                $var[$param][$x] = trim($var[$param][$x]);
+                                            }
+                                        } else {
+                                            $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { rest-api: { " . $param . ": { [" . ($x + 1) . "]")));
+                                            break;
+                                        }
+                                        $x++;
+                                    }
+                                }
+                            }
                         }
 
                         //Validate disable route
@@ -1315,7 +1362,7 @@ class Config
 
         //Cookie Constant
         if (isset($pkg_array['config']['cookie']) and ! empty($pkg_array['config']['cookie']) and isset($pkg_array['config']['url'])) {
-            Cookie::set_cookie_prefix($pkg_array['config']['cookie'], $pkg_array['config']['url']);
+            Cookie::setCookiePrefix($pkg_array['config']['cookie'], $pkg_array['config']['url']);
             Package_Install::add_detail_log(Package::_e('package', 'change_cookie_prefix'));
         }
 

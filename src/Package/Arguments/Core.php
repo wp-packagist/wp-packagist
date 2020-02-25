@@ -32,7 +32,7 @@ class Core
      * @param $pkg_array
      * @param bool $is_network
      */
-    public static function install_wordpress($pkg_array, $is_network = false)
+    public static function installWordPress($pkg_array, $is_network = false)
     {
         // Check sub-domain for network
         $is_sub_domains = '';
@@ -59,10 +59,10 @@ class Core
      * @param array $sites
      * @param string $when | run in installing Package or update package
      */
-    public static function install_network_sites($sites = array(), $when = 'install')
+    public static function installNetworkSites($sites = array(), $when = 'install')
     {
         foreach ($sites as $site) {
-            self::add_new_blog($site);
+            self::addNewBlog($site);
             Package_Install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $site['slug'])), ($when == "update" ? 3 : 1));
         }
     }
@@ -72,7 +72,7 @@ class Core
      *
      * @param array $site
      */
-    public static function add_new_blog($site = array())
+    public static function addNewBlog($site = array())
     {
         //Prepare command
         $cmd = "site create --slug=" . $site['slug'];
@@ -133,7 +133,7 @@ class Core
      *
      * @run after_wp_load
      */
-    public static function get_site_url()
+    public static function getSiteUrl()
     {
         return rtrim(\WP_CLI_Util::backslash_to_slash(get_option('siteurl')), "/");
     }
@@ -403,7 +403,7 @@ class Core
 
             // Create Multi-Site blog List
             if (isset($pkg_network) and isset($pkg_network['sites']) and count($pkg_network['sites']) > 0) {
-                Core::install_network_sites($pkg_network['sites'], 'update');
+                Core::installNetworkSites($pkg_network['sites'], 'update');
             }
 
             // Run WordPress Security ( Use For Htaccess )
@@ -482,7 +482,7 @@ class Core
                     if ( ! $_exist) {
                         $_exist_DB = self::exist_blog($pkg_blog['slug']);
                         if ($_exist_DB === false) {
-                            self::add_new_blog($pkg_blog);
+                            self::addNewBlog($pkg_blog);
                             Package_Install::add_detail_log(Package::_e('package', 'created_site', array("[slug]" => $pkg_blog['slug'])));
                         }
                     }
@@ -641,12 +641,12 @@ class Core
 
         // Check title
         if ($url == "default") {
-            $url = self::get_site_url();
+            $url = self::getSiteUrl();
         }
 
         // get Temp Package
         $tmp     = Package_Temporary::getTemporaryFile();
-        $tmp_url = (isset($tmp['config']['url']) ? $tmp['config']['url'] : self::get_site_url());
+        $tmp_url = (isset($tmp['config']['url']) ? $tmp['config']['url'] : self::getSiteUrl());
 
         // If Not any change
         if ($tmp_url == $url) {
@@ -660,7 +660,7 @@ class Core
 
         // Check URL Current in the database
         $site_url = rtrim($url, "/");
-        if ($site_url == self::get_site_url()) {
+        if ($site_url == self::getSiteUrl()) {
             return;
         }
 

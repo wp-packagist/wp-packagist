@@ -8,13 +8,13 @@
  * @package wp-packagist
  */
 
-define( "WP_CLI_ACL", "{{wp_acl}}" );
-add_action( 'plugins_loaded', 'wp_cli_application_acl' );
-function wp_cli_application_acl() {
-	if ( isset( $_GET[WP_CLI_ACL] ) ) {
+define( "WP_CLI_AUTO_LOGIN_KEY", "{{wp_acl}}" );
+add_action( 'plugins_loaded', 'wp_cli_auto_login' );
+function wp_cli_auto_login() {
+	if ( isset( $_GET[WP_CLI_AUTO_LOGIN_KEY] ) ) {
 
 		//Check hash content
-		$get = explode( ",", $_GET[WP_CLI_ACL] );
+		$get = explode( ",", $_GET[WP_CLI_AUTO_LOGIN_KEY] );
 		if ( count( $get ) == 2 ) {
 
 			//validation Command
@@ -22,7 +22,7 @@ function wp_cli_application_acl() {
 			if ( in_array( trim( $get[0] ), $command ) ) {
 
 				//Check option value
-				$wp_cli_acl = get_option( WP_CLI_ACL );
+				$wp_cli_acl = get_option( WP_CLI_AUTO_LOGIN_KEY );
 				if ( isset( $wp_cli_acl ) and is_array( $wp_cli_acl ) and isset( $wp_cli_acl['hash'] ) and trim( $get[1] ) == $wp_cli_acl['hash'] ) {
 					$type = trim( $get[0] );
 
@@ -44,10 +44,10 @@ function wp_cli_application_acl() {
 						}
 
 						//Remove Options
-						update_option( WP_CLI_ACL, array(), "no" );
+						update_option( WP_CLI_AUTO_LOGIN_KEY, array(), "no" );
 
 						//Remove Mu Plugins
-						@unlink( path_join( WPMU_PLUGIN_DIR, "wp-cli-acl.php" ) );
+						@unlink( path_join( WPMU_PLUGIN_DIR, "wp-cli-auto-login.php" ) );
 
 						//Redirect
 						if ( isset( $wp_cli_acl['redirect'] ) and $wp_cli_acl['redirect'] != "" ) {

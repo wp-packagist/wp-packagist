@@ -11,7 +11,7 @@ class Users
     /**
      * @var string
      */
-    public static $current_user_login_opt = 'wp-cli-acl-auto-login';
+    public static $current_user_login_opt = 'wp-cli-auto-login';
 
     /**
      * Get List Of Default User Meta
@@ -620,7 +620,7 @@ class Users
         // Load Mustache and Create MU Plugins
         $mustache         = \WP_CLI_FileSystem::load_mustache(WP_CLI_PACKAGIST_TEMPLATE_PATH);
         $create_mu_plugin = \WP_CLI_FileSystem::file_put_content(
-            \WP_CLI_FileSystem::path_join($mu_plugins_path, "wp-cli-acl.php"),
+            \WP_CLI_FileSystem::path_join($mu_plugins_path, "wp-cli-auto-login.php"),
             $mustache->render('mu-plugins/auto-login', array('wp_acl' => self::$current_user_login_opt))
         );
         if ($create_mu_plugin === false) {
@@ -628,7 +628,7 @@ class Users
         }
 
         // Create link to Show in browser
-        return array('status' => true, 'link' => add_query_arg(self::$current_user_login_opt, 'login,' . $hash, Core::get_site_url()));
+        return array('status' => true, 'link' => add_query_arg(self::$current_user_login_opt, 'login,' . $hash, Core::getSiteUrl()));
     }
 
 }

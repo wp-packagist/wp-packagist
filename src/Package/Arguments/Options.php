@@ -99,7 +99,7 @@ class Options
      * @param $table_prefix
      * @param $options
      */
-    public static function install_options($options, $table_prefix)
+    public static function installOptions($options, $table_prefix)
     {
         if (is_array($options)) {
             foreach ($options as $option) {

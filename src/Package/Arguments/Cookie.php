@@ -44,7 +44,7 @@ class Cookie
      * @param bool $hash_test_cookie
      * @return array
      */
-    public static function set_cookie_prefix($cookie_prefix, $site_url, $hash_test_cookie = true)
+    public static function setCookiePrefix($cookie_prefix, $site_url, $hash_test_cookie = true)
     {
         // Default constant
         $list = self::getDefaultCookieConstant();
@@ -125,7 +125,7 @@ class Cookie
         }
 
         // Update Cookie
-        $cookie_run = self::set_cookie_prefix($cookie_prefix, Core::get_site_url());
+        $cookie_run = self::setCookiePrefix($cookie_prefix, Core::getSiteUrl());
 
         // Add Update Log
         if ($cookie_run) {

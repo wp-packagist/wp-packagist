@@ -3,7 +3,7 @@
 namespace WP_CLI_PACKAGIST\Package;
 
 /**
- * WordPress Package System.
+ * WordPress Package Management
  *
  * @author  Mehrshad Darzi <mehrshad198@gmail.com>
  * @since   1.0.0

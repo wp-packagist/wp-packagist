@@ -357,7 +357,7 @@ class Mysql
         //install WordPress
         Package_Install::install_log($step, $all_step, Package::_e('package', ($network === false ? "install_wp" : "install_wp_network")));
         \WP_CLI_Helper::pl_wait_start();
-        Core::install_wordpress($pkg_array, $network);
+        Core::installWordPress($pkg_array, $network);
         \WP_CLI_Helper::pl_wait_end();
         $step++;
 
@@ -400,7 +400,7 @@ class Mysql
         //Check install Sites in Network
         if ($network === true and isset($pkg_array['core']['network']['sites']) and count($pkg_array['core']['network']['sites']) > 0) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "add_sites_network"));
-            Core::install_network_sites($pkg_array['core']['network']['sites']);
+            Core::installNetworkSites($pkg_array['core']['network']['sites']);
             $step++;
         }
 
@@ -414,7 +414,7 @@ class Mysql
         //Update WordPress Option
         if (isset($pkg_array['config']['options']) and count($pkg_array['config']['options']) > 0) {
             Package_Install::install_log($step, $all_step, Package::_e('package', "update_options"));
-            Options::install_options($pkg_array['config']['options'], $table_prefix);
+            Options::installOptions($pkg_array['config']['options'], $table_prefix);
             $step++;
         }
 

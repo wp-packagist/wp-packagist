@@ -278,7 +278,7 @@ class Dir
                 Package_Install::add_detail_log(Package::_e('package', 'update_dir_path', array("[dir]" => "wp-content", "[from]" => str_replace(ABSPATH, "", "/" . trim($from_path_log, "/")), "[to]" => str_replace(ABSPATH, "", "/" . trim($to_path_log, "/")))));
 
                 # Update Database Attachment Link
-                $site_url   = Core::get_site_url();
+                $site_url   = Core::getSiteUrl();
                 $before_url = rtrim(content_url(), "/") . "/";
                 $after_url  = rtrim($site_url, "/") . "/" . trim($dir['wp-content'], "/") . "/";
                 // If Uploads Folder is Changed We cancel this process and run into changed_uploads_folder method
@@ -816,7 +816,7 @@ class Dir
                 Package_Install::add_detail_log(Package::_e('package', 'update_dir_path', array("[dir]" => "uploads", "[from]" => str_replace(ABSPATH, "", "/" . trim($from_path_log, "/")), "[to]" => str_replace(ABSPATH, "", "/" . trim($to_path_log, "/")))));
 
                 # Update Database Attachment Link
-                $site_url             = Core::get_site_url();
+                $site_url             = Core::getSiteUrl();
                 $upload_dir           = wp_upload_dir(null, false);
                 $before_url           = rtrim($upload_dir['baseurl'], "/") . "/";
                 $content_dir          = (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']) . "/";
