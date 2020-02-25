@@ -336,7 +336,7 @@ class REST_API
                 //Check Disable Route
                 if (isset($args['disable'])) {
                     //Check disable All default
-                    if (is_string($args['disable']) and $args['disable'] == "default") {
+                    if (is_string($args['disable']) and $args['disable'] == "all") {
                         $content['complete_disable_rest'] = self::disable_all_route_for_anonymous_user();
                     }
 

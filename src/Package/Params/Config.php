@@ -974,8 +974,8 @@ class Config
                             if (array_key_exists('disable', $var)) {
                                 //Check If string
                                 if (is_string($var['disable'])) {
-                                    //Check if value === default
-                                    if ($var['disable'] != "default") {
+                                    //Check if value === all
+                                    if ($var['disable'] != "all") {
                                         $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "config: { rest-api: { disable: { ..")));
                                     }
                                     //Check If Array
