@@ -47,6 +47,7 @@
       "pack docs",
       "pack help",
       "pack edit",
+      "pack tools",
       "run",
       "run admin"
     ]
