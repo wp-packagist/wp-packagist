@@ -288,7 +288,7 @@ class Plugins
                             }
 
                             $cmd = "plugin update {$prompt}";
-                            \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+                            \WP_CLI_Helper::run_command($cmd, array('exit_error' => true));
 
                             //Add Log
                             if (isset($args['log']) and $args['log'] === true) {
@@ -311,7 +311,7 @@ class Plugins
                         self::runUninstallPlugin($pkg_plugins[$key_in_pkg]['slug']);
 
                         // Install New Plugin
-                        sleep(2); // Wait For Remove Before Dir if Exist
+                        sleep(2);
                         self::runInstallPlugin($plugins_path, $pkg_plugins[$key_in_pkg]);
 
                         //Add Log

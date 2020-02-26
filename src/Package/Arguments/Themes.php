@@ -291,12 +291,12 @@ class Themes
                         self::runDeleteTheme($stylesheet);
 
                         // Second Download New Theme file
-                        sleep(2); //Wait For Remove Before Dir if Exist
+                        sleep(2);
                         self::runInstallTheme($theme_root, $stylesheet, ($is_pkg_url === false ? $this_version : $version_in_pkg));
 
                         // Third Activate if in WordPress
                         if ($Current_theme == $stylesheet) {
-                            sleep(3); //Wait For Downloaded Complete
+                            sleep(3);
                             $cmd = "theme activate  {$stylesheet}";
                             \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
                         }

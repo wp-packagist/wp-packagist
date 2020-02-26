@@ -134,11 +134,52 @@ class Dir
         // Run Update
         self::updateDir(array('wp-content', 'plugins', 'themes', 'uploads'), $pkg_dir, $pkg, 'update', $tmp_dir);
 
+        // Sort Constant in the wp-config.php
+        self::sortConstantDir();
+
         // Regenerate Htaccess for Multi-site
         if (function_exists('is_multisite') and is_multisite() === true) {
             Permalink::run_permalink_file();
             Security::remove_security_file();
             Security::wordpress_package_security_plugin($pkg);
+        }
+    }
+
+    /**
+     * Sort Constant in the wp-config by Dirs
+     *
+     * @see https://github.com/wp-cli/wp-config-transformer
+     */
+    public static function sortConstantDir()
+    {
+        $list   = array(
+            'WP_HOME',
+            'WP_SITEURL',
+            'WP_CONTENT_FOLDER',
+            'WP_CONTENT_DIR',
+            'WP_CONTENT_URL',
+            'WP_PLUGIN_DIR',
+            'PLUGINDIR',
+            'WP_PLUGIN_URL',
+            'UPLOADS'
+        );
+        $values = array();
+
+        // Get Value and Remove First
+        $wp_config = Config::get_config_transformer();
+        foreach ($list as $key) {
+            $values[$key] = null;
+            if ($wp_config->exists('constant', $key)) {
+                $values[$key] = $wp_config->get_value('constant', $key);
+                $wp_config->remove('constant', $key);
+            }
+        }
+
+        // Insert
+        foreach ($values as $constant => $value) {
+            if ( ! is_null($value)) {
+                $wp_config->update('constant', $constant, $value, array('raw' => true, 'normalize' => true));
+            }
         }
     }
 
@@ -237,7 +278,7 @@ class Dir
 
                 // First Remove Constant
                 // We Dont Remove Because Plugins or Uploads Used this Constant
-                if ( ! is_null($dir['plugins']) || ! is_null($dir['uploads'])) {
+                if ( ! is_null($dir['plugins']) || ( ! is_null($dir['uploads']) and ! is_null($dir['wp-content']) and ltrim($dir['wp-content'], "/") != "wp-content")) {
                     self::updateWPContentConstant($wp_config, 'wp-content');
                 }
 
