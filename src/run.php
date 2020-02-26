@@ -92,13 +92,14 @@ use \WP_CLI_PACKAGIST\Package\Arguments\Users;
 
         // Open in Browser
         \WP_CLI_Helper::pl_wait_end();
+        \WP_CLI_Helper::log("Open URL in the browser: " . WP_CLI_Helper::color($set_current_user['link'], "Y"));
         \WP_CLI_Helper::Browser($set_current_user['link']);
         return;
     }
 
     // Open Custom WordPress Url
-    $home = rtrim( get_option( "home" ), "/" );
-    $url = trim( $args[0] );
-    \WP_CLI_Helper::Browser( $home . "/" . ltrim( $url, "/" ) );
+    $home = rtrim(get_option("home"), "/");
+    $url  = trim($args[0]);
+    \WP_CLI_Helper::Browser($home . "/" . ltrim($url, "/"));
     return;
 });

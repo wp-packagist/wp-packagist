@@ -252,7 +252,7 @@ class Themes
                     //Get Current Version
                     $this_version = '';
                     if ( ! $is_pkg_url) {
-                        $this_version = ($version_in_pkg == "latest" ? $themes_api->get_last_version_theme($stylesheet) : $version_in_pkg); //Check if last version
+                        $this_version = ($version_in_pkg == "latest" ? $themes_api->get_last_version_theme($stylesheet, true) : $version_in_pkg); //Check if last version
                     }
 
                     // Get Current Version this theme in WordPress
@@ -296,7 +296,7 @@ class Themes
 
                         // Third Activate if in WordPress
                         if ($Current_theme == $stylesheet) {
-                            sleep(1); //Wait For Downloaded Complete
+                            sleep(3); //Wait For Downloaded Complete
                             $cmd = "theme activate  {$stylesheet}";
                             \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
                         }
@@ -347,12 +347,12 @@ class Themes
 
         //Run Command
         $cmd = "theme install {$prompt} --force";
-        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+        \WP_CLI_Helper::run_command($cmd, array('exit_error' => true));
 
         //Sanitize Folder Theme
         if ($from_url === true and ! empty($theme_root)) {
             // Wait For Downloaded
-            sleep(2);
+            sleep(3);
 
             //Get Last Dir
             $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($theme_root, "DESC");

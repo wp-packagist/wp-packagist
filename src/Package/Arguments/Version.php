@@ -274,10 +274,13 @@ class Version
 
     /**
      * Get Last Version of WordPress
+     *
+     * @param bool $force
+     * @return int|string
      */
-    public static function get_latest_version_num_wordpress()
+    public static function get_latest_version_num_wordpress($force = false)
     {
-        $version_list = self::get_wordpress_version();
+        $version_list = self::get_wordpress_version(false, $force);
         $latest       = 'latest';
         if ($version_list['status']) {
             foreach ($version_list['data'] as $version => $status) {
@@ -301,7 +304,7 @@ class Version
         $tmp = Package_Temporary::getTemporaryFile();
 
         // Get Latest Version of WordPress
-        $latest_wp_version = self::get_latest_version_num_wordpress();
+        $latest_wp_version = self::get_latest_version_num_wordpress(true);
 
         // Check Tmp Version
         $tmp_version = (isset($tmp['core']['version']) ? $tmp['core']['version'] : get_bloginfo('version'));

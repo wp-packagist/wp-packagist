@@ -172,12 +172,13 @@ class WP_Themes_Api
      * Get Last Version of theme
      *
      * @param $slug
+     * @param bool $force_update
      * @return array
      */
-    public function get_last_version_theme($slug)
+    public function get_last_version_theme($slug, $force_update = false)
     {
         //Get Theme Data
-        $data = $this->get_theme_data($slug);
+        $data = $this->get_theme_data($slug, $force_update);
         if ($data['status'] === false) {
             return $data;
         } else {

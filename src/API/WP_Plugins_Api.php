@@ -162,12 +162,13 @@ class WP_Plugins_Api
      * Get Last Version of plugin
      *
      * @param $slug
+     * @param bool $force_update
      * @return array
      */
-    public function get_last_version_plugin($slug)
+    public function get_last_version_plugin($slug, $force_update = false)
     {
         //Get Plugin Data
-        $data = $this->get_plugin_data($slug);
+        $data = $this->get_plugin_data($slug, $force_update);
         if ($data['status'] === false) {
             return $data;
         } else {

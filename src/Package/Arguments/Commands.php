@@ -58,12 +58,12 @@ class Commands
     public static function show_command_log($cmd)
     {
         $exp = explode(" ", $cmd);
-        if (count($exp) <= 6) {
+        if (count($exp) <= 4) {
             return $cmd;
         } else {
             $t = "";
-            for ($i = 0; $i <= 6; $i++) {
-                $t = $exp[$i] . " ";
+            for ($i = 0; $i <= 4; $i++) {
+                $t .= $exp[$i] . " ";
             }
             return $t . " ..";
         }

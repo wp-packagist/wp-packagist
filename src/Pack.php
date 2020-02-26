@@ -386,16 +386,25 @@ class Pack extends \WP_CLI_Command
             \WP_CLI_Helper::error("Permission denied.The '$dir' path not writable.", true);
         }
 
+        // Sanitize $extension
+        $extensions = array_filter(explode(",", $extension));
+        $ext_list   = array();
+        foreach ($extensions as $ext) {
+            $ext_list[] = ltrim($ext, ".");
+        }
+        if (empty($ext_list)) {
+            \WP_CLI_Helper::error("Please fill a valid extension file.", true);
+        }
+
         // Get All List File From custom Extensions
         $list_files        = \WP_CLI_FileSystem::get_dir_contents($dir, true);
         $file_lists_in_ext = array();
-        $extension         = ltrim($extension, ".");
         foreach ($list_files as $f) {
             if (is_dir($f)) {
                 continue;
             }
             $file_ext = pathinfo($f, PATHINFO_EXTENSION);
-            if ($file_ext != $extension) {
+            if ( ! in_array($file_ext, $ext_list)) {
                 continue;
             }
             if ( ! @is_writable($f)) {

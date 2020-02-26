@@ -244,7 +244,7 @@ class Plugins
                 //Add Log
                 if (isset($args['log']) and $args['log'] === true) {
                     \WP_CLI_Helper::pl_wait_end();
-                    Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Added", "[slug]" => $plugin['slug'] . ((isset($plugin['version']) and \WP_CLI_Util::is_semver_version($plugin['version']) === true) ? ' ' . \WP_CLI_Helper::color("v" . $plugin['version'], "P") : ''), "[type]" => "plugin", "[more]" => ($plugin['activate'] === true ? \WP_CLI_Helper::color(" [activate]", "B") : ""))));
+                    Package_Install::add_detail_log(Package::_e('package', 'manage_item', array("[work]" => "Added", "[slug]" => $plugin['slug'] . ((isset($plugin['version']) and \WP_CLI_Util::is_semver_version($plugin['version']) === true) ? ' ' . \WP_CLI_Helper::color("v" . $plugin['version'], "P") : ''), "[type]" => "plugin", "[more]" => ($plugin['activate'] === true ? \WP_CLI_Helper::color(" [activate]", "G") : ""))));
                     \WP_CLI_Helper::pl_wait_start();
                 }
             } else {
@@ -269,7 +269,7 @@ class Plugins
                         //Get Last Version Plugin From WordPress Directory
                         $version = $pkg_plugins[$key_in_pkg]['version'];
                         if ($version == "latest") {
-                            $version = $plugins_api->get_last_version_plugin($pkg_plugins[$key_in_pkg]['slug']);
+                            $version = $plugins_api->get_last_version_plugin($pkg_plugins[$key_in_pkg]['slug'], true);
                         }
 
                         // Get Current Version this theme in WordPress
@@ -397,12 +397,12 @@ class Plugins
 
         //Run Command
         $cmd = "plugin install {$prompt} --force";
-        \WP_CLI_Helper::run_command($cmd, array('exit_error' => false));
+        \WP_CLI_Helper::run_command($cmd, array('exit_error' => true));
 
         //Sanitize Folder Plugins
         if (isset($plugin['url']) and ! empty($plugins_path)) {
             // Wait For Complete Downloaded dir
-            sleep(1);
+            sleep(3);
 
             //Get Last Dir
             $last_dir = \WP_CLI_FileSystem::sort_dir_by_date($plugins_path, "DESC");

@@ -214,7 +214,7 @@ class Dir
 
         // Check Added Constant For Plugins Or Uploads in install
         $constants_list = array('WP_CONTENT_FOLDER', 'WP_CONTENT_DIR', 'WP_CONTENT_URL', 'WP_HOME', 'WP_SITEURL');
-        if ( ! is_null($dir['plugins']) || ! is_null($dir['uploads']) || ! is_null($dir['wp-content'])) {
+        if ( ! is_null($dir['plugins']) || ( ! is_null($dir['uploads']) and ! is_null($dir['wp-content']) and ltrim($dir['wp-content'], "/") != "wp-content") || ( ! is_null($dir['wp-content']) and ltrim($dir['wp-content'], "/") != "wp-content")) {
             self::updateWPContentConstant($wp_config, (is_null($dir['wp-content']) ? 'wp-content' : $dir['wp-content']));
         } else {
             foreach ($constants_list as $const) {
@@ -850,7 +850,7 @@ class Dir
         if ($first_character == "/") {
             $constant_path = "''.'" . trim($dirName, "/") . "'";
         } else {
-            if ( ! is_null($wp_content)) {
+            if ( ! is_null($wp_content) and ltrim($wp_content, "/") != "wp-content") {
                 $constant_path = "WP_CONTENT_FOLDER . '/" . trim($dirName, "/") . "'";
             } else {
                 $constant_path = "'wp-content/" . trim($dirName, "/") . "'";

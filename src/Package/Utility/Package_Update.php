@@ -54,7 +54,7 @@ class Package_Update extends Package
         if (defined('WP_CLI_PACKAGIST_UPDATE_LOG')) {
             \WP_CLI_Helper::success(Package::_e('package', 'success_update') . ' ' . Package::_e('config', 'process_time', array("[time]" => \WP_CLI_Helper::process_time($start_time))));
         } else {
-            \WP_CLI_Helper::log(Package::_e('package', 'not_change_pkg'));
+            \WP_CLI_Helper::success(Package::_e('package', 'not_change_pkg'));
         }
     }
 
