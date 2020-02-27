@@ -48,7 +48,7 @@ class Package
         /**
          * Create Packagist and Check Writable by Current User
          */
-        $this->writable_package_dir();
+        $this->init();
     }
 
     /**
@@ -225,21 +225,20 @@ class Package
     }
 
     /**
-     * Check Writable Package Dir
+     * Check Writable and Make Package Dir
+     *
      * @throws \WP_CLI\ExitException
      */
-    public function writable_package_dir()
+    public function init()
     {
-        // Check WP-CLI dir is Writable
+        // Get WP-CLI Home dir
         $wp_cli_dir  = \WP_CLI_Helper::get_home_path();
-        $is_writable = \WP_CLI_FileSystem::is_writable($wp_cli_dir);
-        if ($is_writable['status'] === false) {
-            \WP_CLI_Helper::error(Package::_e('package', 'not_per_create_dir_in', array("[key]" => $wp_cli_dir)), true);
-        }
 
-        // Create Packagist and Pack Folder
+        // Get dirs in WP-CLI Cache
         $plugins_config = Package::get_config('wordpress_api', 'plugins');
         $themes_config  = Package::get_config('wordpress_api', 'themes');
+
+        // List of dirs
         $dir_list       = array(
             WP_CLI_PACKAGIST_HOME_PATH,
             WP_CLI_PACKAGIST_CACHE_PATH,
