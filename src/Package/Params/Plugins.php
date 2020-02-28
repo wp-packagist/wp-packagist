@@ -190,12 +190,14 @@ class Plugins
                         }
 
                         //Check Activate
-                        if (isset($plugin_v['activate']) and ! is_bool($plugin_v['activate'])) {
-                            $valid->add_error(Package::_e('package', 'er_plugin_activate', array("[slug]" => $plugin_slug)));
-                            break;
-                        } else {
-                            $activate = $plugin_v['activate'];
+                        if (isset($plugin_v['activate'])) {
+                            $plugin_v['activate'] = \WP_CLI_Util::is_boolean($plugin_v['activate']);
+                            if (is_null($plugin_v['activate'])) {
+                                $valid->add_error(Package::_e('package', 'er_plugin_activate', array("[slug]" => $plugin_slug)));
+                                break;
+                            }
                         }
+                        $activate = $plugin_v['activate'];
                     } else {
                         $valid->add_error(Package::_e('package', 'er_valid', array("[key]" => "plugins: { '" . $plugin_slug . "' ..")));
                         break;

@@ -149,7 +149,7 @@ class Package_Update extends Package
         $var = Package::get_config('package', 'auto_update');
         try {
             $get = \WP_CLI_CONFIG::get('auto_update');
-            $get = filter_var($get, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $get = \WP_CLI_Util::is_boolean($get);
             if ( ! is_null($get)) {
                 $var = $get;
             }

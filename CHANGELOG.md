@@ -1,6 +1,10 @@
 # Changelog
 
-## v1.2.0
+## v1.0.3
+### Fixed
+- Fixed Boolean validate for `activate` parameter in plugins
+
+## v1.0.2
 ### Added
 - Add `WP pack update` command and support `core`, `config`, `mysql`, `dir`, `plugins` , `themes`
 - Add `xml-rpc` and `emoji` to config parameter

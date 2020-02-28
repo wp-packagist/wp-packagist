@@ -382,7 +382,7 @@ return array(
             'success_install'       => 'Completed install WordPress.',
             'success_update'        => 'Updated WordPress.',
             'network_domain_local'  => "Multi-site with subdomains cannot be configured when domain is '" . \WP_CLI_Helper::color("[url]", "Y") . "'.",
-            'get_wp'                => "[run] WordPress Core " . \WP_CLI_Helper::color("([version])", "B") . ".",
+            'get_wp'                => "[run] WordPress Core " . \WP_CLI_Helper::color("([version])", "G") . ".",
             'create_config'         => "Create wp-config.php file.",
             'salt_generate'         => "Generate WordPress salt keys.",
             'added_db_const'        => "Added MySQL constants.",

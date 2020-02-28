@@ -1169,7 +1169,7 @@ class Config
         $valid = new \WP_CLI_ERROR();
 
         //Check is Boolean
-        $var = filter_var($var, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $var = \WP_CLI_Util::is_boolean($var);
         if (is_null($var)) {
             $valid->add_error(Package::_e('package', 'is_boolean', array("[key]" => "config: { xml-rpc: ..")));
         } else {
@@ -1193,7 +1193,7 @@ class Config
         $valid = new \WP_CLI_ERROR();
 
         //Check is Boolean
-        $var = filter_var($var, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $var = \WP_CLI_Util::is_boolean($var);
         if (is_null($var)) {
             $valid->add_error(Package::_e('package', 'is_boolean', array("[key]" => "config: { emoji: ..")));
         } else {
