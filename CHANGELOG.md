@@ -1,6 +1,13 @@
 # Changelog
 
 ## v1.0.3
+### Added
+- Support PHP V8.0
+### Fixed
+- Auto Login and Compatible With WooCommerce
+- Check Writable WordPress.Json file
+
+## v1.0.3
 ### Fixed
 - Fixed Boolean validate for `activate` parameter in plugins
 
