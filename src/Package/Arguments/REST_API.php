@@ -82,7 +82,7 @@ class REST_API
     public static function change_rest_api_prefix($prefix)
     {
         $t = "# Change WordPress Rest API Prefix\n";
-        $t .= 'add_filter( \'rest_url_prefix\', function ($slug) { return \'' . $prefix . '\'; });' . "\n";
+        $t .= 'add_filter( \'rest_url_prefix\', function ($slug) { return \'' . $prefix . '\'; }, 999);' . "\n";
         return $t;
     }
 
@@ -98,7 +98,7 @@ class REST_API
          * add_filter( 'rest_authentication_errors', function( $access ){ return new WP_Error( 'rest_cannot_access', 'Bye', array( 'status' => 403 ) ); } );
          */
         $t = "# Disable all WordPress REST API Routes" . "\n";
-        $t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); });' . "\n";
+        $t .= 'add_filter( \'rest_endpoints\', function ( $endpoints ) { return $endpoints = array(); }, 999);' . "\n";
         return $t;
     }
 
@@ -125,7 +125,7 @@ class REST_API
     public static function remove_rest_api_link_from_header($array)
     {
         $t = "# Remove REST API from header request" . "\n";
-        $t .= 'add_filter( \'rest_post_dispatch\', \'wp_cli_remove_link_header_wp_json\', 10, 3 );' . "\n";
+        $t .= 'add_filter( \'rest_post_dispatch\', \'wp_cli_remove_link_header_wp_json\', 99, 3 );' . "\n";
         $t .= 'function wp_cli_remove_link_header_wp_json( $result, $params, $request ) {' . "\n";
         foreach ($array as $header) {
             $t .= '     $params->remove_header( \'' . $header . '\' );' . "\n";
