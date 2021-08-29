@@ -38,7 +38,6 @@ function wp_cli_auto_login() {
 							if ( $user ) {
 								wp_set_current_user( $user_id, $user->user_login );
 								wp_set_auth_cookie( $user_id );
-								do_action( 'wp_login', $user->user_login );
 							}
 
 						}
