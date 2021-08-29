@@ -1355,7 +1355,7 @@ class Config
         Package_Install::add_detail_log(Package::_e('package', 'added_db_const'));
 
         //Check Extra Constant
-        if (isset($pkg_array['config']['constant']) and count($pkg_array['config']['constant']) > 0) {
+        if (isset($pkg_array['config']['constant']) and is_array($pkg_array['config']['constant'])) {
             Config_Arg::add_wordpress_package_anchor();
             Config_Arg::update_constant($pkg_array['config']['constant'], $current_const_list = array(), $options = array('remove' => false));
         }

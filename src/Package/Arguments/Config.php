@@ -249,15 +249,15 @@ class Config
         // Get Current From Tmp
         $tmp_constant = (isset($tmp['config']['constant']) ? $tmp['config']['constant'] : self::get_list_package_constant());
 
-        // If Not any change
-        if ($tmp_constant == $pkg_constant) {
-            return;
-        }
-
         // Add Anchor if Not Exit
         $anchor_line = self::get_line_of_package_anchor();
         if (empty($anchor_line)) {
             self::add_wordpress_package_anchor();
+        }
+
+        // If Not any change
+        if ($tmp_constant == $pkg_constant) {
+            return;
         }
 
         // Update Constant
