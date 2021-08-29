@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.3
+## v1.0.4
 ### Added
 - Support PHP V8.0
 ### Fixed
