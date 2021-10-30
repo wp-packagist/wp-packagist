@@ -141,7 +141,7 @@ class Users
         foreach (array('display_name', 'role', 'first_name', 'last_name') as $key) {
             $extra .= (isset($user[$key]) ? ', \'' . $key . '\' => \'' . $user[$key] . '\'' : '');
         }
-        $command = 'eval "$user_data = array( \'user_login\' => \'' . (isset($user['user_login']) ? $user['user_login'] : '') . '\', \'user_email\' => \'' . (isset($user['user_email']) ? $user['user_email'] : '') . '\', \'user_pass\'  => \'' . (isset($user['user_pass']) ? $user['user_pass'] : '') . '\'' . $extra . ' ); $user_id = wp_insert_user( $user_data ); echo $user_id;"';
+        $command = 'eval "echo wp_insert_user( array( \'user_login\' => \'' . (isset($user['user_login']) ? $user['user_login'] : '') . '\', \'user_email\' => \'' . (isset($user['user_email']) ? $user['user_email'] : '') . '\', \'user_pass\'  => \'' . (isset($user['user_pass']) ? $user['user_pass'] : '') . '\'' . $extra . ' ) );"';
 
         //Run Command
         $user_id = \WP_CLI::runcommand($command, array('return' => 'stdout', 'parse' => 'json'));
