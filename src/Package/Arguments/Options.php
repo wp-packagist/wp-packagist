@@ -36,7 +36,7 @@ class Options
         }
 
         //Run Command For Install WordPress Package Process
-        $return = \WP_CLI::runcommand('eval "if(get_option(\'' . self::sanitize_option_name($option_name) . '\') ===false) { echo 0; } else { echo 1; }"', array('return' => 'stdout', 'parse' => 'json'));
+        $return = \WP_CLI::runcommand('eval "echo (get_option(\'' . self::sanitize_option_name($option_name) . '\') ===false ? 0 : 1);"', array('return' => 'stdout', 'parse' => 'json'));
         if ($return == "1") {
             return true;
         }
@@ -63,13 +63,14 @@ class Options
         //Check Exist Option
         $exist = self::exist_option_name($option_name);
 
-        //We don't Use [wp option add] Command Because we want Force Push to database
-        if ($exist === true) {
-            \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'options` SET `option_value` = \'' . $option_value . '\',`autoload` = \'' . $autoload . '\' WHERE `option_name` = \'' . $option_name . '\';', array('exit_error' => false));
-        } else {
-            \WP_CLI_Helper::wpdb_query('INSERT INTO `' . $table_prefix . 'options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (NULL, \'' . $option_name . '\', \'' . $option_value . '\', \'' . $autoload . '\');', array('exit_error' => false));
-        }
+        #We don't Use [wp option add] Command Because we want Force Push to database
+        #if ($exist === true) {
+        #    \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'options` SET `option_value` = \'' . $option_value . '\',`autoload` = \'' . $autoload . '\' WHERE `option_name` = \'' . $option_name . '\';', array('exit_error' => false));
+        #} else {
+        #    \WP_CLI_Helper::wpdb_query('INSERT INTO `' . $table_prefix . 'options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (NULL, \'' . $option_name . '\', \'' . $option_value . '\', \'' . $autoload . '\');', array('exit_error' => false));
+        #}
 
+        $return = \WP_CLI::runcommand("option update $option_name '".$option_value."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
         return $exist;
     }
 
