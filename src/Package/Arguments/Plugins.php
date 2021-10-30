@@ -17,7 +17,7 @@ class Plugins
      */
     public static function evalGetPluginsPath()
     {
-        return \WP_CLI::runcommand('eval "if(defined(\'WP_PLUGIN_DIR\')) { echo WP_PLUGIN_DIR; } else { echo \'\'; }"', array('return' => 'stdout'));
+        return \WP_CLI::runcommand('eval "echo (defined(\'WP_PLUGIN_DIR\') ===true ? WP_PLUGIN_DIR : \'\' );"', array('return' => 'stdout'));
     }
 
     /**

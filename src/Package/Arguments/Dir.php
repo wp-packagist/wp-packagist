@@ -54,7 +54,7 @@ class Dir
      */
     public static function eval_get_mu_plugins_path()
     {
-        return \WP_CLI::runcommand('eval "if(defined(\'WPMU_PLUGIN_DIR\')) { echo WPMU_PLUGIN_DIR; } else { echo \'\'; }"', array('return' => 'stdout'));
+        return \WP_CLI::runcommand('eval "echo (defined(\'WPMU_PLUGIN_DIR\') ===true ? WPMU_PLUGIN_DIR : \'\');"', array('return' => 'stdout'));
     }
 
     /**
