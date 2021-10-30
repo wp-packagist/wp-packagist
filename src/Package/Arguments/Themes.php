@@ -25,7 +25,7 @@ class Themes
      */
     public static function evalGetThemesList()
     {
-        return \WP_CLI::runcommand('eval "$list = array(); foreach(wp_get_themes() as $stylesheet => $v) { $list[] = $stylesheet; } echo json_encode($list);"', array('return' => 'stdout', 'parse' => 'json'));
+        return \WP_CLI::runcommand('eval "echo json_encode(array_keys(wp_get_themes()));"', array('return' => 'stdout', 'parse' => 'json'));
     }
 
     /**
