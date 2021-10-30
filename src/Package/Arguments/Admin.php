@@ -15,7 +15,7 @@ class Admin
      */
     public static function get_admin_id()
     {
-        return 1; 
+        return 1;
     }
 
     /**
@@ -27,18 +27,25 @@ class Admin
     public static function install_admin($pkg_array)
     {
         $table_prefix = (isset($pkg_array['mysql']['table_prefix']) ? $pkg_array['mysql']['table_prefix'] : "wp_");
-        
 
         //Change display_name for Admin User if Exist
         if (isset($pkg_array['config']['admin']['display_name'])) {
-           $return = \WP_CLI::runcommand("user update 1 --display_name='".$pkg_array['config']['admin']['display_name']."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
-           Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => "display_name")));
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'users` SET `display_name` = \'' . $pkg_array['config']['admin']['display_name'] . '\' WHERE `ID` = 1;');
+            } else {
+                $return = \WP_CLI::runcommand("user update 1 --display_name='" . $pkg_array['config']['admin']['display_name'] . "'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+            }
+            Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => "display_name")));
         }
 
         //Check First name Or Last name for Admin User if Exist
         foreach (array('first_name', 'last_name') as $admin_key) {
             if (isset($pkg_array['config']['admin'][$admin_key])) {
-                $return = \WP_CLI::runcommand("user update 1 --" . $admin_key . "='".$pkg_array['config']['admin'][$admin_key]."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'usermeta` SET `meta_value` = \'' . $pkg_array['config']['admin'][$admin_key] . '\' WHERE `user_id` = 1 AND `meta_key` = \'' . $admin_key . '\';');
+                } else {
+                    $return = \WP_CLI::runcommand("user update 1 --" . $admin_key . "='" . $pkg_array['config']['admin'][$admin_key] . "'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+                }
                 Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => $admin_key)));
             }
         }

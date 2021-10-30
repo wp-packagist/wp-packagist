@@ -64,13 +64,16 @@ class Options
         $exist = self::exist_option_name($option_name);
 
         #We don't Use [wp option add] Command Because we want Force Push to database
-        #if ($exist === true) {
-        #    \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'options` SET `option_value` = \'' . $option_value . '\',`autoload` = \'' . $autoload . '\' WHERE `option_name` = \'' . $option_name . '\';', array('exit_error' => false));
-        #} else {
-        #    \WP_CLI_Helper::wpdb_query('INSERT INTO `' . $table_prefix . 'options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (NULL, \'' . $option_name . '\', \'' . $option_value . '\', \'' . $autoload . '\');', array('exit_error' => false));
-        #}
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            if ($exist === true) {
+                \WP_CLI_Helper::wpdb_query('UPDATE `' . $table_prefix . 'options` SET `option_value` = \'' . $option_value . '\',`autoload` = \'' . $autoload . '\' WHERE `option_name` = \'' . $option_name . '\';', array('exit_error' => false));
+            } else {
+                \WP_CLI_Helper::wpdb_query('INSERT INTO `' . $table_prefix . 'options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (NULL, \'' . $option_name . '\', \'' . $option_value . '\', \'' . $autoload . '\');', array('exit_error' => false));
+            }
+        } else {
+            $return = \WP_CLI::runcommand("option update $option_name '" . $option_value . "'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+        }
 
-        $return = \WP_CLI::runcommand("option update $option_name '".$option_value."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
         return $exist;
     }
 
