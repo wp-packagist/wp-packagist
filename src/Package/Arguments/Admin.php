@@ -15,11 +15,7 @@ class Admin
      */
     public static function get_admin_id()
     {
-        $return = \WP_CLI::runcommand('eval "echo $GLOBALS[\'wpdb\']->get_var(\"SELECT `ID` FROM `"$wpdb->users"` ORDER BY `ID` ASC LIMIT 1\");"', array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
-        if (is_numeric($return) and $return > 0) {
-            return $return;
-        }
-        return 1; # Default Admin ID in WordPress
+        return 1; 
     }
 
     /**
@@ -31,17 +27,18 @@ class Admin
     public static function install_admin($pkg_array)
     {
         $table_prefix = (isset($pkg_array['mysql']['table_prefix']) ? $pkg_array['mysql']['table_prefix'] : "wp_");
+        
 
         //Change display_name for Admin User if Exist
         if (isset($pkg_array['config']['admin']['display_name'])) {
-           $return = \WP_CLI::runcommand('eval "echo $GLOBALS[\'wpdb\']->get_var(\"UPDATE `' . $table_prefix . 'users` SET `display_name` = \'' . $pkg_array['config']['admin']['display_name'] . '\' WHERE `ID` = 1\");"', array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+           $return = \WP_CLI::runcommand("user update 1 --display_name='".$pkg_array['config']['admin']['display_name']."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
            Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => "display_name")));
         }
 
         //Check First name Or Last name for Admin User if Exist
         foreach (array('first_name', 'last_name') as $admin_key) {
             if (isset($pkg_array['config']['admin'][$admin_key])) {
-                $return = \WP_CLI::runcommand('eval "echo $GLOBALS[\'wpdb\']->get_var(\"UPDATE `' . $table_prefix . 'usermeta` SET `meta_value` = \'' . $pkg_array['config']['admin'][$admin_key] . '\' WHERE `user_id` = 1 AND `meta_key` = \'' . $admin_key . '\'\");"', array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+                $return = \WP_CLI::runcommand("user update 1 --" . $admin_key . "='".$pkg_array['config']['admin'][$admin_key]."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
                 Package_Install::add_detail_log(Package::_e('package', 'change_admin', array("[key]" => $admin_key)));
             }
         }
