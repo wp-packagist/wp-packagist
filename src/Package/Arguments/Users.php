@@ -171,13 +171,13 @@ class Users
      */
     public static function exist_user_meta($user_id, $meta_name)
     {
-        $sql    = 'SELECT COUNT(*) FROM `"$wpdb->usermeta"` WHERE `user_id` = ' . $user_id . ' AND `meta_key` = \'' . self::sanitize_meta_name($meta_name) . '\'';
-        $return = \WP_CLI::runcommand('eval "global $wpdb; echo $wpdb->get_var(\"' . $sql . '\");"', array('return' => 'stdout', 'parse' => 'json'));
-        if ($return > 0) {
+        #$sql    = 'SELECT COUNT(*) FROM `"{$GLOBALS[\'wpdb\']->usermeta}"` WHERE `user_id` = ' . $user_id . ' AND `meta_key` = \'' . self::sanitize_meta_name($meta_name) . '\'';
+        #$return = \WP_CLI::runcommand('eval "echo $GLOBALS[\'wpdb\']->get_var(\"' . $sql . '\");"', array('return' => 'stdout', 'parse' => 'json'));
+        #if ($return > 0) {
             return true;
-        }
+        #}
 
-        return false;
+       # return false;
     }
 
     /**
@@ -198,14 +198,16 @@ class Users
 
         //Check Exist Option
         $exist = self::exist_user_meta($user_id, $meta_key);
+        
 
         //We don't Use [wp user meta] Command Because we want Force Push to database
-        if ($exist === true) {
-            \WP_CLI_Helper::wpdb_query('UPDATE `"$wpdb->usermeta"` SET `meta_value` = \'' . $meta_value . '\' WHERE `user_id` = ' . $user_id . ' AND `meta_key` = \'' . $meta_key . '\';', array('exit_error' => false));
-        } else {
-            \WP_CLI_Helper::wpdb_query('INSERT INTO `"$wpdb->usermeta"` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (NULL, \'' . $user_id . '\', \'' . $meta_key . '\', \'' . $meta_value . '\');', array('exit_error' => false));
-        }
-
+        #if ($exist === true) {
+        #   $return = \WP_CLI::runcommand('eval "echo $GLOBALS[\'wpdb\']->get_var(\"UPDATE `"{$GLOBALS[\'wpdb\']->usermeta}"` SET `meta_value` = \'' . $meta_value . '\' WHERE `user_id` = ' . $user_id . ' AND `meta_key` = \'' . $meta_key . '\'\");"', array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+        # } else {
+        #   $return = \WP_CLI::runcommand('eval "echo $GLOBALS[\'wpdb\']->get_var(\"INSERT INTO `"{$GLOBALS[\'wpdb\']->usermeta}"` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (NULL, \'' . $user_id . '\', \'' . $meta_key . '\', \'' . $meta_value . '\'\");"', array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
+        #}
+        
+        $return = \WP_CLI::runcommand("user meta update ".$user_id." $meta_key '".$meta_value."'", array('return' => 'stdout', 'parse' => 'json', 'exit_error' => false));
         return $exist;
     }
 
