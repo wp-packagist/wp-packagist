@@ -153,35 +153,38 @@ class Commands
                                 $type = 'wp-cli';
                             }
                         }
-
-                        //Check Command name is exist
-                        if (\WP_CLI_Helper::command_exists($command) === false) {
-                            //Get First Parameter
-                            $prompt = explode(" ", $command);
-                            $prompt = \WP_CLI_Util::remove_whitespace_word(trim($prompt[0]));
-                            $valid->add_error(Package::_e('package', 'er_register_cmd', array("[key]" => $prompt, "[where]" => "internal or external")));
-                            break;
-                        } else {
-                            //Check Exist wp-cli command
-                            if ($command_type == "wp-cli") {
-                                $get_command = \WP_CLI_Helper::exist_wp_cli_command($command);
-                                if ($get_command['status'] === false) {
-                                    $valid->add_error(Package::_e('package', 'er_register_cmd', array("[key]" => \WP_CLI_Util::substr($command, 30) . " ..", "[where]" => "WP-CLI")));
-                                    break;
-                                } else {
-                                    //Check forbidden command
-                                    $sub_command = explode(" ", $get_command['cmd']);
-                                    foreach (Package::get_config('package', 'forbidden_wp_cli_command') as $wp_cli) {
-                                        if (\WP_CLI_Util::to_lower_string($sub_command[0]) == $wp_cli) {
-                                            $valid->add_error(Package::_e('package', 'er_forbidden_cmd', array("[key]" => $sub_command[0])));
-                                            break;
-                                        }
-                                    }
-
-                                    //set sanitize command
-                                    $sanitize_command = $get_command['cmd'];
-                                }
+                        
+                        //Check Exist wp-cli command
+                        if ($command_type == "wp-cli") {
+                            $get_command = \WP_CLI_Helper::exist_wp_cli_command($command);
+                           
+                            if ($get_command['status'] === false) {
+                                $valid->add_error(Package::_e('package', 'er_register_cmd', array("[key]" => \WP_CLI_Util::substr($command, 30) . " ..", "[where]" => "WP-CLI")));
+                                break;
                             } else {
+                                //Check forbidden command
+                                $sub_command = explode(" ", $get_command['cmd']);
+                                foreach (Package::get_config('package', 'forbidden_wp_cli_command') as $wp_cli) {
+                                    if (\WP_CLI_Util::to_lower_string($sub_command[0]) == $wp_cli) {
+                                        $valid->add_error(Package::_e('package', 'er_forbidden_cmd', array("[key]" => $sub_command[0])));
+                                        break;
+                                    }
+                                }
+
+                                //set sanitize command
+                                $sanitize_command = $get_command['cmd'];
+                            }
+                        } else {
+                            
+                            //Check Command name is exist
+                            if (\WP_CLI_Helper::command_exists($command) === false) {
+                                //Get First Parameter
+                                $prompt = explode(" ", $command);
+                                $prompt = \WP_CLI_Util::remove_whitespace_word(trim($prompt[0]));
+                                $valid->add_error(Package::_e('package', 'er_register_cmd', array("[key]" => $prompt, "[where]" => "internal or external")));
+                                break;
+                            } else {
+                                
                                 //Sanitize Command
                                 $sanitize_command = trim(\WP_CLI_Util::remove_whitespace_word($command));
                             }
